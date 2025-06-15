@@ -53,8 +53,11 @@ namespace TestMod.Content.Tiles
         {
             Player player = Main.LocalPlayer;
             
-            // Open the modifier UI
-            Content.UI.ModifierStationUI.OpenUI();
+            // Calculate world position of the station for distance tracking
+            Vector2 stationWorldPosition = new Vector2(i * 16 + 24, j * 16 + 16); // Center of the 3x2 tile
+            
+            // Open the modifier UI with station position
+            Content.UI.ModifierStationUI.OpenUIAtStation(stationWorldPosition);
             Main.NewText("Modifier Station opened!", Color.Green);
             
             return true;

@@ -14,8 +14,14 @@ namespace TestMod.Content.UI
     public class ModifierStationUI : UIState
     {
         public static bool Visible { get; set; }
+        public static Vector2 StationPosition { get; set; } // Store station world position
+        
         private UIPanel mainPanel;
         private UIText titleText;
+        
+        // Drag functionality
+        private bool isDragging;
+        private Vector2 dragOffset;
         
         // Item arrays for slots
         private Item[] weaponItems = new Item[1];
@@ -32,9 +38,13 @@ namespace TestMod.Content.UI
         private UIItemSlot rateOfFireSlot;
         
         // Buttons
-        private UITextPanel<string> installButton;
-        private UITextPanel<string> removeButton;
-        private UITextPanel<string> closeButton;
+        private UITextPanel<string> xCloseButton; // New X button
+        
+        // Track previous weapon state and slot states for auto-install/remove
+        private Item previousWeapon = new Item();
+        private Item[] previousShotType = new Item[1] { new Item() };
+        private Item[] previousDamageType = new Item[1] { new Item() };
+        private Item[] previousRateOfFire = new Item[1] { new Item() };
         
         public override void OnInitialize()
         {
@@ -56,6 +66,11 @@ namespace TestMod.Content.UI
             mainPanel.Width.Set(400, 0f);
             mainPanel.Height.Set(300, 0f);
             mainPanel.BackgroundColor = new Color(73, 94, 171);
+            
+            // Add drag functionality to main panel
+            mainPanel.OnLeftMouseDown += StartDragging;
+            mainPanel.OnLeftMouseUp += StopDragging;
+            
             Append(mainPanel);
             
             // Title
@@ -63,6 +78,16 @@ namespace TestMod.Content.UI
             titleText.Left.Set(10, 0f);
             titleText.Top.Set(10, 0f);
             mainPanel.Append(titleText);
+            
+            // X Close button (top right)
+            xCloseButton = new UITextPanel<string>("X");
+            xCloseButton.Left.Set(365, 0f);
+            xCloseButton.Top.Set(5, 0f);
+            xCloseButton.Width.Set(30, 0f);
+            xCloseButton.Height.Set(25, 0f);
+            xCloseButton.BackgroundColor = new Color(180, 40, 40);
+            xCloseButton.OnLeftClick += CloseUI;
+            mainPanel.Append(xCloseButton);
             
             // Weapon slot
             weaponSlot = new UIItemSlot(weaponItems, 0, ItemSlot.Context.BankItem);
@@ -118,138 +143,219 @@ namespace TestMod.Content.UI
             rateLabel.Top.Set(205, 0f);
             mainPanel.Append(rateLabel);
             
-            // Install button
-            installButton = new UITextPanel<string>("Install");
-            installButton.Left.Set(20, 0f);
-            installButton.Top.Set(260, 0f);
-            installButton.Width.Set(80, 0f);
-            installButton.Height.Set(30, 0f);
-            installButton.OnLeftClick += InstallModifiers;
-            mainPanel.Append(installButton);
-            
-            // Remove button
-            removeButton = new UITextPanel<string>("Remove");
-            removeButton.Left.Set(110, 0f);
-            removeButton.Top.Set(260, 0f);
-            removeButton.Width.Set(80, 0f);
-            removeButton.Height.Set(30, 0f);
-            removeButton.OnLeftClick += RemoveModifiers;
-            mainPanel.Append(removeButton);
-            
-            // Close button
-            closeButton = new UITextPanel<string>("Close");
-            closeButton.Left.Set(300, 0f);
-            closeButton.Top.Set(260, 0f);
-            closeButton.Width.Set(80, 0f);
-            closeButton.Height.Set(30, 0f);
-            closeButton.OnLeftClick += CloseUI;
-            mainPanel.Append(closeButton);
+            // Auto-install/remove status text
+            UIText statusText = new UIText("Auto-install: Place weapon to extract mods, add mods to auto-install");
+            statusText.Left.Set(20, 0f);
+            statusText.Top.Set(260, 0f);
+            statusText.Width.Set(360, 0f);
+            statusText.Height.Set(30, 0f);
+            mainPanel.Append(statusText);
         }
         
-        private void InstallModifiers(UIMouseEvent evt, UIElement listeningElement)
+        private void StartDragging(UIMouseEvent evt, UIElement listeningElement)
         {
-            if (weaponItems[0].type != ModContent.ItemType<ModularGun>()) 
+            // Only start dragging if not clicking on item slots or buttons
+            if (evt.Target == mainPanel || evt.Target == titleText)
             {
-                Main.NewText("Place a modular weapon in the weapon slot!", Color.Red);
-                return;
-            }
-            
-            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
-            if (modularGun == null) return;
-            
-            Player player = Main.LocalPlayer;
-            bool installed = false;
-            
-            // Install shot type modifier
-            if (!shotTypeItems[0].IsAir && modularGun.shotTypeModifier == -1)
-            {
-                // For testing, just use item type as modifier ID
-                modularGun.shotTypeModifier = GetModifierID(shotTypeItems[0].type, "shot");
-                if (modularGun.shotTypeModifier != -1)
-                {
-                    shotTypeItems[0].TurnToAir();
-                    installed = true;
-                }
-            }
-            
-            // Install damage type modifier
-            if (!damageTypeItems[0].IsAir && modularGun.damageTypeModifier == -1)
-            {
-                modularGun.damageTypeModifier = GetModifierID(damageTypeItems[0].type, "damage");
-                if (modularGun.damageTypeModifier != -1)
-                {
-                    damageTypeItems[0].TurnToAir();
-                    installed = true;
-                }
-            }
-            
-            // Install rate of fire modifier
-            if (!rateOfFireItems[0].IsAir && modularGun.rateOfFireModifier == -1)
-            {
-                modularGun.rateOfFireModifier = GetModifierID(rateOfFireItems[0].type, "rate");
-                if (modularGun.rateOfFireModifier != -1)
-                {
-                    rateOfFireItems[0].TurnToAir();
-                    installed = true;
-                }
-            }
-            
-            if (installed)
-            {
-                Main.NewText("Modifiers installed!", Color.Green);
-            }
-            else
-            {
-                Main.NewText("No compatible modifiers to install!", Color.Yellow);
+                isDragging = true;
+                dragOffset = new Vector2(evt.MousePosition.X - mainPanel.Left.Pixels, 
+                                       evt.MousePosition.Y - mainPanel.Top.Pixels);
             }
         }
         
-        private void RemoveModifiers(UIMouseEvent evt, UIElement listeningElement)
+        private void StopDragging(UIMouseEvent evt, UIElement listeningElement)
         {
-            if (weaponItems[0].type != ModContent.ItemType<ModularGun>()) 
+            isDragging = false;
+        }
+        
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+            
+            // Handle dragging
+            if (isDragging && Main.mouseLeft)
             {
-                Main.NewText("Place a modular weapon in the weapon slot!", Color.Red);
+                Vector2 newPosition = Main.MouseScreen - dragOffset;
+                
+                // Keep UI within screen bounds
+                newPosition.X = MathHelper.Clamp(newPosition.X, 0, Main.screenWidth - mainPanel.Width.Pixels);
+                newPosition.Y = MathHelper.Clamp(newPosition.Y, 0, Main.screenHeight - mainPanel.Height.Pixels);
+                
+                mainPanel.Left.Set(newPosition.X, 0f);
+                mainPanel.Top.Set(newPosition.Y, 0f);
+                Recalculate();
+            }
+            
+            // Auto-close if player moves too far from station (10 blocks = 160 pixels)
+            if (Visible && Vector2.Distance(Main.LocalPlayer.Center, StationPosition) > 160f)
+            {
+                CloseUI(null, null);
+            }
+            
+            // Handle auto-install/remove based on weapon slot changes
+            HandleAutoModifierManagement();
+        }
+        
+        private void HandleAutoModifierManagement()
+        {
+            Item currentWeapon = weaponItems[0];
+            
+            // Check if a non-modular item was placed in weapon slot
+            if (!currentWeapon.IsAir && currentWeapon.type != ModContent.ItemType<ModularGun>())
+            {
+                // Return item to player and clear slot
+                Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_FromThis(), currentWeapon);
+                weaponItems[0].TurnToAir();
+                Main.NewText("Only modular weapons can be placed here!", Color.Red);
                 return;
             }
             
+            // Check if weapon was just placed (from air to modular gun)
+            if (previousWeapon.IsAir && currentWeapon.type == ModContent.ItemType<ModularGun>())
+            {
+                // Auto-extract modifiers from newly placed weapon
+                AutoExtractModifiers();
+            }
+            // Check if weapon was just removed (from modular gun to air)
+            else if (previousWeapon.type == ModContent.ItemType<ModularGun>() && currentWeapon.IsAir)
+            {
+                // Clear all modifier slots to prevent duplication
+                ClearAllModifierSlots();
+            }
+            
+            // Check if modifiers were added while weapon is present
+            if (currentWeapon.type == ModContent.ItemType<ModularGun>())
+            {
+                CheckAndInstallNewModifiers();
+                CheckAndRemoveModifiers();
+            }
+            
+            // Update previous states
+            previousWeapon = currentWeapon.Clone();
+            previousShotType[0] = shotTypeItems[0].Clone();
+            previousDamageType[0] = damageTypeItems[0].Clone();
+            previousRateOfFire[0] = rateOfFireItems[0].Clone();
+        }
+        
+        private void ClearAllModifierSlots()
+        {
+            shotTypeItems[0].TurnToAir();
+            damageTypeItems[0].TurnToAir();
+            rateOfFireItems[0].TurnToAir();
+            Main.NewText("Modifier slots cleared!", Color.Yellow);
+        }
+        
+        private void CheckAndRemoveModifiers()
+        {
             ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
             if (modularGun == null) return;
             
-            Player player = Main.LocalPlayer;
             bool removed = false;
             
-            // Remove shot type modifier
-            if (modularGun.shotTypeModifier != -1 && shotTypeItems[0].IsAir)
+            // Check if shot type modifier was removed
+            if (!previousShotType[0].IsAir && shotTypeItems[0].IsAir && modularGun.shotTypeModifier != -1)
             {
-                // Create modifier item and put it in slot
-                shotTypeItems[0].SetDefaults(GetItemTypeFromModifier(modularGun.shotTypeModifier, "shot"));
                 modularGun.shotTypeModifier = -1;
                 removed = true;
             }
             
-            // Remove damage type modifier
-            if (modularGun.damageTypeModifier != -1 && damageTypeItems[0].IsAir)
+            // Check if damage type modifier was removed
+            if (!previousDamageType[0].IsAir && damageTypeItems[0].IsAir && modularGun.damageTypeModifier != -1)
             {
-                damageTypeItems[0].SetDefaults(GetItemTypeFromModifier(modularGun.damageTypeModifier, "damage"));
                 modularGun.damageTypeModifier = -1;
                 removed = true;
             }
             
-            // Remove rate of fire modifier
-            if (modularGun.rateOfFireModifier != -1 && rateOfFireItems[0].IsAir)
+            // Check if rate of fire modifier was removed
+            if (!previousRateOfFire[0].IsAir && rateOfFireItems[0].IsAir && modularGun.rateOfFireModifier != -1)
             {
-                rateOfFireItems[0].SetDefaults(GetItemTypeFromModifier(modularGun.rateOfFireModifier, "rate"));
                 modularGun.rateOfFireModifier = -1;
                 removed = true;
             }
             
             if (removed)
             {
-                Main.NewText("Modifiers removed!", Color.Green);
+                Main.NewText("Modifier removed!", Color.Orange);
             }
-            else
+        }
+        
+        private void CheckAndInstallNewModifiers()
+        {
+            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
+            if (modularGun == null) return;
+            
+            bool installed = false;
+            
+            // Check if shot type modifier was just added
+            if (previousShotType[0].IsAir && !shotTypeItems[0].IsAir && modularGun.shotTypeModifier == -1)
             {
-                Main.NewText("No modifiers to remove or slots are full!", Color.Yellow);
+                modularGun.shotTypeModifier = GetModifierID(shotTypeItems[0].type, "shot");
+                if (modularGun.shotTypeModifier != -1)
+                {
+                    installed = true;
+                }
+            }
+            
+            // Check if damage type modifier was just added
+            if (previousDamageType[0].IsAir && !damageTypeItems[0].IsAir && modularGun.damageTypeModifier == -1)
+            {
+                modularGun.damageTypeModifier = GetModifierID(damageTypeItems[0].type, "damage");
+                if (modularGun.damageTypeModifier != -1)
+                {
+                    installed = true;
+                }
+            }
+            
+            // Check if rate of fire modifier was just added
+            if (previousRateOfFire[0].IsAir && !rateOfFireItems[0].IsAir && modularGun.rateOfFireModifier == -1)
+            {
+                modularGun.rateOfFireModifier = GetModifierID(rateOfFireItems[0].type, "rate");
+                if (modularGun.rateOfFireModifier != -1)
+                {
+                    installed = true;
+                }
+            }
+            
+            if (installed)
+            {
+                Main.NewText("Modifier installed!", Color.Green);
+            }
+        }
+        
+        private void AutoExtractModifiers()
+        {
+            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
+            if (modularGun == null) return;
+            
+            bool extracted = false;
+            
+            // Extract shot type modifier
+            if (modularGun.shotTypeModifier != -1 && shotTypeItems[0].IsAir)
+            {
+                shotTypeItems[0].SetDefaults(GetItemTypeFromModifier(modularGun.shotTypeModifier, "shot"));
+                modularGun.shotTypeModifier = -1;
+                extracted = true;
+            }
+            
+            // Extract damage type modifier
+            if (modularGun.damageTypeModifier != -1 && damageTypeItems[0].IsAir)
+            {
+                damageTypeItems[0].SetDefaults(GetItemTypeFromModifier(modularGun.damageTypeModifier, "damage"));
+                modularGun.damageTypeModifier = -1;
+                extracted = true;
+            }
+            
+            // Extract rate of fire modifier
+            if (modularGun.rateOfFireModifier != -1 && rateOfFireItems[0].IsAir)
+            {
+                rateOfFireItems[0].SetDefaults(GetItemTypeFromModifier(modularGun.rateOfFireModifier, "rate"));
+                modularGun.rateOfFireModifier = -1;
+                extracted = true;
+            }
+            
+            if (extracted)
+            {
+                Main.NewText("Modifiers extracted!", Color.Orange);
             }
         }
         
@@ -258,24 +364,42 @@ namespace TestMod.Content.UI
             // Return items to player inventory
             Player player = Main.LocalPlayer;
             
+            // Return weapon
             if (!weaponItems[0].IsAir)
             {
                 player.QuickSpawnItem(player.GetSource_FromThis(), weaponItems[0]);
                 weaponItems[0].TurnToAir();
             }
-            if (!shotTypeItems[0].IsAir)
+            
+            // Only return modifier items if they're NOT installed in the weapon
+            // This prevents duplication when weapon has mods installed
+            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
+            bool weaponHasMods = modularGun != null && modularGun.IsComplete();
+            
+            if (!weaponHasMods)
             {
-                player.QuickSpawnItem(player.GetSource_FromThis(), shotTypeItems[0]);
+                // Safe to return modifier items since weapon doesn't have them
+                if (!shotTypeItems[0].IsAir)
+                {
+                    player.QuickSpawnItem(player.GetSource_FromThis(), shotTypeItems[0]);
+                    shotTypeItems[0].TurnToAir();
+                }
+                if (!damageTypeItems[0].IsAir)
+                {
+                    player.QuickSpawnItem(player.GetSource_FromThis(), damageTypeItems[0]);
+                    damageTypeItems[0].TurnToAir();
+                }
+                if (!rateOfFireItems[0].IsAir)
+                {
+                    player.QuickSpawnItem(player.GetSource_FromThis(), rateOfFireItems[0]);
+                    rateOfFireItems[0].TurnToAir();
+                }
+            }
+            else
+            {
+                // Clear slots without returning items to prevent duplication
                 shotTypeItems[0].TurnToAir();
-            }
-            if (!damageTypeItems[0].IsAir)
-            {
-                player.QuickSpawnItem(player.GetSource_FromThis(), damageTypeItems[0]);
                 damageTypeItems[0].TurnToAir();
-            }
-            if (!rateOfFireItems[0].IsAir)
-            {
-                player.QuickSpawnItem(player.GetSource_FromThis(), rateOfFireItems[0]);
                 rateOfFireItems[0].TurnToAir();
             }
             
@@ -355,6 +479,12 @@ namespace TestMod.Content.UI
         public static void CloseUI()
         {
             Visible = false;
+        }
+        
+        public static void OpenUIAtStation(Vector2 stationWorldPosition)
+        {
+            StationPosition = stationWorldPosition;
+            Visible = true;
         }
     }
     

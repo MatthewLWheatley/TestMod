@@ -186,15 +186,33 @@ namespace TestMod.Content.Items
         // Custom tooltip showing installed modifiers
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            if (IsComplete())
+            // Always show modifier status regardless of completion
+            string shotTypeName = shotTypeModifier != -1 ? GetModifierName(shotTypeModifier, "shot") : "ERROR";
+            Color shotTypeColor = shotTypeModifier != -1 ? Color.White : Color.Red;
+            
+            string damageTypeName = damageTypeModifier != -1 ? GetModifierName(damageTypeModifier, "damage") : "ERROR";
+            Color damageTypeColor = damageTypeModifier != -1 ? Color.White : Color.Red;
+            
+            string rateOfFireName = rateOfFireModifier != -1 ? GetModifierName(rateOfFireModifier, "rate") : "ERROR";
+            Color rateOfFireColor = rateOfFireModifier != -1 ? Color.White : Color.Red;
+            
+            TooltipLine shotLine = new TooltipLine(Mod, "ShotType", $"Shot Type: {shotTypeName}");
+            shotLine.OverrideColor = shotTypeColor;
+            tooltips.Add(shotLine);
+            
+            TooltipLine damageLine = new TooltipLine(Mod, "DamageType", $"Damage Type: {damageTypeName}");
+            damageLine.OverrideColor = damageTypeColor;
+            tooltips.Add(damageLine);
+            
+            TooltipLine rateLine = new TooltipLine(Mod, "RateOfFire", $"Rate of Fire: {rateOfFireName}");
+            rateLine.OverrideColor = rateOfFireColor;
+            tooltips.Add(rateLine);
+            
+            if (!IsComplete())
             {
-                tooltips.Add(new TooltipLine(Mod, "ShotType", $"Shot Type: {GetModifierName(shotTypeModifier, "shot")}"));
-                tooltips.Add(new TooltipLine(Mod, "DamageType", $"Damage Type: {GetModifierName(damageTypeModifier, "damage")}"));
-                tooltips.Add(new TooltipLine(Mod, "RateOfFire", $"Rate of Fire: {GetModifierName(rateOfFireModifier, "rate")}"));
-            }
-            else
-            {
-                tooltips.Add(new TooltipLine(Mod, "Incomplete", "INCOMPLETE - Requires all modifiers"));
+                TooltipLine incompleteLine = new TooltipLine(Mod, "Incomplete", "INCOMPLETE - Requires all modifiers");
+                incompleteLine.OverrideColor = Color.Orange;
+                tooltips.Add(incompleteLine);
             }
         }
         
