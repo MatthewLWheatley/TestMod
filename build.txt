@@ -1,0 +1,3 @@
+displayName = TestMod
+author = MattyLee
+version = 0.1

@@ -1,0 +1,80 @@
+# This file will automatically update with entries for new content after a build and reload.
+
+Items: {
+	dirt: {
+		DisplayName: dirt
+		Tooltip:
+			'''
+			Template of an item
+			Replacing this tooltip is duty 
+			It's snowing on Mt.Fuji
+			'''
+	}
+
+	ModifierStationItem: {
+		DisplayName: Modifier Station Item
+		Tooltip: ""
+	}
+
+	AutoFireModifier: {
+		DisplayName: Auto Fire Modifier
+		Tooltip: ""
+	}
+
+	BoltShotModifier: {
+		DisplayName: Bolt Shot Modifier
+		Tooltip: ""
+	}
+
+	BurstFireModifier: {
+		DisplayName: Burst Fire Modifier
+		Tooltip: ""
+	}
+
+	BurstShotModifier: {
+		DisplayName: Burst Shot Modifier
+		Tooltip: ""
+	}
+
+	ChargeFireModifier: {
+		DisplayName: Charge Fire Modifier
+		Tooltip: ""
+	}
+
+	EarthDamageModifier: {
+		DisplayName: Earth Damage Modifier
+		Tooltip: ""
+	}
+
+	FireDamageModifier: {
+		DisplayName: Fire Damage Modifier
+		Tooltip: ""
+	}
+
+	LightningDamageModifier: {
+		DisplayName: Lightning Damage Modifier
+		Tooltip: ""
+	}
+
+	ProjectileShotModifier: {
+		DisplayName: Projectile Shot Modifier
+		Tooltip: ""
+	}
+
+	StraightShotModifier: {
+		DisplayName: Straight Shot Modifier
+		Tooltip: ""
+	}
+
+	WaterDamageModifier: {
+		DisplayName: Water Damage Modifier
+		Tooltip: ""
+	}
+
+	ModularGun: {
+		DisplayName: Modular Gun
+		Tooltip: ""
+	}
+}
+
+Tiles.ModifierStation.MapEntry: Modifier Station
