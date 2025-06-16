@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TestMod")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7e4ec8e13dbe9541bad3049367f2dffef47688dc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e77c9c37887667e74a660b829f895e59f28a228d")]
 [assembly: System.Reflection.AssemblyProductAttribute("TestMod")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TestMod")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

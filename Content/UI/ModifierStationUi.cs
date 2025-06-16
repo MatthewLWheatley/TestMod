@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
 using TestMod.Content.Items;
+using TestMod.Content.Systems;
 
 namespace TestMod.Content.UI
 {
@@ -46,6 +47,9 @@ namespace TestMod.Content.UI
         private Item[] previousDamageType = new Item[1] { new Item() };
         private Item[] previousRateOfFire = new Item[1] { new Item() };
         
+        private UIText pointBudgetText;
+        private UIText pointWarningText;
+
         public override void OnInitialize()
         {
             // Initialize item arrays
@@ -57,7 +61,7 @@ namespace TestMod.Content.UI
                 damageTypeItems[i] = new Item();
             for (int i = 0; i < rateOfFireItems.Length; i++)
                 rateOfFireItems[i] = new Item();
-            
+
             // Main panel
             mainPanel = new UIPanel();
             mainPanel.SetPadding(0);
@@ -66,19 +70,19 @@ namespace TestMod.Content.UI
             mainPanel.Width.Set(400, 0f);
             mainPanel.Height.Set(300, 0f);
             mainPanel.BackgroundColor = new Color(73, 94, 171);
-            
+
             // Add drag functionality to main panel
             mainPanel.OnLeftMouseDown += StartDragging;
             mainPanel.OnLeftMouseUp += StopDragging;
-            
+
             Append(mainPanel);
-            
+
             // Title
             titleText = new UIText("Modifier Station");
             titleText.Left.Set(10, 0f);
             titleText.Top.Set(10, 0f);
             mainPanel.Append(titleText);
-            
+
             // X Close button (top right)
             xCloseButton = new UITextPanel<string>("X");
             xCloseButton.Left.Set(365, 0f);
@@ -88,7 +92,7 @@ namespace TestMod.Content.UI
             xCloseButton.BackgroundColor = new Color(180, 40, 40);
             xCloseButton.OnLeftClick += CloseUI;
             mainPanel.Append(xCloseButton);
-            
+
             // Weapon slot
             weaponSlot = new UIItemSlot(weaponItems, 0, ItemSlot.Context.BankItem);
             weaponSlot.Left.Set(20, 0f);
@@ -96,13 +100,13 @@ namespace TestMod.Content.UI
             weaponSlot.Width.Set(52, 0f);
             weaponSlot.Height.Set(52, 0f);
             mainPanel.Append(weaponSlot);
-            
+
             // Weapon label
             UIText weaponLabel = new UIText("Weapon:");
             weaponLabel.Left.Set(80, 0f);
             weaponLabel.Top.Set(65, 0f);
             mainPanel.Append(weaponLabel);
-            
+
             // Modifier slots with labels
             // Shot Type
             shotTypeSlot = new UIItemSlot(shotTypeItems, 0, ItemSlot.Context.BankItem);
@@ -111,12 +115,12 @@ namespace TestMod.Content.UI
             shotTypeSlot.Width.Set(52, 0f);
             shotTypeSlot.Height.Set(52, 0f);
             mainPanel.Append(shotTypeSlot);
-            
+
             UIText shotLabel = new UIText("Shot Type:");
             shotLabel.Left.Set(80, 0f);
             shotLabel.Top.Set(135, 0f);
             mainPanel.Append(shotLabel);
-            
+
             // Damage Type
             damageTypeSlot = new UIItemSlot(damageTypeItems, 0, ItemSlot.Context.BankItem);
             damageTypeSlot.Left.Set(200, 0f);
@@ -124,12 +128,12 @@ namespace TestMod.Content.UI
             damageTypeSlot.Width.Set(52, 0f);
             damageTypeSlot.Height.Set(52, 0f);
             mainPanel.Append(damageTypeSlot);
-            
+
             UIText damageLabel = new UIText("Damage Type:");
             damageLabel.Left.Set(260, 0f);
             damageLabel.Top.Set(135, 0f);
             mainPanel.Append(damageLabel);
-            
+
             // Rate of Fire
             rateOfFireSlot = new UIItemSlot(rateOfFireItems, 0, ItemSlot.Context.BankItem);
             rateOfFireSlot.Left.Set(110, 0f);
@@ -137,16 +141,30 @@ namespace TestMod.Content.UI
             rateOfFireSlot.Width.Set(52, 0f);
             rateOfFireSlot.Height.Set(52, 0f);
             mainPanel.Append(rateOfFireSlot);
-            
+
             UIText rateLabel = new UIText("Rate of Fire:");
             rateLabel.Left.Set(170, 0f);
             rateLabel.Top.Set(205, 0f);
             mainPanel.Append(rateLabel);
-            
-            // Auto-install/remove status text
+
+            // ADD: Point budget display
+            pointBudgetText = new UIText("Points: 0/6 (Copper)");
+            pointBudgetText.Left.Set(200, 0f);
+            pointBudgetText.Top.Set(10, 0f);
+            mainPanel.Append(pointBudgetText);
+
+            // ADD: Point warning text
+            pointWarningText = new UIText("");
+            pointWarningText.Left.Set(20, 0f);
+            pointWarningText.Top.Set(240, 0f);
+            pointWarningText.Width.Set(360, 0f);
+            pointWarningText.Height.Set(20, 0f);
+            mainPanel.Append(pointWarningText);
+
+            // Update the status text position
             UIText statusText = new UIText("Auto-install: Place weapon to extract mods, add mods to auto-install");
             statusText.Left.Set(20, 0f);
-            statusText.Top.Set(260, 0f);
+            statusText.Top.Set(270, 0f); // Moved down to make room for warning
             statusText.Width.Set(360, 0f);
             statusText.Height.Set(30, 0f);
             mainPanel.Append(statusText);
@@ -167,33 +185,35 @@ namespace TestMod.Content.UI
         {
             isDragging = false;
         }
-        
+
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-            
+
             // Handle dragging
             if (isDragging && Main.mouseLeft)
             {
                 Vector2 newPosition = Main.MouseScreen - dragOffset;
-                
+
                 // Keep UI within screen bounds
                 newPosition.X = MathHelper.Clamp(newPosition.X, 0, Main.screenWidth - mainPanel.Width.Pixels);
                 newPosition.Y = MathHelper.Clamp(newPosition.Y, 0, Main.screenHeight - mainPanel.Height.Pixels);
-                
+
                 mainPanel.Left.Set(newPosition.X, 0f);
                 mainPanel.Top.Set(newPosition.Y, 0f);
                 Recalculate();
             }
-            
+
             // Auto-close if player moves too far from station (10 blocks = 160 pixels)
             if (Visible && Vector2.Distance(Main.LocalPlayer.Center, StationPosition) > 160f)
             {
                 CloseUI(null, null);
             }
-            
+
             // Handle auto-install/remove based on weapon slot changes
             HandleAutoModifierManagement();
+            
+            UpdatePointDisplay();
         }
         
         private void HandleAutoModifierManagement()
@@ -236,7 +256,121 @@ namespace TestMod.Content.UI
             previousDamageType[0] = damageTypeItems[0].Clone();
             previousRateOfFire[0] = rateOfFireItems[0].Clone();
         }
-        
+
+        private void UpdatePointDisplay()
+        {
+            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
+
+            if (modularGun != null)
+            {
+                int currentPoints = modularGun.GetCurrentPointUsage();
+                int maxPoints = modularGun.maxPointBudget;
+                string tier = modularGun.weaponTier;
+
+                pointBudgetText.SetText($"Points: {currentPoints}/{maxPoints} ({tier})");
+
+                // Color coding for point usage
+                if (currentPoints > maxPoints)
+                {
+                    pointBudgetText.TextColor = Color.Red;
+                    pointWarningText.SetText("⚠ OVER BUDGET - Weapon cannot be used!");
+                    pointWarningText.TextColor = Color.Red;
+                }
+                else if (currentPoints == maxPoints)
+                {
+                    pointBudgetText.TextColor = Color.Yellow;
+                    pointWarningText.SetText("At maximum capacity");
+                    pointWarningText.TextColor = Color.Yellow;
+                }
+                else
+                {
+                    pointBudgetText.TextColor = Color.White;
+                    pointWarningText.SetText($"{maxPoints - currentPoints} points remaining");
+                    pointWarningText.TextColor = Color.LightGreen;
+                }
+            }
+            else
+            {
+                pointBudgetText.SetText("Points: -/- (No Weapon)");
+                pointBudgetText.TextColor = Color.Gray;
+                pointWarningText.SetText("");
+            }
+        }
+
+        private void CheckAndInstallNewModifiers()
+        {
+            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
+            if (modularGun == null) return;
+
+            bool installed = false;
+
+            // Check if shot type modifier was just added
+            if (previousShotType[0].IsAir && !shotTypeItems[0].IsAir && modularGun.shotTypeModifier == -1)
+            {
+                if (modularGun.CanInstallModifier(shotTypeItems[0].type, "shot"))
+                {
+                    modularGun.shotTypeModifier = GetModifierID(shotTypeItems[0].type, "shot");
+                    if (modularGun.shotTypeModifier != -1)
+                    {
+                        installed = true;
+                    }
+                }
+                else
+                {
+                    // Return the modifier to player and clear slot
+                    Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_FromThis(), shotTypeItems[0]);
+                    shotTypeItems[0].TurnToAir();
+                    Main.NewText($"Not enough points! This modifier costs {ModifierData.GetModifierPointCost(shotTypeItems[0].type)} points.", Color.Red);
+                    return;
+                }
+            }
+
+            // Check if damage type modifier was just added
+            if (previousDamageType[0].IsAir && !damageTypeItems[0].IsAir && modularGun.damageTypeModifier == -1)
+            {
+                if (modularGun.CanInstallModifier(damageTypeItems[0].type, "damage"))
+                {
+                    modularGun.damageTypeModifier = GetModifierID(damageTypeItems[0].type, "damage");
+                    if (modularGun.damageTypeModifier != -1)
+                    {
+                        installed = true;
+                    }
+                }
+                else
+                {
+                    Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_FromThis(), damageTypeItems[0]);
+                    damageTypeItems[0].TurnToAir();
+                    Main.NewText($"Not enough points! This modifier costs {ModifierData.GetModifierPointCost(damageTypeItems[0].type)} points.", Color.Red);
+                    return;
+                }
+            }
+
+            // Check if rate of fire modifier was just added
+            if (previousRateOfFire[0].IsAir && !rateOfFireItems[0].IsAir && modularGun.rateOfFireModifier == -1)
+            {
+                if (modularGun.CanInstallModifier(rateOfFireItems[0].type, "rate"))
+                {
+                    modularGun.rateOfFireModifier = GetModifierID(rateOfFireItems[0].type, "rate");
+                    if (modularGun.rateOfFireModifier != -1)
+                    {
+                        installed = true;
+                    }
+                }
+                else
+                {
+                    Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_FromThis(), rateOfFireItems[0]);
+                    rateOfFireItems[0].TurnToAir();
+                    Main.NewText($"Not enough points! This modifier costs {ModifierData.GetModifierPointCost(rateOfFireItems[0].type)} points.", Color.Red);
+                    return;
+                }
+            }
+
+            if (installed)
+            {
+                Main.NewText("Modifier installed!", Color.Green);
+            }
+        }
+
         private void ClearAllModifierSlots()
         {
             shotTypeItems[0].TurnToAir();
@@ -276,49 +410,6 @@ namespace TestMod.Content.UI
             if (removed)
             {
                 Main.NewText("Modifier removed!", Color.Orange);
-            }
-        }
-        
-        private void CheckAndInstallNewModifiers()
-        {
-            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
-            if (modularGun == null) return;
-            
-            bool installed = false;
-            
-            // Check if shot type modifier was just added
-            if (previousShotType[0].IsAir && !shotTypeItems[0].IsAir && modularGun.shotTypeModifier == -1)
-            {
-                modularGun.shotTypeModifier = GetModifierID(shotTypeItems[0].type, "shot");
-                if (modularGun.shotTypeModifier != -1)
-                {
-                    installed = true;
-                }
-            }
-            
-            // Check if damage type modifier was just added
-            if (previousDamageType[0].IsAir && !damageTypeItems[0].IsAir && modularGun.damageTypeModifier == -1)
-            {
-                modularGun.damageTypeModifier = GetModifierID(damageTypeItems[0].type, "damage");
-                if (modularGun.damageTypeModifier != -1)
-                {
-                    installed = true;
-                }
-            }
-            
-            // Check if rate of fire modifier was just added
-            if (previousRateOfFire[0].IsAir && !rateOfFireItems[0].IsAir && modularGun.rateOfFireModifier == -1)
-            {
-                modularGun.rateOfFireModifier = GetModifierID(rateOfFireItems[0].type, "rate");
-                if (modularGun.rateOfFireModifier != -1)
-                {
-                    installed = true;
-                }
-            }
-            
-            if (installed)
-            {
-                Main.NewText("Modifier installed!", Color.Green);
             }
         }
         
