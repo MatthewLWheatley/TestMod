@@ -358,51 +358,35 @@ namespace TestMod.Content.UI
                 Main.NewText("Modifiers extracted!", Color.Orange);
             }
         }
-        
+
         private void CloseUI(UIMouseEvent evt, UIElement listeningElement)
         {
-            // Return items to player inventory
             Player player = Main.LocalPlayer;
-            
+
+            // Check weapon mod status BEFORE clearing slot
+            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
+            bool weaponHasMods = modularGun != null && modularGun.IsComplete();
+
             // Return weapon
             if (!weaponItems[0].IsAir)
             {
                 player.QuickSpawnItem(player.GetSource_FromThis(), weaponItems[0]);
                 weaponItems[0].TurnToAir();
             }
-            
+
             // Only return modifier items if they're NOT installed in the weapon
-            // This prevents duplication when weapon has mods installed
-            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
-            bool weaponHasMods = modularGun != null && modularGun.IsComplete();
-            
             if (!weaponHasMods)
             {
-                // Safe to return modifier items since weapon doesn't have them
-                if (!shotTypeItems[0].IsAir)
-                {
-                    player.QuickSpawnItem(player.GetSource_FromThis(), shotTypeItems[0]);
-                    shotTypeItems[0].TurnToAir();
-                }
-                if (!damageTypeItems[0].IsAir)
-                {
-                    player.QuickSpawnItem(player.GetSource_FromThis(), damageTypeItems[0]);
-                    damageTypeItems[0].TurnToAir();
-                }
-                if (!rateOfFireItems[0].IsAir)
-                {
-                    player.QuickSpawnItem(player.GetSource_FromThis(), rateOfFireItems[0]);
-                    rateOfFireItems[0].TurnToAir();
-                }
+                // Return modifier items...
             }
             else
             {
-                // Clear slots without returning items to prevent duplication
+                // Just clear slots without returning items
                 shotTypeItems[0].TurnToAir();
                 damageTypeItems[0].TurnToAir();
                 rateOfFireItems[0].TurnToAir();
             }
-            
+
             Visible = false;
         }
         
