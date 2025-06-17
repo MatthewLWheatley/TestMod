@@ -50,6 +50,17 @@ namespace TestMod.Content.Items
             Item.mana = 10; // Mana cost
             Item.crit = baseCrit;
             weaponTier = "Copper";
+            Item.UseSound = SoundID.Item11;
+            Item.useStyle = ItemUseStyleID.Shoot;
+            //Item.holdStyle = ItemHoldStyleID.HoldUp;
+            Item.noUseGraphic = false;
+        }
+
+
+        public override Vector2? HoldoutOffset()
+        {
+            // Adjust holdout position for better visual alignment
+            return new Vector2(-10, 2); // Adjust as needed
         }
 
         public override void SetStaticDefaults()
