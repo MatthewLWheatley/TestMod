@@ -49,10 +49,12 @@ Hallowed Tier: 32 points
 3. **Shot Type**: Auto Fire, Burst Fire, Charge Fire
 4. **Special Effects**: Piercing, Bouncing, Homing, Life Steal, Crit Boost *(Boss drops only)*
 
-**Weapon-Specific Categories** (Future weapons):
-- Swords: Blade Type (Slash, Pierce, Crush) 
-- Bows: Arrow Enhancement (Standard, Multi, Explosive)
-- Whips: Segment Type (Short, Medium, Long)
+**Weapon-Specific Categories**:
+- **Swords**: Blade Type (Wide, Thin, Long) + Swing Type (Auto, Combo, Pierce)
+- **Yoyos**: String Type + Spin Type *(Future implementation)*
+- **Spears**: Thrust Type + Reach Type *(Future implementation)*
+- **Staffs**: Cast Type + Element Focus *(Future implementation)*
+- **Whips**: Segment Type + Crack Type *(Future implementation)*
 
 ### 2.4 Modifier Specifications (REVISED)
 
@@ -81,6 +83,25 @@ Hallowed Tier: 32 points
 - **Homing** (4pts): Slight target seeking behavior - *Skeletron drop*
 - **Life Steal** (4pts): 2% damage converted to health - *Wall of Flesh drop*
 - **Crit Boost** (3pts): +10% critical strike chance - *Eye of Cthulhu drop*
+
+### 2.5 Sword-Specific Modifiers
+
+**Swords use specialized categories instead of Ammo/Shot Types:**
+
+#### 2.5.1 Blade Type Modifiers (2-3 points)
+- **Wide** (2pts): Normal sword arc, hits multiple enemies in sweep
+- **Thin** (3pts): Single target focus, higher damage per hit
+- **Long** (2pts): Extended reach, reduced damage for tactical positioning
+
+#### 2.5.2 Swing Type Modifiers (2-4 points)
+- **Auto** (3pts): Hold click for continuous swinging, slower swing speed
+- **Combo** (2pts): Fast swings requiring manual clicking, skill-based DPS
+- **Pierce** (4pts): Special thrust attack mode, ignores enemy armor
+
+**Example Sword Builds:**
+- **Berserker Build**: Wide + Auto + Fire + Crit Boost = 10pts (hold-click fire sweeps)
+- **Duelist Build**: Thin + Combo + Lightning + Piercing = 12pts (rapid precision strikes)
+- **Guardian Build**: Long + Pierce + Earth + Life Steal = 12pts (tactical armor-piercing with sustain)
 
 ## 3. Weapon Types
 
@@ -135,7 +156,7 @@ Hallowed Tier: 32 points
 - **Shared crafting materials**: Efficiency in resource gathering
 - **Set bonuses**: Potential future feature for using multiple modular weapons
 
-### 4. Progression System
+## 4. Progression System (UPDATED)
 
 ### 4.1 Modifier Acquisition
 
@@ -315,24 +336,26 @@ public class ModularWeaponData
 
 ## 8. Development Priorities
 
-### 8.1 MVP (Core Features)
-**Phase 1: Core 3-Slot System**
-1. Implement Ammo/Damage/Shot type framework
-2. Update point budget system (+2 points per tier)
-3. Create basic modifier items and recipes
-4. Test balance with 3-slot combinations
+### 8.1 MVP Implementation Order
+
+**Phase 1: Core Systems (Guns + Swords)**
+1. Implement Gun framework (Ammo/Damage/Shot/Special)
+2. Implement Sword framework (Blade/Swing/Damage/Special)
+3. Update point budget system and UI for both weapon types
+4. Create basic modifier items and recipes
+5. Test balance with both weapon type combinations
 
 **Phase 2: Special Effects Integration**  
-1. Add 4th slot to UI and weapon framework
-2. Implement boss drop system for special modifiers
-3. Create special effect items (no recipes)
-4. Balance point costs for 4-slot combinations
+1. Add boss drop system for special modifiers
+2. Implement special effect items (no recipes)
+3. Balance point costs for 4-slot combinations across both weapon types
+4. Polish core weapon mechanics
 
-**Phase 3: Content Expansion**
-1. Additional weapon types
-2. Higher tier modifiers
-3. Advanced special effects
-4. Polish and optimization
+**Phase 3: Weapon Type Expansion**
+1. Add Yoyos, Spears, Whips, Staffs
+2. Design unique modifier categories for each
+3. Expand boss drop pools
+4. Advanced weapon interactions and polish
 
 **Priority Weapon Types**:
 1. Modular Gun ✅ (Complete)
