@@ -204,6 +204,21 @@ namespace TestMod.Content.UI
                 Recalculate();
             }
 
+            if (Main.GameUpdateCount % 60 == 0) // Every second
+            {
+                int straightShotCost = Content.Systems.ModifierData.GetModifierPointCost(ModContent.ItemType<Content.Items.StraightShotModifier>());
+                if (straightShotCost == 0)
+                {
+                    //Main.NewText("ERROR: Modifier costs not initialized!", Color.Red);
+                    // Force initialize
+                    Content.Systems.ModifierData.InitializeModifierCosts();
+                }
+                else
+                {
+                    //Main.NewText($"DEBUG: Straight shot costs {straightShotCost} points", Color.Yellow);
+                }
+            }
+
             // Auto-close if player moves too far from station (10 blocks = 160 pixels)
             if (Visible && Vector2.Distance(Main.LocalPlayer.Center, StationPosition) > 160f)
             {
@@ -307,67 +322,55 @@ namespace TestMod.Content.UI
             // Check if shot type modifier was just added
             if (previousShotType[0].IsAir && !shotTypeItems[0].IsAir && modularGun.shotTypeModifier == -1)
             {
-                if (modularGun.CanInstallModifier(shotTypeItems[0].type, "shot"))
+                // TEMPORARILY SKIP POINT VALIDATION
+                // if (modularGun.CanInstallModifier(shotTypeItems[0].type, "shot"))
+                // {
+                modularGun.shotTypeModifier = GetModifierID(shotTypeItems[0].type, "shot");
+                if (modularGun.shotTypeModifier != -1)
                 {
-                    modularGun.shotTypeModifier = GetModifierID(shotTypeItems[0].type, "shot");
-                    if (modularGun.shotTypeModifier != -1)
-                    {
-                        installed = true;
-                    }
+                    installed = true;
+                    Main.NewText($"Shot modifier installed: ID {modularGun.shotTypeModifier}", Color.Green);
                 }
                 else
                 {
-                    // Return the modifier to player and clear slot
-                    Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_FromThis(), shotTypeItems[0]);
-                    shotTypeItems[0].TurnToAir();
-                    Main.NewText($"Not enough points! This modifier costs {ModifierData.GetModifierPointCost(shotTypeItems[0].type)} points.", Color.Red);
-                    return;
+                    //Main.NewText($"Failed to get modifier ID for item type {shotTypeItems[0].type}", Color.Red);
                 }
+                // }
             }
 
             // Check if damage type modifier was just added
             if (previousDamageType[0].IsAir && !damageTypeItems[0].IsAir && modularGun.damageTypeModifier == -1)
             {
-                if (modularGun.CanInstallModifier(damageTypeItems[0].type, "damage"))
+                modularGun.damageTypeModifier = GetModifierID(damageTypeItems[0].type, "damage");
+                if (modularGun.damageTypeModifier != -1)
                 {
-                    modularGun.damageTypeModifier = GetModifierID(damageTypeItems[0].type, "damage");
-                    if (modularGun.damageTypeModifier != -1)
-                    {
-                        installed = true;
-                    }
+                    installed = true;
+                    Main.NewText($"Damage modifier installed: ID {modularGun.damageTypeModifier}", Color.Green);
                 }
                 else
                 {
-                    Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_FromThis(), damageTypeItems[0]);
-                    damageTypeItems[0].TurnToAir();
-                    Main.NewText($"Not enough points! This modifier costs {ModifierData.GetModifierPointCost(damageTypeItems[0].type)} points.", Color.Red);
-                    return;
+                    //Main.NewText($"Failed to get modifier ID for item type {damageTypeItems[0].type}", Color.Red);
                 }
             }
 
             // Check if rate of fire modifier was just added
             if (previousRateOfFire[0].IsAir && !rateOfFireItems[0].IsAir && modularGun.rateOfFireModifier == -1)
             {
-                if (modularGun.CanInstallModifier(rateOfFireItems[0].type, "rate"))
+                modularGun.rateOfFireModifier = GetModifierID(rateOfFireItems[0].type, "rate");
+                if (modularGun.rateOfFireModifier != -1)
                 {
-                    modularGun.rateOfFireModifier = GetModifierID(rateOfFireItems[0].type, "rate");
-                    if (modularGun.rateOfFireModifier != -1)
-                    {
-                        installed = true;
-                    }
+                    installed = true;
+                    Main.NewText($"Rate modifier installed: ID {modularGun.rateOfFireModifier}", Color.Green);
                 }
                 else
                 {
-                    Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_FromThis(), rateOfFireItems[0]);
-                    rateOfFireItems[0].TurnToAir();
-                    Main.NewText($"Not enough points! This modifier costs {ModifierData.GetModifierPointCost(rateOfFireItems[0].type)} points.", Color.Red);
-                    return;
+                    //Main.NewText($"Failed to get modifier ID for item type {rateOfFireItems[0].type}", Color.Red);
                 }
             }
 
             if (installed)
             {
-                Main.NewText("Modifier installed!", Color.Green);
+                Main.NewText("Modifier installation complete!", Color.Cyan);
             }
         }
 
@@ -480,31 +483,37 @@ namespace TestMod.Content.UI
 
             Visible = false;
         }
-        
+
         // Helper methods for modifier conversion
         private int GetModifierID(int itemType, string modifierType)
         {
+            int result = -1;
+
             switch (modifierType)
             {
                 case "shot":
-                    if (itemType == ModContent.ItemType<Content.Items.StraightShotModifier>()) return 0;
-                    if (itemType == ModContent.ItemType<Content.Items.BurstShotModifier>()) return 1;
-                    if (itemType == ModContent.ItemType<Content.Items.BoltShotModifier>()) return 2;
-                    if (itemType == ModContent.ItemType<Content.Items.ProjectileShotModifier>()) return 3;
+                    if (itemType == ModContent.ItemType<Content.Items.StraightShotModifier>()) result = 0;
+                    else if (itemType == ModContent.ItemType<Content.Items.BurstShotModifier>()) result = 1;
+                    else if (itemType == ModContent.ItemType<Content.Items.BoltShotModifier>()) result = 2;
+                    else if (itemType == ModContent.ItemType<Content.Items.ProjectileShotModifier>()) result = 3;
                     break;
                 case "damage":
-                    if (itemType == ModContent.ItemType<Content.Items.FireDamageModifier>()) return 0;
-                    if (itemType == ModContent.ItemType<Content.Items.WaterDamageModifier>()) return 1;
-                    if (itemType == ModContent.ItemType<Content.Items.LightningDamageModifier>()) return 2;
-                    if (itemType == ModContent.ItemType<Content.Items.EarthDamageModifier>()) return 3;
+                    if (itemType == ModContent.ItemType<Content.Items.FireDamageModifier>()) result = 0;
+                    else if (itemType == ModContent.ItemType<Content.Items.WaterDamageModifier>()) result = 1;
+                    else if (itemType == ModContent.ItemType<Content.Items.LightningDamageModifier>()) result = 2;
+                    else if (itemType == ModContent.ItemType<Content.Items.EarthDamageModifier>()) result = 3;
                     break;
                 case "rate":
-                    if (itemType == ModContent.ItemType<Content.Items.AutoFireModifier>()) return 0;
-                    if (itemType == ModContent.ItemType<Content.Items.BurstFireModifier>()) return 1;
-                    if (itemType == ModContent.ItemType<Content.Items.ChargeFireModifier>()) return 2;
+                    if (itemType == ModContent.ItemType<Content.Items.AutoFireModifier>()) result = 0;
+                    else if (itemType == ModContent.ItemType<Content.Items.BurstFireModifier>()) result = 1;
+                    else if (itemType == ModContent.ItemType<Content.Items.ChargeFireModifier>()) result = 2;
                     break;
             }
-            return -1;
+
+            // DEBUG: Log the conversion
+            // Main.NewText($"DEBUG: ItemType {itemType} ({modifierType}) -> ModifierID {result}", Color.Purple);
+
+            return result;
         }
         
         private int GetItemTypeFromModifier(int modifierID, string modifierType)
