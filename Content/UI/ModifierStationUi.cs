@@ -204,21 +204,6 @@ namespace TestMod.Content.UI
                 Recalculate();
             }
 
-            if (Main.GameUpdateCount % 60 == 0) // Every second
-            {
-                int straightShotCost = Content.Systems.ModifierData.GetModifierPointCost(ModContent.ItemType<Content.Items.StraightShotModifier>());
-                if (straightShotCost == 0)
-                {
-                    //Main.NewText("ERROR: Modifier costs not initialized!", Color.Red);
-                    // Force initialize
-                    Content.Systems.ModifierData.InitializeModifierCosts();
-                }
-                else
-                {
-                    //Main.NewText($"DEBUG: Straight shot costs {straightShotCost} points", Color.Yellow);
-                }
-            }
-
             // Auto-close if player moves too far from station (10 blocks = 160 pixels)
             if (Visible && Vector2.Distance(Main.LocalPlayer.Center, StationPosition) > 160f)
             {
@@ -491,65 +476,66 @@ namespace TestMod.Content.UI
 
             switch (modifierType)
             {
-                case "shot":
-                    if (itemType == ModContent.ItemType<Content.Items.StraightShotModifier>()) result = 0;
-                    else if (itemType == ModContent.ItemType<Content.Items.BurstShotModifier>()) result = 1;
-                    else if (itemType == ModContent.ItemType<Content.Items.BoltShotModifier>()) result = 2;
-                    else if (itemType == ModContent.ItemType<Content.Items.ProjectileShotModifier>()) result = 3;
+                case "ammo":
+                    if (itemType == ModContent.ItemType<MagicAmmoModifier>()) result = 0;
+                    else if (itemType == ModContent.ItemType<ArrowAmmoModifier>()) result = 1;
+                    else if (itemType == ModContent.ItemType<BulletAmmoModifier>()) result = 2;
+                    else if (itemType == ModContent.ItemType<RocketAmmoModifier>()) result = 3;
                     break;
                 case "damage":
-                    if (itemType == ModContent.ItemType<Content.Items.FireDamageModifier>()) result = 0;
-                    else if (itemType == ModContent.ItemType<Content.Items.WaterDamageModifier>()) result = 1;
-                    else if (itemType == ModContent.ItemType<Content.Items.LightningDamageModifier>()) result = 2;
-                    else if (itemType == ModContent.ItemType<Content.Items.EarthDamageModifier>()) result = 3;
+                    if (itemType == ModContent.ItemType<FireDamageModifier>()) result = 0;
+                    else if (itemType == ModContent.ItemType<WaterDamageModifier>()) result = 1;
+                    else if (itemType == ModContent.ItemType<LightningDamageModifier>()) result = 2;
+                    else if (itemType == ModContent.ItemType<EarthDamageModifier>()) result = 3;
+                    else if (itemType == ModContent.ItemType<WindDamageModifier>()) result = 4;
+                    else if (itemType == ModContent.ItemType<SlimeDamageModifier>()) result = 5;
                     break;
-                case "rate":
-                    if (itemType == ModContent.ItemType<Content.Items.AutoFireModifier>()) result = 0;
-                    else if (itemType == ModContent.ItemType<Content.Items.BurstFireModifier>()) result = 1;
-                    else if (itemType == ModContent.ItemType<Content.Items.ChargeFireModifier>()) result = 2;
+                case "shot":
+                    if (itemType == ModContent.ItemType<AutoFireModifier>()) result = 0;
+                    else if (itemType == ModContent.ItemType<BurstFireModifier>()) result = 1;
+                    else if (itemType == ModContent.ItemType<ChargeFireModifier>()) result = 2;
                     break;
             }
 
-            // DEBUG: Log the conversion
-            // Main.NewText($"DEBUG: ItemType {itemType} ({modifierType}) -> ModifierID {result}", Color.Purple);
-
             return result;
         }
-        
+
         private int GetItemTypeFromModifier(int modifierID, string modifierType)
         {
             switch (modifierType)
             {
-                case "shot":
+                case "ammo":
                     return modifierID switch
                     {
-                        0 => ModContent.ItemType<Content.Items.StraightShotModifier>(),
-                        1 => ModContent.ItemType<Content.Items.BurstShotModifier>(),
-                        2 => ModContent.ItemType<Content.Items.BoltShotModifier>(),
-                        3 => ModContent.ItemType<Content.Items.ProjectileShotModifier>(),
-                        _ => ItemID.None
+                        0 => ModContent.ItemType<MagicAmmoModifier>(),
+                        1 => ModContent.ItemType<ArrowAmmoModifier>(),
+                        2 => ModContent.ItemType<BulletAmmoModifier>(),
+                        3 => ModContent.ItemType<RocketAmmoModifier>(),
+                        _ => 0
                     };
                 case "damage":
                     return modifierID switch
                     {
-                        0 => ModContent.ItemType<Content.Items.FireDamageModifier>(),
-                        1 => ModContent.ItemType<Content.Items.WaterDamageModifier>(),
-                        2 => ModContent.ItemType<Content.Items.LightningDamageModifier>(),
-                        3 => ModContent.ItemType<Content.Items.EarthDamageModifier>(),
-                        _ => ItemID.None
+                        0 => ModContent.ItemType<FireDamageModifier>(),
+                        1 => ModContent.ItemType<WaterDamageModifier>(),
+                        2 => ModContent.ItemType<LightningDamageModifier>(),
+                        3 => ModContent.ItemType<EarthDamageModifier>(),
+                        4 => ModContent.ItemType<WindDamageModifier>(),
+                        5 => ModContent.ItemType<SlimeDamageModifier>(),
+                        _ => 0
                     };
-                case "rate":
+                case "shot":
                     return modifierID switch
                     {
-                        0 => ModContent.ItemType<Content.Items.AutoFireModifier>(),
-                        1 => ModContent.ItemType<Content.Items.BurstFireModifier>(),
-                        2 => ModContent.ItemType<Content.Items.ChargeFireModifier>(),
-                        _ => ItemID.None
+                        0 => ModContent.ItemType<AutoFireModifier>(),
+                        1 => ModContent.ItemType<BurstFireModifier>(),
+                        2 => ModContent.ItemType<ChargeFireModifier>(),
+                        _ => 0
                     };
             }
-            return ItemID.None;
+            return 0;
         }
-        
+
         public static void ToggleUI()
         {
             Visible = !Visible;

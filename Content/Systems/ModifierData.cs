@@ -21,25 +21,27 @@ namespace TestMod.Content.Systems
             { "Adamantite", 26 },
             { "Hallowed", 30 }
         };
-        
+
         public static void InitializeModifierCosts()
         {
-            // Shot Type Modifiers (1-3 points based on complexity)
-            modifierPointCosts[ModContent.ItemType<StraightShotModifier>()] = 1;  // Simple
-            modifierPointCosts[ModContent.ItemType<BurstShotModifier>()] = 2;     // Moderate
-            modifierPointCosts[ModContent.ItemType<BoltShotModifier>()] = 2;      // Moderate  
-            modifierPointCosts[ModContent.ItemType<ProjectileShotModifier>()] = 3; // Complex
-            
-            // Damage Type Modifiers (2-4 points based on effect strength)
-            modifierPointCosts[ModContent.ItemType<FireDamageModifier>()] = 2;     // Basic elemental
-            modifierPointCosts[ModContent.ItemType<WaterDamageModifier>()] = 2;    // Basic elemental
-            modifierPointCosts[ModContent.ItemType<LightningDamageModifier>()] = 3; // Stronger effect
-            modifierPointCosts[ModContent.ItemType<EarthDamageModifier>()] = 3;    // Knockback bonus
-            
-            // Rate of Fire Modifiers (1-4 points based on power)
-            modifierPointCosts[ModContent.ItemType<AutoFireModifier>()] = 4;      // Very powerful
-            modifierPointCosts[ModContent.ItemType<BurstFireModifier>()] = 2;     // Balanced
-            modifierPointCosts[ModContent.ItemType<ChargeFireModifier>()] = 3;    // High damage trade-off
+            // Ammo Type Modifiers (1-4 points)
+            modifierPointCosts[ModContent.ItemType<MagicAmmoModifier>()] = 1;
+            modifierPointCosts[ModContent.ItemType<ArrowAmmoModifier>()] = 2;
+            modifierPointCosts[ModContent.ItemType<BulletAmmoModifier>()] = 3;
+            modifierPointCosts[ModContent.ItemType<RocketAmmoModifier>()] = 4;
+
+            // Damage Type Modifiers (2-3 points) 
+            modifierPointCosts[ModContent.ItemType<FireDamageModifier>()] = 2;
+            modifierPointCosts[ModContent.ItemType<WaterDamageModifier>()] = 2;
+            modifierPointCosts[ModContent.ItemType<WindDamageModifier>()] = 2;
+            modifierPointCosts[ModContent.ItemType<LightningDamageModifier>()] = 3;
+            modifierPointCosts[ModContent.ItemType<EarthDamageModifier>()] = 3;
+            modifierPointCosts[ModContent.ItemType<SlimeDamageModifier>()] = 3;
+
+            // Shot Type Modifiers (2-4 points)
+            modifierPointCosts[ModContent.ItemType<BurstFireModifier>()] = 2;
+            modifierPointCosts[ModContent.ItemType<ChargeFireModifier>()] = 3;
+            modifierPointCosts[ModContent.ItemType<AutoFireModifier>()] = 4;
         }
         
         public static int GetModifierPointCost(int itemType)

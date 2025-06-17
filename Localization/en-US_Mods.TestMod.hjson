@@ -75,6 +75,61 @@ Items: {
 		DisplayName: Modular Gun
 		Tooltip: ""
 	}
+
+	ArrowAmmoModifier: {
+		DisplayName: Arrow Ammo Modifier
+		Tooltip: ""
+	}
+
+	BulletAmmoModifier: {
+		DisplayName: Bullet Ammo Modifier
+		Tooltip: ""
+	}
+
+	MagicAmmoModifier: {
+		DisplayName: Magic Ammo Modifier
+		Tooltip: ""
+	}
+
+	RocketAmmoModifier: {
+		DisplayName: Rocket Ammo Modifier
+		Tooltip: ""
+	}
+
+	SlimeDamageModifier: {
+		DisplayName: Slime Damage Modifier
+		Tooltip: ""
+	}
+
+	WindDamageModifier: {
+		DisplayName: Wind Damage Modifier
+		Tooltip: ""
+	}
+
+	BouncingModifier: {
+		DisplayName: Bouncing Modifier
+		Tooltip: ""
+	}
+
+	CritBoostModifier: {
+		DisplayName: Crit Boost Modifier
+		Tooltip: ""
+	}
+
+	HomingModifier: {
+		DisplayName: Homing Modifier
+		Tooltip: ""
+	}
+
+	LifeStealModifier: {
+		DisplayName: Life Steal Modifier
+		Tooltip: ""
+	}
+
+	PiercingModifier: {
+		DisplayName: Piercing Modifier
+		Tooltip: ""
+	}
 }
 
 Tiles.ModifierStation.MapEntry: Modifier Station
