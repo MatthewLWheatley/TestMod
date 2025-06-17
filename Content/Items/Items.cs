@@ -166,32 +166,39 @@ namespace TestMod.Content.Items
         {
             if (!IsComplete()) return false;
 
+            // Adjust spawn position - add offset from player center
+            Vector2 spawnPosition = position;
+
+            // Example: Spawn 20 pixels forward in the direction you're facing
+            spawnPosition += Vector2.Normalize(velocity) * 20f;
+
+            // Or spawn from gun barrel position (considering player direction)
+            // spawnPosition += new Vector2(player.direction * 25, -5); // 25 pixels forward, 5 pixels up
+
             // Modify projectile based on shot type modifier
             switch (shotTypeModifier)
             {
                 case 0: // Straight shot
-                    type = ProjectileID.WoodenArrowFriendly; // Non-homing straight projectile
+                    type = ProjectileID.WoodenArrowFriendly;
                     break;
-                case 1: // Burst shot (shotgun-like)
-                    // Fire multiple projectiles
+                case 1: // Burst shot
                     for (int i = 0; i < 3; i++)
                     {
                         Vector2 perturbedSpeed = velocity.RotatedByRandom(MathHelper.ToRadians(15));
-                        Projectile.NewProjectile(source, position, perturbedSpeed, ProjectileID.WoodenArrowFriendly, damage / 2, knockback, player.whoAmI);
+                        Projectile.NewProjectile(source, spawnPosition, perturbedSpeed, ProjectileID.WoodenArrowFriendly, damage / 2, knockback, player.whoAmI);
                     }
-                    return false; // Don't fire the original projectile
+                    return false;
                 case 2: // Bolt shot
-                    type = ProjectileID.UnholyArrow; // Fast straight projectile
+                    type = ProjectileID.UnholyArrow;
                     break;
-                case 3: // Projectile (grenade-like)
-                    type = ProjectileID.Grenade; // Explosive projectile
+                case 3: // Projectile
+                    type = ProjectileID.Grenade;
                     break;
             }
 
-            // Apply damage type effects - this would modify the projectile or add effects
-            // For now, just change damage color or add visual effects
-
-            return true; // Fire the modified projectile
+            // Use modified spawn position for the main projectile
+            Projectile.NewProjectile(source, spawnPosition, velocity, type, damage, knockback, player.whoAmI);
+            return false; // Return false since we're manually spawning
         }
 
         // Modify weapon stats based on rate of fire modifier
