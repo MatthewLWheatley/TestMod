@@ -343,64 +343,45 @@ namespace TestMod.Content.Items
             }
         }
 
-        // Handle life steal effect
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
+            if (!IsComplete()) return;
+
+            // Apply damage type debuffs
+            switch (damageTypeModifier)
+            {
+                case 0: // Fire
+                    target.AddBuff(BuffID.OnFire, 300); // 5 seconds
+                    break;
+                case 1: // Water
+                    target.AddBuff(BuffID.Slow, 180); // 3 seconds
+                    break;
+                case 2: // Lightning
+                    target.AddBuff(BuffID.Ichor, 240); // 4 seconds (defense reduction)
+                    break;
+                case 3: // Earth
+                    target.AddBuff(BuffID.Bleeding, 360); // 6 seconds
+                    break;
+                case 4: // Wind - knockback already handled
+                    break;
+                case 5: // Slime
+                    target.AddBuff(BuffID.Poisoned, 420); // 7 seconds
+                    break;
+            }
+
+            // Handle life steal (already implemented)
             if (specialEffectModifier == 3) // Life Steal modifier
             {
-                int healAmount = (int)(damageDone * 0.02f); // 2% of damage
+                int healAmount = (int)(damageDone * 0.02f);
                 if (healAmount > 0)
                 {
                     player.statLife += healAmount;
                     if (player.statLife > player.statLifeMax2)
                         player.statLife = player.statLifeMax2;
-                    
                     player.HealEffect(healAmount);
                 }
             }
         }
-
-        // // Apply damage type debuffs
-        // public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
-        // {
-        //     if (!IsComplete()) return;
-
-        //     // Apply damage type debuffs
-        //     switch (damageTypeModifier)
-        //     {
-        //         case 0: // Fire
-        //             target.AddBuff(BuffID.OnFire, 300); // 5 seconds
-        //             break;
-        //         case 1: // Water
-        //             target.AddBuff(BuffID.Slow, 180); // 3 seconds
-        //             break;
-        //         case 2: // Lightning
-        //             target.AddBuff(BuffID.Ichor, 240); // 4 seconds (defense reduction)
-        //             break;
-        //         case 3: // Earth
-        //             target.AddBuff(BuffID.Bleeding, 360); // 6 seconds
-        //             break;
-        //         case 4: // Wind - knockback already handled in ModifyWeaponKnockback
-        //             break;
-        //         case 5: // Slime
-        //             target.AddBuff(BuffID.Poisoned, 420); // 7 seconds
-        //             break;
-        //     }
-
-        //     // Handle life steal (if we have special effect)
-        //     if (specialEffectModifier == 3) // Life Steal modifier
-        //     {
-        //         int healAmount = (int)(damageDone * 0.02f); // 2% of damage
-        //         if (healAmount > 0)
-        //         {
-        //             player.statLife += healAmount;
-        //             if (player.statLife > player.statLifeMax2)
-        //                 player.statLife = player.statLifeMax2;
-
-        //             player.HealEffect(healAmount);
-        //         }
-        //     }
-        // }
 
         // Save modifier data
         public override void SaveData(TagCompound tag)
@@ -427,7 +408,7 @@ namespace TestMod.Content.Items
             if (string.IsNullOrEmpty(weaponTier))
             {
                 weaponTier = "Copper";
-                maxPointBudget = 6;
+                maxPointBudget = ModifierData.GetWeaponPointBudget(weaponTier);
             }
         }
 

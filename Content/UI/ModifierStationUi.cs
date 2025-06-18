@@ -101,7 +101,7 @@ namespace TestMod.Content.UI
             mainPanel.Append(xCloseButton);
 
             // Point budget display (moved to top)
-            pointBudgetText = new UIText("Points: 0/6 (Copper)");
+            pointBudgetText = new UIText("Points: 0/0");
             pointBudgetText.Left.Set(10, 0f);
             pointBudgetText.Top.Set(35, 0f);
             mainPanel.Append(pointBudgetText);
@@ -372,40 +372,49 @@ namespace TestMod.Content.UI
 
             bool installed = false;
 
-            // Check modifier slot 1 (maps to shotType for guns)
-            if (previousModifier1[0].IsAir && !modifier1Items[0].IsAir && modularGun.shotTypeModifier == -1)
+            // Check modifier slot 1 (maps to AMMO TYPE for guns)
+            if (previousModifier1[0].IsAir && !modifier1Items[0].IsAir && modularGun.ammoTypeModifier == -1)
             {
-                modularGun.shotTypeModifier = GetModifierID(modifier1Items[0].type, "shot");
-                if (modularGun.shotTypeModifier != -1)
+                modularGun.ammoTypeModifier = GetModifierID(modifier1Items[0].type, "ammo");
+                if (modularGun.ammoTypeModifier != -1)
                 {
                     installed = true;
-                    Main.NewText($"Slot 1 modifier installed", Color.Green);
+                    Main.NewText($"Ammo type modifier installed", Color.Green);
                 }
             }
 
-            // Check modifier slot 2 (maps to damageType for guns)
+            // Check modifier slot 2 (maps to DAMAGE TYPE for guns)
             if (previousModifier2[0].IsAir && !modifier2Items[0].IsAir && modularGun.damageTypeModifier == -1)
             {
                 modularGun.damageTypeModifier = GetModifierID(modifier2Items[0].type, "damage");
                 if (modularGun.damageTypeModifier != -1)
                 {
                     installed = true;
-                    Main.NewText($"Slot 2 modifier installed", Color.Green);
+                    Main.NewText($"Damage type modifier installed", Color.Green);
                 }
             }
 
-            // Check modifier slot 3 (maps to rateOfFire for guns)
+            // Check modifier slot 3 (maps to SHOT TYPE for guns)
             if (previousModifier3[0].IsAir && !modifier3Items[0].IsAir && modularGun.shotTypeModifier == -1)
             {
-                modularGun.shotTypeModifier = GetModifierID(modifier3Items[0].type, "rate");
+                modularGun.shotTypeModifier = GetModifierID(modifier3Items[0].type, "shot");
                 if (modularGun.shotTypeModifier != -1)
                 {
                     installed = true;
-                    Main.NewText($"Slot 3 modifier installed", Color.Green);
+                    Main.NewText($"Shot type modifier installed", Color.Green);
                 }
             }
 
-            // TODO: Handle special slot when you implement special effects
+            // Check special slot
+            if (previousSpecial[0].IsAir && !specialItems[0].IsAir && modularGun.specialEffectModifier == -1)
+            {
+                modularGun.specialEffectModifier = GetModifierID(specialItems[0].type, "special");
+                if (modularGun.specialEffectModifier != -1)
+                {
+                    installed = true;
+                    Main.NewText($"Special effect modifier installed", Color.Green);
+                }
+            }
 
             if (installed)
             {
@@ -421,72 +430,91 @@ namespace TestMod.Content.UI
             specialItems[0].TurnToAir();
             Main.NewText("Modifier slots cleared!", Color.Yellow);
         }
-        
+
         private void CheckAndRemoveModifiers()
         {
             ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
             if (modularGun == null) return;
-            
+
             bool removed = false;
-            
-            // Check if modifier 1 was removed
-            if (!previousModifier1[0].IsAir && modifier1Items[0].IsAir && modularGun.shotTypeModifier != -1)
+
+            // Check if modifier 1 was removed (AMMO TYPE)
+            if (!previousModifier1[0].IsAir && modifier1Items[0].IsAir && modularGun.ammoTypeModifier != -1)
             {
-                modularGun.shotTypeModifier = -1;
+                modularGun.ammoTypeModifier = -1;
                 removed = true;
+                Main.NewText("Ammo type modifier removed!", Color.Orange);
             }
-            
-            // Check if modifier 2 was removed
+
+            // Check if modifier 2 was removed (DAMAGE TYPE)
             if (!previousModifier2[0].IsAir && modifier2Items[0].IsAir && modularGun.damageTypeModifier != -1)
             {
                 modularGun.damageTypeModifier = -1;
                 removed = true;
+                Main.NewText("Damage type modifier removed!", Color.Orange);
             }
-            
-            // Check if modifier 3 was removed
+
+            // Check if modifier 3 was removed (SHOT TYPE)
             if (!previousModifier3[0].IsAir && modifier3Items[0].IsAir && modularGun.shotTypeModifier != -1)
             {
                 modularGun.shotTypeModifier = -1;
                 removed = true;
+                Main.NewText("Shot type modifier removed!", Color.Orange);
             }
-            
+
+            // Check if special modifier was removed
+            if (!previousSpecial[0].IsAir && specialItems[0].IsAir && modularGun.specialEffectModifier != -1)
+            {
+                modularGun.specialEffectModifier = -1;
+                removed = true;
+                Main.NewText("Special effect modifier removed!", Color.Orange);
+            }
+
             if (removed)
             {
-                Main.NewText("Modifier removed!", Color.Orange);
+                Main.NewText("Modifier removal complete!", Color.Yellow);
             }
         }
-        
+
         private void AutoExtractModifiers()
         {
             ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
             if (modularGun == null) return;
-            
+
             bool extracted = false;
-            
-            // Extract to slot 1 (shotType)
-            if (modularGun.shotTypeModifier != -1 && modifier1Items[0].IsAir)
+
+            // Extract to slot 1 (AMMO TYPE)
+            if (modularGun.ammoTypeModifier != -1 && modifier1Items[0].IsAir)
             {
-                modifier1Items[0].SetDefaults(GetItemTypeFromModifier(modularGun.shotTypeModifier, "shot"));
-                modularGun.shotTypeModifier = -1;
+                modifier1Items[0].SetDefaults(GetItemTypeFromModifier(modularGun.ammoTypeModifier, "ammo"));
+                modularGun.ammoTypeModifier = -1;
                 extracted = true;
             }
-            
-            // Extract to slot 2 (damageType)
+
+            // Extract to slot 2 (DAMAGE TYPE)
             if (modularGun.damageTypeModifier != -1 && modifier2Items[0].IsAir)
             {
                 modifier2Items[0].SetDefaults(GetItemTypeFromModifier(modularGun.damageTypeModifier, "damage"));
                 modularGun.damageTypeModifier = -1;
                 extracted = true;
             }
-            
-            // Extract to slot 3 (rateOfFire)
+
+            // Extract to slot 3 (SHOT TYPE)
             if (modularGun.shotTypeModifier != -1 && modifier3Items[0].IsAir)
             {
-                modifier3Items[0].SetDefaults(GetItemTypeFromModifier(modularGun.shotTypeModifier, "rate"));
+                modifier3Items[0].SetDefaults(GetItemTypeFromModifier(modularGun.shotTypeModifier, "shot"));
                 modularGun.shotTypeModifier = -1;
                 extracted = true;
             }
-            
+
+            // Extract to special slot
+            if (modularGun.specialEffectModifier != -1 && specialItems[0].IsAir)
+            {
+                specialItems[0].SetDefaults(GetItemTypeFromModifier(modularGun.specialEffectModifier, "special"));
+                modularGun.specialEffectModifier = -1;
+                extracted = true;
+            }
+
             if (extracted)
             {
                 Main.NewText("Modifiers extracted!", Color.Orange);
@@ -571,10 +599,12 @@ namespace TestMod.Content.UI
                     else if (itemType == ModContent.ItemType<BurstFireModifier>()) result = 1;
                     else if (itemType == ModContent.ItemType<ChargeFireModifier>()) result = 2;
                     break;
-                case "rate":
-                    if (itemType == ModContent.ItemType<AutoFireModifier>()) result = 0;
-                    else if (itemType == ModContent.ItemType<BurstFireModifier>()) result = 1;
-                    else if (itemType == ModContent.ItemType<ChargeFireModifier>()) result = 2;
+                case "special":
+                    if (itemType == ModContent.ItemType<PiercingModifier>()) result = 0;
+                    else if (itemType == ModContent.ItemType<BouncingModifier>()) result = 1;
+                    else if (itemType == ModContent.ItemType<HomingModifier>()) result = 2;
+                    else if (itemType == ModContent.ItemType<LifeStealModifier>()) result = 3;
+                    else if (itemType == ModContent.ItemType<CritBoostModifier>()) result = 4;
                     break;
             }
 
@@ -612,6 +642,16 @@ namespace TestMod.Content.UI
                         0 => ModContent.ItemType<AutoFireModifier>(),
                         1 => ModContent.ItemType<BurstFireModifier>(),
                         2 => ModContent.ItemType<ChargeFireModifier>(),
+                        _ => 0
+                    };
+                case "special":  // <-- ADD THIS MISSING CASE!
+                    return modifierID switch
+                    {
+                        0 => ModContent.ItemType<PiercingModifier>(),
+                        1 => ModContent.ItemType<BouncingModifier>(),
+                        2 => ModContent.ItemType<HomingModifier>(),
+                        3 => ModContent.ItemType<LifeStealModifier>(),
+                        4 => ModContent.ItemType<CritBoostModifier>(),
                         _ => 0
                     };
             }

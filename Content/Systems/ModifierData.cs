@@ -12,7 +12,7 @@ namespace TestMod.Content.Systems
         // Weapon point budgets by tier
         public static Dictionary<string, int> WeaponPointBudgets = new Dictionary<string, int>()
         {
-            { "Copper", 6 },
+            { "Copper", 100 },
             { "Iron", 9 },
             { "Silver", 12 },
             { "Gold", 15 },
@@ -58,7 +58,7 @@ namespace TestMod.Content.Systems
         
         public static int GetWeaponPointBudget(string tier)
         {
-            return WeaponPointBudgets.TryGetValue(tier, out int budget) ? budget : 6; // Default to copper
+            return WeaponPointBudgets.TryGetValue(tier, out int budget) ? budget : 100; // Default to copper
         }
         
         // Helper to get modifier tier from point cost (for UI display)
