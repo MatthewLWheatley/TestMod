@@ -12,21 +12,18 @@ namespace TestMod.Content.Items
 {
     public class ModularGun : ModItem
     {
-        // NEW: 4-category modifier system
-        public int ammoTypeModifier = -1;      // Magic, Arrow, Bullet, Rocket
-        public int damageTypeModifier = -1;    // Fire, Water, Lightning, Earth, Wind, Slime
-        public int shotTypeModifier = -1;      // Auto Fire, Burst Fire, Charge Fire
-        public int specialEffectModifier = -1; // Piercing, Bouncing, Homing, Life Steal, Crit Boost
+        public int ammoTypeModifier = -1;
+        public int damageTypeModifier = -1;
+        public int shotTypeModifier = -1;
+        public int specialEffectModifier = -1;
 
-        // Base weapon stats
         private int baseDamage = 15;
         private float baseKnockback = 2f;
         private int baseCrit = 4;
         private int baseUseTime = 30;
 
-        // Point budget properties
         public string weaponTier = "Copper";
-        public int maxPointBudget = 8; // Updated to new budget system
+        public int maxPointBudget = 8;
 
         public override void SetDefaults()
         {
@@ -92,7 +89,6 @@ namespace TestMod.Content.Items
             int modifierCost = ModifierData.GetModifierPointCost(itemType);
             int currentUsage = GetCurrentPointUsage();
 
-            // Subtract current modifier cost if replacing
             switch (modifierType)
             {
                 case "ammo":
@@ -128,16 +124,13 @@ namespace TestMod.Content.Items
             return (currentUsage + modifierCost) <= maxPointBudget;
         }
 
-        // Check if weapon has required modifiers (first 3 slots, special is optional)
         public bool IsComplete()
         {
             return ammoTypeModifier != -1 &&
                    damageTypeModifier != -1 &&
                    shotTypeModifier != -1;
-            // Special effect is optional
         }
 
-        // Prevent shooting if incomplete or over budget
         public override bool CanUseItem(Player player)
         {
             if (GetCurrentPointUsage() > maxPointBudget)
@@ -154,21 +147,17 @@ namespace TestMod.Content.Items
             return base.CanUseItem(player);
         }
 
-        // Apply modifier effects when shooting
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             if (!IsComplete()) return false;
 
-            // Adjust spawn position
             Vector2 spawnPosition = position + Vector2.Normalize(velocity) * 25f;
 
-            // Apply ammo type effects
             int projectileType = GetProjectileFromAmmoType();
             
-            // Apply shot type effects
             ApplyShotTypeEffects(source, spawnPosition, velocity, projectileType, damage, knockback, player);
 
-            return false; // We handle projectile spawning manually
+            return false;
         }
 
         private int GetProjectileFromAmmoType()
@@ -211,14 +200,12 @@ namespace TestMod.Content.Items
 
         private void SpawnProjectileWithEffects(EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int projectileType, int damage, float knockback, Player player)
         {
-            // Spawn the projectile
             int projIndex = Projectile.NewProjectile(source, position, velocity, projectileType, damage, knockback, player.whoAmI);
             
             if (projIndex >= 0 && projIndex < Main.maxProjectiles)
             {
                 Projectile proj = Main.projectile[projIndex];
                 
-                // Apply special effects
                 ApplySpecialEffects(proj);
             }
         }
@@ -226,35 +213,38 @@ namespace TestMod.Content.Items
         private void ApplySpecialEffects(Projectile projectile)
         {
             if (specialEffectModifier == -1) return;
-
+            var globalProj = projectile.GetGlobalProjectile<ModularProjectileEffects>();
             switch (specialEffectModifier)
             {
                 case 0: // Piercing
                     projectile.penetrate += 1;
                     break;
-                    
+
                 case 1: // Bouncing
-                    //projectile += 1;
+                    globalProj = projectile.GetGlobalProjectile<ModularProjectileEffects>();
+                    globalProj.hasBouncing = true;
+                    globalProj.bouncesLeft = 10;
                     break;
-                    
-                case 2: // Homing - would need custom projectile AI
-                    // TODO: Implement homing behavior
+
+                case 2: // Homing
+                    globalProj = projectile.GetGlobalProjectile<ModularProjectileEffects>();
+                    globalProj.hasHoming = true;
+                    globalProj.homingStrength = 0.02f;
+                    globalProj.homingRange = 100;
                     break;
-                    
-                case 3: // Life Steal - handled in OnHitNPC
+
+                case 3: // Life Steal
                     break;
-                    
+
                 case 4: // Crit Boost - handled in ModifyWeaponCrit
                     break;
             }
         }
 
-        // Modify damage based on shot type and special effects
         public override void ModifyWeaponDamage(Player player, ref StatModifier damage)
         {
             if (!IsComplete()) return;
 
-            // Shot type damage modifiers
             switch (shotTypeModifier)
             {
                 case 0: // Auto Fire - reduced damage for rapid fire
@@ -272,7 +262,6 @@ namespace TestMod.Content.Items
         {
             if (!IsComplete()) return;
 
-            // Special effect: Crit Boost
             if (specialEffectModifier == 4) // Crit Boost modifier
             {
                 crit += 10f; // +10% crit chance
@@ -292,12 +281,10 @@ namespace TestMod.Content.Items
             }
         }
 
-        // Update weapon properties based on modifiers
         public override void UpdateInventory(Player player)
         {
             if (!IsComplete()) return;
 
-            // Update damage class based on ammo type
             switch (ammoTypeModifier)
             {
                 case 0: // Magic
@@ -347,7 +334,6 @@ namespace TestMod.Content.Items
         {
             if (!IsComplete()) return;
 
-            // Apply damage type debuffs
             switch (damageTypeModifier)
             {
                 case 0: // Fire
@@ -369,8 +355,7 @@ namespace TestMod.Content.Items
                     break;
             }
 
-            // Handle life steal (already implemented)
-            if (specialEffectModifier == 3) // Life Steal modifier
+            if (specialEffectModifier == 3)
             {
                 int healAmount = (int)(damageDone * 0.02f);
                 if (healAmount > 0)
@@ -383,7 +368,6 @@ namespace TestMod.Content.Items
             }
         }
 
-        // Save modifier data
         public override void SaveData(TagCompound tag)
         {
             tag["ammoType"] = ammoTypeModifier;
@@ -394,25 +378,33 @@ namespace TestMod.Content.Items
             tag["maxPointBudget"] = maxPointBudget;
         }
 
-        // Load modifier data
         public override void LoadData(TagCompound tag)
         {
-            ammoTypeModifier = tag.GetInt("ammoType");
-            damageTypeModifier = tag.GetInt("damageType");
-            shotTypeModifier = tag.GetInt("shotType");
-            specialEffectModifier = tag.GetInt("specialEffect");
-            weaponTier = tag.GetString("weaponTier");
-            maxPointBudget = tag.GetInt("maxPointBudget");
-
-            // Fallback for old saves
-            if (string.IsNullOrEmpty(weaponTier))
+            try
             {
-                weaponTier = "Copper";
-                maxPointBudget = ModifierData.GetWeaponPointBudget(weaponTier);
+                ModContent.GetInstance<TestMod>().Logger.Info("Loading weapon data...");
+                ammoTypeModifier = tag.GetInt("ammoType");
+                damageTypeModifier = tag.GetInt("damageType");
+                shotTypeModifier = tag.GetInt("shotType");
+                specialEffectModifier = tag.GetInt("specialEffect");
+                weaponTier = tag.GetString("weaponTier");
+                maxPointBudget = tag.GetInt("maxPointBudget");
+
+                ModContent.GetInstance<TestMod>().Logger.Info($"Loaded: ammo={ammoTypeModifier}, damage={damageTypeModifier}, shot={shotTypeModifier}");
+
+                // Fallback for old saves
+                if (string.IsNullOrEmpty(weaponTier))
+                {
+                    weaponTier = "Copper";
+                    maxPointBudget = ModifierData.GetWeaponPointBudget(weaponTier);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                ModContent.GetInstance<TestMod>().Logger.Error($"Error loading weapon data: {ex}");
             }
         }
 
-        // Updated tooltip for 4-slot system
     public override void ModifyTooltips(List<TooltipLine> tooltips)
     {
         int currentPoints = GetCurrentPointUsage();
@@ -421,12 +413,11 @@ namespace TestMod.Content.Items
         pointLine.OverrideColor = currentPoints <= maxPointBudget ? Color.White : Color.Red;
         tooltips.Add(pointLine);
 
-        // Show all 4 modifier slots
         AddModifierTooltip(tooltips, "Ammo Type", ammoTypeModifier, "ammo");
         AddModifierTooltip(tooltips, "Damage Type", damageTypeModifier, "damage");
         AddModifierTooltip(tooltips, "Shot Type", shotTypeModifier, "shot");
         AddModifierTooltip(tooltips, "Special Effect", specialEffectModifier, "special");
-
+        
         if (currentPoints > maxPointBudget)
         {
             TooltipLine overbudgetLine = new TooltipLine(Mod, "Overbudget", "OVER BUDGET - Cannot be used!");
@@ -553,7 +544,6 @@ namespace TestMod.Content.Items
 
         public override void AddRecipes()
         {
-            // Basic copper version
             Recipe copperRecipe = CreateRecipe();
             copperRecipe.AddIngredient(ItemID.CopperBar, 5);
             copperRecipe.AddIngredient(ItemID.Wood, 10);

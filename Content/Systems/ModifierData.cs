@@ -6,10 +6,8 @@ namespace TestMod.Content.Systems
 {
     public static class ModifierData
     {
-        // Point costs for each modifier (itemType -> point cost)
         private static Dictionary<int, int> modifierPointCosts = new Dictionary<int, int>();
         
-        // Weapon point budgets by tier
         public static Dictionary<string, int> WeaponPointBudgets = new Dictionary<string, int>()
         {
             { "Copper", 100 },
@@ -24,13 +22,11 @@ namespace TestMod.Content.Systems
 
         public static void InitializeModifierCosts()
         {
-            // Ammo Type Modifiers (1-4 points)
             modifierPointCosts[ModContent.ItemType<MagicAmmoModifier>()] = 1;
             modifierPointCosts[ModContent.ItemType<ArrowAmmoModifier>()] = 2;
             modifierPointCosts[ModContent.ItemType<BulletAmmoModifier>()] = 3;
             modifierPointCosts[ModContent.ItemType<RocketAmmoModifier>()] = 4;
 
-            // Damage Type Modifiers (2-3 points) 
             modifierPointCosts[ModContent.ItemType<FireDamageModifier>()] = 2;
             modifierPointCosts[ModContent.ItemType<WaterDamageModifier>()] = 2;
             modifierPointCosts[ModContent.ItemType<WindDamageModifier>()] = 2;
@@ -38,12 +34,10 @@ namespace TestMod.Content.Systems
             modifierPointCosts[ModContent.ItemType<EarthDamageModifier>()] = 3;
             modifierPointCosts[ModContent.ItemType<SlimeDamageModifier>()] = 3;
 
-            // Shot Type Modifiers (2-4 points)
             modifierPointCosts[ModContent.ItemType<BurstFireModifier>()] = 2;
             modifierPointCosts[ModContent.ItemType<ChargeFireModifier>()] = 3;
             modifierPointCosts[ModContent.ItemType<AutoFireModifier>()] = 4;
 
-            // *** THE MISSING SPECIAL EFFECT MODIFIERS ***
             modifierPointCosts[ModContent.ItemType<PiercingModifier>()] = 3;
             modifierPointCosts[ModContent.ItemType<BouncingModifier>()] = 3;
             modifierPointCosts[ModContent.ItemType<CritBoostModifier>()] = 3;
@@ -58,10 +52,9 @@ namespace TestMod.Content.Systems
         
         public static int GetWeaponPointBudget(string tier)
         {
-            return WeaponPointBudgets.TryGetValue(tier, out int budget) ? budget : 100; // Default to copper
+            return WeaponPointBudgets.TryGetValue(tier, out int budget) ? budget : 100;
         }
         
-        // Helper to get modifier tier from point cost (for UI display)
         public static string GetModifierTier(int pointCost)
         {
             return pointCost switch
