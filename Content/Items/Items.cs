@@ -31,7 +31,7 @@ namespace TestMod.Content.Items
         public override void SetDefaults()
         {
             Item.damage = baseDamage;
-            Item.DamageType = DamageClass.Ranged; // Start as ranged, will change based on ammo type
+            Item.DamageType = DamageClass.Magic;
             Item.width = 40;
             Item.height = 20;
             Item.useTime = baseUseTime;
@@ -43,15 +43,12 @@ namespace TestMod.Content.Items
             Item.rare = ItemRarityID.Blue;
             Item.UseSound = SoundID.Item11;
             Item.autoReuse = false;
-            Item.shoot = ProjectileID.WoodenArrowFriendly; // Default projectile
+            Item.shoot = ProjectileID.MagicMissile;
             Item.shootSpeed = 16f;
+            Item.mana = 10;
             Item.crit = baseCrit;
-            
-            // Set initial tier and budget
             weaponTier = "Copper";
             maxPointBudget = ModifierData.GetWeaponPointBudget(weaponTier);
-            
-            Item.useAmmo = AmmoID.None; // Will be set based on ammo modifier
         }
 
         public override Vector2? HoldoutOffset()
@@ -430,84 +427,100 @@ namespace TestMod.Content.Items
             if (string.IsNullOrEmpty(weaponTier))
             {
                 weaponTier = "Copper";
-                maxPointBudget = ModifierData.GetWeaponPointBudget(weaponTier);
+                maxPointBudget = 6;
             }
         }
 
-        // Custom tooltip showing installed modifiers
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        // Updated tooltip for 4-slot system
+    public override void ModifyTooltips(List<TooltipLine> tooltips)
+    {
+        int currentPoints = GetCurrentPointUsage();
+        TooltipLine pointLine = new TooltipLine(Mod, "PointBudget",
+            $"Points: {currentPoints}/{maxPointBudget} ({weaponTier} Tier)");
+        pointLine.OverrideColor = currentPoints <= maxPointBudget ? Color.White : Color.Red;
+        tooltips.Add(pointLine);
+
+        // Show all 4 modifier slots
+        AddModifierTooltip(tooltips, "Ammo Type", ammoTypeModifier, "ammo");
+        AddModifierTooltip(tooltips, "Damage Type", damageTypeModifier, "damage");
+        AddModifierTooltip(tooltips, "Shot Type", shotTypeModifier, "shot");
+        AddModifierTooltip(tooltips, "Special Effect", specialEffectModifier, "special");
+
+        if (currentPoints > maxPointBudget)
         {
-            // Point budget display
-            int currentPoints = GetCurrentPointUsage();
-            TooltipLine pointLine = new TooltipLine(Mod, "PointBudget",
-                $"Points: {currentPoints}/{maxPointBudget} ({weaponTier} Tier)");
-            pointLine.OverrideColor = currentPoints <= maxPointBudget ? Color.White : Color.Red;
-            tooltips.Add(pointLine);
+            TooltipLine overbudgetLine = new TooltipLine(Mod, "Overbudget", "OVER BUDGET - Cannot be used!");
+            overbudgetLine.OverrideColor = Color.Red;
+            tooltips.Add(overbudgetLine);
+        }
+        else if (!IsComplete())
+        {
+            TooltipLine incompleteLine = new TooltipLine(Mod, "Incomplete", "INCOMPLETE - Requires ammo, damage, and shot modifiers");
+            incompleteLine.OverrideColor = Color.Orange;
+            tooltips.Add(incompleteLine);
+        }
+    }
 
-            // Modifier display with point costs
-            string ammoTypeName = ammoTypeModifier != -1 ? GetModifierName(ammoTypeModifier, "ammo") : "Empty";
-            Color ammoTypeColor = ammoTypeModifier != -1 ? Color.White : Color.Gray;
-            if (ammoTypeModifier != -1)
+    private void AddModifierTooltip(List<TooltipLine> tooltips, string slotName, int modifierID, string modifierType)
+    {
+        string modifierName = modifierID != -1 ? GetModifierName(modifierID, modifierType) : "Empty";
+        Color modifierColor = modifierID != -1 ? Color.White : Color.Gray;
+
+        if (modifierID != -1)
+        {
+            int itemType = GetItemTypeFromModifier(modifierID, modifierType);
+            int cost = ModifierData.GetModifierPointCost(itemType);
+            modifierName += $" ({cost}pt)";
+        }
+
+        TooltipLine line = new TooltipLine(Mod, slotName, $"{slotName}: {modifierName}");
+        line.OverrideColor = modifierColor;
+        tooltips.Add(line);
+    }
+
+        private string GetModifierName(int modifierID, string type)
+        {
+            switch (type)
             {
-                int itemType = GetItemTypeFromModifier(ammoTypeModifier, "ammo");
-                int cost = ModifierData.GetModifierPointCost(itemType);
-                ammoTypeName += $" ({cost}pt)";
-            }
-
-            string damageTypeName = damageTypeModifier != -1 ? GetModifierName(damageTypeModifier, "damage") : "Empty";
-            Color damageTypeColor = damageTypeModifier != -1 ? Color.White : Color.Gray;
-            if (damageTypeModifier != -1)
-            {
-                int itemType = GetItemTypeFromModifier(damageTypeModifier, "damage");
-                int cost = ModifierData.GetModifierPointCost(itemType);
-                damageTypeName += $" ({cost}pt)";
-            }
-
-            string shotTypeName = shotTypeModifier != -1 ? GetModifierName(shotTypeModifier, "shot") : "Empty";
-            Color shotTypeColor = shotTypeModifier != -1 ? Color.White : Color.Gray;
-            if (shotTypeModifier != -1)
-            {
-                int itemType = GetItemTypeFromModifier(shotTypeModifier, "shot");
-                int cost = ModifierData.GetModifierPointCost(itemType);
-                shotTypeName += $" ({cost}pt)";
-            }
-
-            string specialName = specialEffectModifier != -1 ? GetModifierName(specialEffectModifier, "special") : "Empty";
-            Color specialColor = specialEffectModifier != -1 ? Color.Gold : Color.Gray;
-            if (specialEffectModifier != -1)
-            {
-                int itemType = GetItemTypeFromModifier(specialEffectModifier, "special");
-                int cost = ModifierData.GetModifierPointCost(itemType);
-                specialName += $" ({cost}pt)";
-            }
-
-            TooltipLine ammoLine = new TooltipLine(Mod, "AmmoType", $"Ammo Type: {ammoTypeName}");
-            ammoLine.OverrideColor = ammoTypeColor;
-            tooltips.Add(ammoLine);
-
-            TooltipLine damageLine = new TooltipLine(Mod, "DamageType", $"Damage Type: {damageTypeName}");
-            damageLine.OverrideColor = damageTypeColor;
-            tooltips.Add(damageLine);
-
-            TooltipLine shotLine = new TooltipLine(Mod, "ShotType", $"Shot Type: {shotTypeName}");
-            shotLine.OverrideColor = shotTypeColor;
-            tooltips.Add(shotLine);
-
-            TooltipLine specialLine = new TooltipLine(Mod, "SpecialEffect", $"Special Effect: {specialName}");
-            specialLine.OverrideColor = specialColor;
-            tooltips.Add(specialLine);
-
-            if (currentPoints > maxPointBudget)
-            {
-                TooltipLine overbudgetLine = new TooltipLine(Mod, "Overbudget", "OVER BUDGET - Cannot be used!");
-                overbudgetLine.OverrideColor = Color.Red;
-                tooltips.Add(overbudgetLine);
-            }
-            else if (!IsComplete())
-            {
-                TooltipLine incompleteLine = new TooltipLine(Mod, "Incomplete", "INCOMPLETE - Requires ammo, damage, and shot type");
-                incompleteLine.OverrideColor = Color.Orange;
-                tooltips.Add(incompleteLine);
+                case "ammo":
+                    return modifierID switch
+                    {
+                        0 => "Magic",
+                        1 => "Arrow",
+                        2 => "Bullet",
+                        3 => "Rocket",
+                        _ => "Unknown"
+                    };
+                case "damage":
+                    return modifierID switch
+                    {
+                        0 => "Fire",
+                        1 => "Water",
+                        2 => "Lightning",
+                        3 => "Earth",
+                        4 => "Wind",
+                        5 => "Slime",
+                        _ => "Unknown"
+                    };
+                case "shot":
+                    return modifierID switch
+                    {
+                        0 => "Auto",
+                        1 => "Burst",
+                        2 => "Charge",
+                        _ => "Unknown"
+                    };
+                case "special":
+                    return modifierID switch
+                    {
+                        0 => "Piercing",
+                        1 => "Bouncing",
+                        2 => "Homing",
+                        3 => "Life Steal",
+                        4 => "Crit Boost",
+                        _ => "Unknown"
+                    };
+                default:
+                    return "Unknown";
             }
         }
 
@@ -555,54 +568,6 @@ namespace TestMod.Content.Items
                     };
             }
             return 0;
-        }
-
-        // Helper method to get modifier names for display
-        private string GetModifierName(int modifierID, string type)
-        {
-            switch (type)
-            {
-                case "ammo":
-                    return modifierID switch
-                    {
-                        0 => "Magic",
-                        1 => "Arrow",
-                        2 => "Bullet",
-                        3 => "Rocket",
-                        _ => "Unknown"
-                    };
-                case "damage":
-                    return modifierID switch
-                    {
-                        0 => "Fire",
-                        1 => "Water",
-                        2 => "Lightning",
-                        3 => "Earth",
-                        4 => "Wind",
-                        5 => "Slime",
-                        _ => "Unknown"
-                    };
-                case "shot":
-                    return modifierID switch
-                    {
-                        0 => "Auto",
-                        1 => "Burst",
-                        2 => "Charge",
-                        _ => "Unknown"
-                    };
-                case "special":
-                    return modifierID switch
-                    {
-                        0 => "Piercing",
-                        1 => "Bouncing",
-                        2 => "Homing",
-                        3 => "Life Steal",
-                        4 => "Crit Boost",
-                        _ => "Unknown"
-                    };
-                default:
-                    return "Unknown";
-            }
         }
 
         public override void AddRecipes()
