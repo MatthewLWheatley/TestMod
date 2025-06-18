@@ -10,15 +10,13 @@ using TestMod.Content.Systems;
 
 namespace TestMod.Content.Items
 {
-    // This is a basic item template.
-    // Please see tModLoader's ExampleMod for every other example:
-    // https://github.com/tModLoader/tModLoader/tree/stable/ExampleMod
     public class ModularGun : ModItem
     {
-        // Stored modifier IDs - these get saved/loaded
-        public int shotTypeModifier = -1;
-        public int damageTypeModifier = -1;
-        public int rateOfFireModifier = -1;
+        // NEW: 4-category modifier system
+        public int ammoTypeModifier = -1;      // Magic, Arrow, Bullet, Rocket
+        public int damageTypeModifier = -1;    // Fire, Water, Lightning, Earth, Wind, Slime
+        public int shotTypeModifier = -1;      // Auto Fire, Burst Fire, Charge Fire
+        public int specialEffectModifier = -1; // Piercing, Bouncing, Homing, Life Steal, Crit Boost
 
         // Base weapon stats
         private int baseDamage = 15;
@@ -26,14 +24,14 @@ namespace TestMod.Content.Items
         private int baseCrit = 4;
         private int baseUseTime = 30;
 
-        // NEW: Point budget properties
-        public string weaponTier = "Copper";  // Default tier
-        public int maxPointBudget = 6;        // Will be set based on tier
+        // Point budget properties
+        public string weaponTier = "Copper";
+        public int maxPointBudget = 8; // Updated to new budget system
 
         public override void SetDefaults()
         {
             Item.damage = baseDamage;
-            Item.DamageType = DamageClass.Magic;
+            Item.DamageType = DamageClass.Ranged; // Start as ranged, will change based on ammo type
             Item.width = 40;
             Item.height = 20;
             Item.useTime = baseUseTime;
@@ -44,46 +42,30 @@ namespace TestMod.Content.Items
             Item.value = Item.buyPrice(0, 1, 0, 0);
             Item.rare = ItemRarityID.Blue;
             Item.UseSound = SoundID.Item11;
-            Item.autoReuse = false; // This will be modified by rate of fire modifiers
-            Item.shoot = ProjectileID.MagicMissile; // Default magic projectile
+            Item.autoReuse = false;
+            Item.shoot = ProjectileID.WoodenArrowFriendly; // Default projectile
             Item.shootSpeed = 16f;
-            Item.mana = 10; // Mana cost
             Item.crit = baseCrit;
+            
+            // Set initial tier and budget
             weaponTier = "Copper";
-            Item.UseSound = SoundID.Item11;
-            Item.useStyle = ItemUseStyleID.Shoot;
-            //Item.holdStyle = ItemHoldStyleID.HoldUp;
-            Item.noUseGraphic = false;
+            maxPointBudget = ModifierData.GetWeaponPointBudget(weaponTier);
+            
+            Item.useAmmo = AmmoID.None; // Will be set based on ammo modifier
         }
-
 
         public override Vector2? HoldoutOffset()
         {
-            // Adjust holdout position for better visual alignment
-            return new Vector2(-10, 2); // Adjust as needed
-        }
-
-        public override void SetStaticDefaults()
-        {
-            // For newer tModLoader versions, use these instead:
-            // DisplayName.SetDefault is deprecated
-            // Use the localization system or just remove these lines
-            // The display name and tooltip can be set via .hjson files instead
-
-            // If you want to keep it simple for now, just comment these out:
-            // DisplayName.SetDefault("Modular Magic Gun");
-            // Tooltip.SetDefault("A customizable magical weapon that requires modifiers to function\n" +
-            //                  "Use at a Modifier Station to install components\n" +
-            //                  "Consumes mana instead of ammunition");
+            return new Vector2(-10, 2);
         }
 
         public int GetCurrentPointUsage()
         {
             int total = 0;
 
-            if (shotTypeModifier != -1)
+            if (ammoTypeModifier != -1)
             {
-                int itemType = GetItemTypeFromModifier(shotTypeModifier, "shot");
+                int itemType = GetItemTypeFromModifier(ammoTypeModifier, "ammo");
                 total += ModifierData.GetModifierPointCost(itemType);
             }
 
@@ -93,9 +75,15 @@ namespace TestMod.Content.Items
                 total += ModifierData.GetModifierPointCost(itemType);
             }
 
-            if (rateOfFireModifier != -1)
+            if (shotTypeModifier != -1)
             {
-                int itemType = GetItemTypeFromModifier(rateOfFireModifier, "rate");
+                int itemType = GetItemTypeFromModifier(shotTypeModifier, "shot");
+                total += ModifierData.GetModifierPointCost(itemType);
+            }
+
+            if (specialEffectModifier != -1)
+            {
+                int itemType = GetItemTypeFromModifier(specialEffectModifier, "special");
                 total += ModifierData.GetModifierPointCost(itemType);
             }
 
@@ -110,10 +98,10 @@ namespace TestMod.Content.Items
             // Subtract current modifier cost if replacing
             switch (modifierType)
             {
-                case "shot":
-                    if (shotTypeModifier != -1)
+                case "ammo":
+                    if (ammoTypeModifier != -1)
                     {
-                        int currentType = GetItemTypeFromModifier(shotTypeModifier, "shot");
+                        int currentType = GetItemTypeFromModifier(ammoTypeModifier, "ammo");
                         currentUsage -= ModifierData.GetModifierPointCost(currentType);
                     }
                     break;
@@ -124,10 +112,17 @@ namespace TestMod.Content.Items
                         currentUsage -= ModifierData.GetModifierPointCost(currentType);
                     }
                     break;
-                case "rate":
-                    if (rateOfFireModifier != -1)
+                case "shot":
+                    if (shotTypeModifier != -1)
                     {
-                        int currentType = GetItemTypeFromModifier(rateOfFireModifier, "rate");
+                        int currentType = GetItemTypeFromModifier(shotTypeModifier, "shot");
+                        currentUsage -= ModifierData.GetModifierPointCost(currentType);
+                    }
+                    break;
+                case "special":
+                    if (specialEffectModifier != -1)
+                    {
+                        int currentType = GetItemTypeFromModifier(specialEffectModifier, "special");
                         currentUsage -= ModifierData.GetModifierPointCost(currentType);
                     }
                     break;
@@ -136,15 +131,16 @@ namespace TestMod.Content.Items
             return (currentUsage + modifierCost) <= maxPointBudget;
         }
 
-        // Check if weapon has all required modifiers
+        // Check if weapon has required modifiers (first 3 slots, special is optional)
         public bool IsComplete()
         {
-            return shotTypeModifier != -1 &&
+            return ammoTypeModifier != -1 &&
                    damageTypeModifier != -1 &&
-                   rateOfFireModifier != -1;
+                   shotTypeModifier != -1;
+            // Special effect is optional
         }
 
-        // Prevent shooting if incomplete
+        // Prevent shooting if incomplete or over budget
         public override bool CanUseItem(Player player)
         {
             if (GetCurrentPointUsage() > maxPointBudget)
@@ -155,7 +151,7 @@ namespace TestMod.Content.Items
 
             if (!IsComplete())
             {
-                Main.NewText("Weapon requires all modifier slots to be filled!", Color.Red);
+                Main.NewText("Weapon requires ammo, damage, and shot type modifiers!", Color.Red);
                 return false;
             }
             return base.CanUseItem(player);
@@ -166,65 +162,134 @@ namespace TestMod.Content.Items
         {
             if (!IsComplete()) return false;
 
-            // Adjust spawn position - add offset from player center
-            Vector2 spawnPosition = position;
+            // Adjust spawn position
+            Vector2 spawnPosition = position + Vector2.Normalize(velocity) * 25f;
 
-            // Example: Spawn 20 pixels forward in the direction you're facing
-            spawnPosition += Vector2.Normalize(velocity) * 20f;
+            // Apply ammo type effects
+            int projectileType = GetProjectileFromAmmoType();
+            
+            // Apply shot type effects
+            ApplyShotTypeEffects(source, spawnPosition, velocity, projectileType, damage, knockback, player);
 
-            // Or spawn from gun barrel position (considering player direction)
-            // spawnPosition += new Vector2(player.direction * 25, -5); // 25 pixels forward, 5 pixels up
+            return false; // We handle projectile spawning manually
+        }
 
-            // Modify projectile based on shot type modifier
+        private int GetProjectileFromAmmoType()
+        {
+            return ammoTypeModifier switch
+            {
+                0 => ProjectileID.MagicMissile,        // Magic
+                1 => ProjectileID.WoodenArrowFriendly, // Arrow
+                2 => ProjectileID.Bullet,              // Bullet
+                3 => ProjectileID.RocketI,             // Rocket
+                _ => ProjectileID.WoodenArrowFriendly  // Default
+            };
+        }
+
+        private void ApplyShotTypeEffects(EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int projectileType, int damage, float knockback, Player player)
+        {
             switch (shotTypeModifier)
             {
-                case 0: // Straight shot
-                    type = ProjectileID.WoodenArrowFriendly;
+                case 0: // Auto Fire - single shot (handled by useTime/autoReuse)
+                    SpawnProjectileWithEffects(source, position, velocity, projectileType, damage, knockback, player);
                     break;
-                case 1: // Burst shot
+                    
+                case 1: // Burst Fire - 3 projectiles with spread
                     for (int i = 0; i < 3; i++)
                     {
                         Vector2 perturbedSpeed = velocity.RotatedByRandom(MathHelper.ToRadians(15));
-                        Projectile.NewProjectile(source, spawnPosition, perturbedSpeed, ProjectileID.WoodenArrowFriendly, damage / 2, knockback, player.whoAmI);
+                        SpawnProjectileWithEffects(source, position, perturbedSpeed, projectileType, (int)(damage * 0.8f), knockback, player);
                     }
-                    return false;
-                case 2: // Bolt shot
-                    type = ProjectileID.UnholyArrow;
                     break;
-                case 3: // Projectile
-                    type = ProjectileID.Grenade;
+                    
+                case 2: // Charge Fire - single powerful shot (damage boost handled in ModifyWeaponDamage)
+                    SpawnProjectileWithEffects(source, position, velocity, projectileType, damage, knockback, player);
+                    break;
+                    
+                default:
+                    SpawnProjectileWithEffects(source, position, velocity, projectileType, damage, knockback, player);
                     break;
             }
-
-            // Use modified spawn position for the main projectile
-            Projectile.NewProjectile(source, spawnPosition, velocity, type, damage, knockback, player.whoAmI);
-            return false; // Return false since we're manually spawning
         }
 
-        // Modify weapon stats based on rate of fire modifier
+        private void SpawnProjectileWithEffects(EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int projectileType, int damage, float knockback, Player player)
+        {
+            // Spawn the projectile
+            int projIndex = Projectile.NewProjectile(source, position, velocity, projectileType, damage, knockback, player.whoAmI);
+            
+            if (projIndex >= 0 && projIndex < Main.maxProjectiles)
+            {
+                Projectile proj = Main.projectile[projIndex];
+                
+                // Apply special effects
+                ApplySpecialEffects(proj);
+            }
+        }
+
+        private void ApplySpecialEffects(Projectile projectile)
+        {
+            if (specialEffectModifier == -1) return;
+
+            switch (specialEffectModifier)
+            {
+                case 0: // Piercing
+                    projectile.penetrate += 1;
+                    break;
+                    
+                case 1: // Bouncing
+                    //projectile += 1;
+                    break;
+                    
+                case 2: // Homing - would need custom projectile AI
+                    // TODO: Implement homing behavior
+                    break;
+                    
+                case 3: // Life Steal - handled in OnHitNPC
+                    break;
+                    
+                case 4: // Crit Boost - handled in ModifyWeaponCrit
+                    break;
+            }
+        }
+
+        // Modify damage based on shot type and special effects
         public override void ModifyWeaponDamage(Player player, ref StatModifier damage)
         {
-            // Adjust damage based on modifiers
-            switch (rateOfFireModifier)
+            if (!IsComplete()) return;
+
+            // Shot type damage modifiers
+            switch (shotTypeModifier)
             {
-                case 0: // Auto - lower damage, faster fire
+                case 0: // Auto Fire - reduced damage for rapid fire
                     damage *= 0.8f;
                     break;
-                case 1: // Burst - moderate damage
-                    damage *= 1.0f;
+                case 1: // Burst Fire - already handled in shot spawning (0.8x per shot)
                     break;
-                case 2: // Charge - higher damage, slower fire
-                    damage *= 1.5f;
+                case 2: // Charge Fire - increased damage
+                    damage *= 1.4f;
                     break;
+            }
+        }
+
+        public override void ModifyWeaponCrit(Player player, ref float crit)
+        {
+            if (!IsComplete()) return;
+
+            // Special effect: Crit Boost
+            if (specialEffectModifier == 4) // Crit Boost modifier
+            {
+                crit += 10f; // +10% crit chance
             }
         }
 
         public override void ModifyWeaponKnockback(Player player, ref StatModifier knockback)
         {
-            // Modify knockback based on damage type
+            if (!IsComplete()) return;
+
+            // Damage type knockback modifiers
             switch (damageTypeModifier)
             {
-                case 3: // Earth - extra knockback
+                case 4: // Wind - extra knockback
                     knockback *= 1.5f;
                     break;
             }
@@ -235,20 +300,45 @@ namespace TestMod.Content.Items
         {
             if (!IsComplete()) return;
 
-            // Modify use time based on rate of fire
-            switch (rateOfFireModifier)
+            // Update damage class based on ammo type
+            switch (ammoTypeModifier)
             {
-                case 0: // Auto
+                case 0: // Magic
+                    Item.DamageType = DamageClass.Magic;
+                    Item.useAmmo = AmmoID.None;
+                    Item.mana = 10; // Consumes mana instead
+                    break;
+                case 1: // Arrow
+                    Item.DamageType = DamageClass.Ranged;
+                    Item.useAmmo = AmmoID.Arrow;
+                    Item.mana = 0;
+                    break;
+                case 2: // Bullet
+                    Item.DamageType = DamageClass.Ranged;
+                    Item.useAmmo = AmmoID.Bullet;
+                    Item.mana = 0;
+                    break;
+                case 3: // Rocket
+                    Item.DamageType = DamageClass.Ranged;
+                    Item.useAmmo = AmmoID.Rocket;
+                    Item.mana = 0;
+                    break;
+            }
+
+            // Update use time based on shot type
+            switch (shotTypeModifier)
+            {
+                case 0: // Auto Fire
                     Item.useTime = baseUseTime / 2;
                     Item.useAnimation = baseUseTime / 2;
                     Item.autoReuse = true;
                     break;
-                case 1: // Burst
+                case 1: // Burst Fire
                     Item.useTime = baseUseTime;
                     Item.useAnimation = baseUseTime;
                     Item.autoReuse = false;
                     break;
-                case 2: // Charge
+                case 2: // Charge Fire
                     Item.useTime = baseUseTime * 2;
                     Item.useAnimation = baseUseTime * 2;
                     Item.autoReuse = false;
@@ -256,12 +346,72 @@ namespace TestMod.Content.Items
             }
         }
 
+        // Handle life steal effect
+        public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (specialEffectModifier == 3) // Life Steal modifier
+            {
+                int healAmount = (int)(damageDone * 0.02f); // 2% of damage
+                if (healAmount > 0)
+                {
+                    player.statLife += healAmount;
+                    if (player.statLife > player.statLifeMax2)
+                        player.statLife = player.statLifeMax2;
+                    
+                    player.HealEffect(healAmount);
+                }
+            }
+        }
+
+        // // Apply damage type debuffs
+        // public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
+        // {
+        //     if (!IsComplete()) return;
+
+        //     // Apply damage type debuffs
+        //     switch (damageTypeModifier)
+        //     {
+        //         case 0: // Fire
+        //             target.AddBuff(BuffID.OnFire, 300); // 5 seconds
+        //             break;
+        //         case 1: // Water
+        //             target.AddBuff(BuffID.Slow, 180); // 3 seconds
+        //             break;
+        //         case 2: // Lightning
+        //             target.AddBuff(BuffID.Ichor, 240); // 4 seconds (defense reduction)
+        //             break;
+        //         case 3: // Earth
+        //             target.AddBuff(BuffID.Bleeding, 360); // 6 seconds
+        //             break;
+        //         case 4: // Wind - knockback already handled in ModifyWeaponKnockback
+        //             break;
+        //         case 5: // Slime
+        //             target.AddBuff(BuffID.Poisoned, 420); // 7 seconds
+        //             break;
+        //     }
+
+        //     // Handle life steal (if we have special effect)
+        //     if (specialEffectModifier == 3) // Life Steal modifier
+        //     {
+        //         int healAmount = (int)(damageDone * 0.02f); // 2% of damage
+        //         if (healAmount > 0)
+        //         {
+        //             player.statLife += healAmount;
+        //             if (player.statLife > player.statLifeMax2)
+        //                 player.statLife = player.statLifeMax2;
+
+        //             player.HealEffect(healAmount);
+        //         }
+        //     }
+        // }
+
         // Save modifier data
         public override void SaveData(TagCompound tag)
         {
-            tag["shotType"] = shotTypeModifier;
+            tag["ammoType"] = ammoTypeModifier;
             tag["damageType"] = damageTypeModifier;
-            tag["rateOfFire"] = rateOfFireModifier;
+            tag["shotType"] = shotTypeModifier;
+            tag["specialEffect"] = specialEffectModifier;
             tag["weaponTier"] = weaponTier;
             tag["maxPointBudget"] = maxPointBudget;
         }
@@ -269,9 +419,10 @@ namespace TestMod.Content.Items
         // Load modifier data
         public override void LoadData(TagCompound tag)
         {
-            shotTypeModifier = tag.GetInt("shotType");
+            ammoTypeModifier = tag.GetInt("ammoType");
             damageTypeModifier = tag.GetInt("damageType");
-            rateOfFireModifier = tag.GetInt("rateOfFire");
+            shotTypeModifier = tag.GetInt("shotType");
+            specialEffectModifier = tag.GetInt("specialEffect");
             weaponTier = tag.GetString("weaponTier");
             maxPointBudget = tag.GetInt("maxPointBudget");
 
@@ -279,7 +430,7 @@ namespace TestMod.Content.Items
             if (string.IsNullOrEmpty(weaponTier))
             {
                 weaponTier = "Copper";
-                maxPointBudget = 6;
+                maxPointBudget = ModifierData.GetWeaponPointBudget(weaponTier);
             }
         }
 
@@ -293,24 +444,18 @@ namespace TestMod.Content.Items
             pointLine.OverrideColor = currentPoints <= maxPointBudget ? Color.White : Color.Red;
             tooltips.Add(pointLine);
 
-            // Existing modifier display code...
-            string shotTypeName = shotTypeModifier != -1 ? GetModifierName(shotTypeModifier, "shot") : "Empty";
-            Color shotTypeColor = shotTypeModifier != -1 ? Color.White : Color.Gray;
+            // Modifier display with point costs
+            string ammoTypeName = ammoTypeModifier != -1 ? GetModifierName(ammoTypeModifier, "ammo") : "Empty";
+            Color ammoTypeColor = ammoTypeModifier != -1 ? Color.White : Color.Gray;
+            if (ammoTypeModifier != -1)
+            {
+                int itemType = GetItemTypeFromModifier(ammoTypeModifier, "ammo");
+                int cost = ModifierData.GetModifierPointCost(itemType);
+                ammoTypeName += $" ({cost}pt)";
+            }
 
             string damageTypeName = damageTypeModifier != -1 ? GetModifierName(damageTypeModifier, "damage") : "Empty";
             Color damageTypeColor = damageTypeModifier != -1 ? Color.White : Color.Gray;
-
-            string rateOfFireName = rateOfFireModifier != -1 ? GetModifierName(rateOfFireModifier, "rate") : "Empty";
-            Color rateOfFireColor = rateOfFireModifier != -1 ? Color.White : Color.Gray;
-
-            // Show point costs
-            if (shotTypeModifier != -1)
-            {
-                int itemType = GetItemTypeFromModifier(shotTypeModifier, "shot");
-                int cost = ModifierData.GetModifierPointCost(itemType);
-                shotTypeName += $" ({cost}pt)";
-            }
-
             if (damageTypeModifier != -1)
             {
                 int itemType = GetItemTypeFromModifier(damageTypeModifier, "damage");
@@ -318,24 +463,39 @@ namespace TestMod.Content.Items
                 damageTypeName += $" ({cost}pt)";
             }
 
-            if (rateOfFireModifier != -1)
+            string shotTypeName = shotTypeModifier != -1 ? GetModifierName(shotTypeModifier, "shot") : "Empty";
+            Color shotTypeColor = shotTypeModifier != -1 ? Color.White : Color.Gray;
+            if (shotTypeModifier != -1)
             {
-                int itemType = GetItemTypeFromModifier(rateOfFireModifier, "rate");
+                int itemType = GetItemTypeFromModifier(shotTypeModifier, "shot");
                 int cost = ModifierData.GetModifierPointCost(itemType);
-                rateOfFireName += $" ({cost}pt)";
+                shotTypeName += $" ({cost}pt)";
             }
 
-            TooltipLine shotLine = new TooltipLine(Mod, "ShotType", $"Shot Type: {shotTypeName}");
-            shotLine.OverrideColor = shotTypeColor;
-            tooltips.Add(shotLine);
+            string specialName = specialEffectModifier != -1 ? GetModifierName(specialEffectModifier, "special") : "Empty";
+            Color specialColor = specialEffectModifier != -1 ? Color.Gold : Color.Gray;
+            if (specialEffectModifier != -1)
+            {
+                int itemType = GetItemTypeFromModifier(specialEffectModifier, "special");
+                int cost = ModifierData.GetModifierPointCost(itemType);
+                specialName += $" ({cost}pt)";
+            }
+
+            TooltipLine ammoLine = new TooltipLine(Mod, "AmmoType", $"Ammo Type: {ammoTypeName}");
+            ammoLine.OverrideColor = ammoTypeColor;
+            tooltips.Add(ammoLine);
 
             TooltipLine damageLine = new TooltipLine(Mod, "DamageType", $"Damage Type: {damageTypeName}");
             damageLine.OverrideColor = damageTypeColor;
             tooltips.Add(damageLine);
 
-            TooltipLine rateLine = new TooltipLine(Mod, "RateOfFire", $"Rate of Fire: {rateOfFireName}");
-            rateLine.OverrideColor = rateOfFireColor;
-            tooltips.Add(rateLine);
+            TooltipLine shotLine = new TooltipLine(Mod, "ShotType", $"Shot Type: {shotTypeName}");
+            shotLine.OverrideColor = shotTypeColor;
+            tooltips.Add(shotLine);
+
+            TooltipLine specialLine = new TooltipLine(Mod, "SpecialEffect", $"Special Effect: {specialName}");
+            specialLine.OverrideColor = specialColor;
+            tooltips.Add(specialLine);
 
             if (currentPoints > maxPointBudget)
             {
@@ -345,7 +505,7 @@ namespace TestMod.Content.Items
             }
             else if (!IsComplete())
             {
-                TooltipLine incompleteLine = new TooltipLine(Mod, "Incomplete", "INCOMPLETE - Requires all modifiers");
+                TooltipLine incompleteLine = new TooltipLine(Mod, "Incomplete", "INCOMPLETE - Requires ammo, damage, and shot type");
                 incompleteLine.OverrideColor = Color.Orange;
                 tooltips.Add(incompleteLine);
             }
@@ -381,6 +541,16 @@ namespace TestMod.Content.Items
                         0 => ModContent.ItemType<AutoFireModifier>(),
                         1 => ModContent.ItemType<BurstFireModifier>(),
                         2 => ModContent.ItemType<ChargeFireModifier>(),
+                        _ => 0
+                    };
+                case "special":
+                    return modifierID switch
+                    {
+                        0 => ModContent.ItemType<PiercingModifier>(),
+                        1 => ModContent.ItemType<BouncingModifier>(),
+                        2 => ModContent.ItemType<HomingModifier>(),
+                        3 => ModContent.ItemType<LifeStealModifier>(),
+                        4 => ModContent.ItemType<CritBoostModifier>(),
                         _ => 0
                     };
             }
@@ -420,6 +590,16 @@ namespace TestMod.Content.Items
                         2 => "Charge",
                         _ => "Unknown"
                     };
+                case "special":
+                    return modifierID switch
+                    {
+                        0 => "Piercing",
+                        1 => "Bouncing",
+                        2 => "Homing",
+                        3 => "Life Steal",
+                        4 => "Crit Boost",
+                        _ => "Unknown"
+                    };
                 default:
                     return "Unknown";
             }
@@ -433,9 +613,6 @@ namespace TestMod.Content.Items
             copperRecipe.AddIngredient(ItemID.Wood, 10);
             copperRecipe.AddTile(TileID.WorkBenches);
             copperRecipe.Register();
-
-            // TODO: Add recipes for higher tiers later
-            // Iron version would require Iron Bars + Copper Modular Gun + Modular Components
         }
     }
 
@@ -470,804 +647,5 @@ namespace TestMod.Content.Items
             recipe.AddTile(TileID.WorkBenches);
             recipe.Register();
         }
-    }
-
-    // ==================== AMMO TYPE MODIFIERS ====================
-    // Replace your old "Shot Type" modifiers with these
-
-    public class MagicAmmoModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 5, 0);
-            Item.rare = ItemRarityID.Blue;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Infinite ammo, consumes mana instead");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1); // Replace with proper crafting materials
-            recipe.Register();
-        }
-    }
-
-    public class ArrowAmmoModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 10, 0);
-            Item.rare = ItemRarityID.White;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Uses arrow ammunition - cheap and plentiful");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
-            recipe.Register();
-        }
-    }
-
-    public class BulletAmmoModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 15, 0);
-            Item.rare = ItemRarityID.Green;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Uses bullet ammunition - mid-tier damage/cost");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
-            recipe.Register();
-        }
-    }
-
-    public class RocketAmmoModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 25, 0);
-            Item.rare = ItemRarityID.Orange;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Uses rocket ammunition - high damage/cost");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
-            recipe.Register();
-        }
-    }
-
-    // ==================== DAMAGE TYPE MODIFIERS ====================
-    // Keep your existing Fire, Water, Lightning, Earth and add these two
-
-    public class FireDamageModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 10, 0);
-            Item.rare = ItemRarityID.Orange;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Damage Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Applies 'On Fire!' debuff");
-            effectLine.OverrideColor = Color.Orange;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
-            recipe.Register();
-        }
-    }
-
-    public class WaterDamageModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 10, 0);
-            Item.rare = ItemRarityID.Blue;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Damage Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Applies 'Slow' debuff");
-            effectLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
-            recipe.Register();
-        }
-    }
-
-    public class LightningDamageModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 15, 0);
-            Item.rare = ItemRarityID.Yellow;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Damage Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Applies 'Ichor' debuff (defense reduction)");
-            effectLine.OverrideColor = Color.Yellow;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
-            recipe.Register();
-        }
-    }
-
-    public class EarthDamageModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 15, 0);
-            Item.rare = ItemRarityID.Green;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Damage Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Applies 'Bleeding' debuff");
-            effectLine.OverrideColor = Color.Red;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
-            recipe.Register();
-        }
-    }
-
-    public class WindDamageModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 10, 0);
-            Item.rare = ItemRarityID.LightPurple;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Damage Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "+50% knockback bonus");
-            effectLine.OverrideColor = Color.LightGreen;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
-            recipe.Register();
-        }
-    }
-
-    public class SlimeDamageModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 15, 0);
-            Item.rare = ItemRarityID.Purple;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Damage Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Applies 'Poisoned' debuff");
-            effectLine.OverrideColor = Color.Purple;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
-            recipe.Register();
-        }
-    }
-
-    // ==================== SHOT TYPE MODIFIERS ====================
-    // Rename your "Rate of Fire" modifiers to "Shot Type"
-
-    public class AutoFireModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 25, 0);
-            Item.rare = ItemRarityID.Pink;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Shot Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Hold to continuously fire, reduced damage per shot");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
-            recipe.Register();
-        }
-    }
-
-    public class BurstFireModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 10, 0);
-            Item.rare = ItemRarityID.Pink;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Shot Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Single click fires multiple projectiles, balanced damage");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
-            recipe.Register();
-        }
-    }
-
-    public class ChargeFireModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 15, 0);
-            Item.rare = ItemRarityID.Pink;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Shot Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Hold to charge, release for high damage shot");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
-            recipe.Register();
-        }
-    }
-
-// ==================== SPECIAL EFFECT MODIFIERS ====================
-// These are unique modifiers that add special effects to projectiles
-
-    public class PiercingModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 5, 0, 0); // Higher value since boss drop
-            Item.rare = ItemRarityID.Expert; // Special rarity for boss drops
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Special Effect Modifier");
-            typeLine.OverrideColor = Color.Gold;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Projectiles penetrate 1 enemy");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-
-            TooltipLine bossLine = new TooltipLine(Mod, "BossDrop", "King Slime Boss Drop");
-            bossLine.OverrideColor = Color.Cyan;
-            tooltips.Add(bossLine);
-        }
-
-        // NO RECIPE - Boss drop only!
-    }
-
-    public class BouncingModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 5, 0, 0);
-            Item.rare = ItemRarityID.Expert;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Special Effect Modifier");
-            typeLine.OverrideColor = Color.Gold;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Projectiles ricochet once");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-
-            TooltipLine bossLine = new TooltipLine(Mod, "BossDrop", "Brain of Cthulhu Boss Drop");
-            bossLine.OverrideColor = Color.Cyan;
-            tooltips.Add(bossLine);
-        }
-
-        // NO RECIPE - Boss drop only!
-    }
-
-    public class HomingModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 7, 50, 0); // Higher value for 4-point modifier
-            Item.rare = ItemRarityID.Master; // Even rarer for 4-point effects
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Special Effect Modifier");
-            typeLine.OverrideColor = Color.Gold;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Slight target seeking behavior");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-
-            TooltipLine bossLine = new TooltipLine(Mod, "BossDrop", "Skeletron Boss Drop");
-            bossLine.OverrideColor = Color.Cyan;
-            tooltips.Add(bossLine);
-        }
-
-        // NO RECIPE - Boss drop only!
-    }
-
-    public class LifeStealModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 7, 50, 0);
-            Item.rare = ItemRarityID.Master;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Special Effect Modifier");
-            typeLine.OverrideColor = Color.Gold;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "2% damage converted to health");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-
-            TooltipLine bossLine = new TooltipLine(Mod, "BossDrop", "Wall of Flesh Boss Drop");
-            bossLine.OverrideColor = Color.Cyan;
-            tooltips.Add(bossLine);
-        }
-
-        // NO RECIPE - Boss drop only!
-    }
-
-    public class CritBoostModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 5, 0, 0);
-            Item.rare = ItemRarityID.Expert;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Special Effect Modifier");
-            typeLine.OverrideColor = Color.Gold;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "+10% critical strike chance");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-
-            TooltipLine bossLine = new TooltipLine(Mod, "BossDrop", "Eye of Cthulhu Boss Drop");
-            bossLine.OverrideColor = Color.Cyan;
-            tooltips.Add(bossLine);
-        }
-
-        // NO RECIPE - Boss drop only!
     }
 }

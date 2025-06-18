@@ -26,26 +26,35 @@ namespace TestMod.Content.UI
         
         // Item arrays for slots
         private Item[] weaponItems = new Item[1];
-        private Item[] shotTypeItems = new Item[1];
-        private Item[] damageTypeItems = new Item[1];
-        private Item[] rateOfFireItems = new Item[1];
+        private Item[] modifier1Items = new Item[1];  // Dynamic slot 1
+        private Item[] modifier2Items = new Item[1];  // Dynamic slot 2  
+        private Item[] modifier3Items = new Item[1];  // Dynamic slot 3
+        private Item[] specialItems = new Item[1];    // Special effects slot
         
         // Weapon slot
         private UIItemSlot weaponSlot;
         
         // Modifier slots
-        private UIItemSlot shotTypeSlot;
-        private UIItemSlot damageTypeSlot;
-        private UIItemSlot rateOfFireSlot;
+        private UIItemSlot modifier1Slot;
+        private UIItemSlot modifier2Slot;
+        private UIItemSlot modifier3Slot;
+        private UIItemSlot specialSlot;
+        
+        // Dynamic labels for modifier slots
+        private UIText modifier1Label;
+        private UIText modifier2Label;
+        private UIText modifier3Label;
+        private UIText specialLabel;
         
         // Buttons
-        private UITextPanel<string> xCloseButton; // New X button
+        private UITextPanel<string> xCloseButton;
         
         // Track previous weapon state and slot states for auto-install/remove
         private Item previousWeapon = new Item();
-        private Item[] previousShotType = new Item[1] { new Item() };
-        private Item[] previousDamageType = new Item[1] { new Item() };
-        private Item[] previousRateOfFire = new Item[1] { new Item() };
+        private Item[] previousModifier1 = new Item[1] { new Item() };
+        private Item[] previousModifier2 = new Item[1] { new Item() };
+        private Item[] previousModifier3 = new Item[1] { new Item() };
+        private Item[] previousSpecial = new Item[1] { new Item() };
         
         private UIText pointBudgetText;
         private UIText pointWarningText;
@@ -53,23 +62,21 @@ namespace TestMod.Content.UI
         public override void OnInitialize()
         {
             // Initialize item arrays
-            for (int i = 0; i < weaponItems.Length; i++)
-                weaponItems[i] = new Item();
-            for (int i = 0; i < shotTypeItems.Length; i++)
-                shotTypeItems[i] = new Item();
-            for (int i = 0; i < damageTypeItems.Length; i++)
-                damageTypeItems[i] = new Item();
-            for (int i = 0; i < rateOfFireItems.Length; i++)
-                rateOfFireItems[i] = new Item();
+            weaponItems[0] = new Item();
+            modifier1Items[0] = new Item();
+            modifier2Items[0] = new Item();
+            modifier3Items[0] = new Item();
+            specialItems[0] = new Item();
 
-            // Main panel
+            // Main panel - lighter and more transparent
             mainPanel = new UIPanel();
             mainPanel.SetPadding(0);
             mainPanel.Left.Set(400, 0f);
-            mainPanel.Top.Set(200, 0f);
-            mainPanel.Width.Set(400, 0f);
-            mainPanel.Height.Set(300, 0f);
-            mainPanel.BackgroundColor = new Color(73, 94, 171);
+            mainPanel.Top.Set(150, 0f);
+            mainPanel.Width.Set(320, 0f);
+            mainPanel.Height.Set(450, 0f);
+            // Much lighter blue with transparency
+            mainPanel.BackgroundColor = new Color(130, 150, 200, 180);
 
             // Add drag functionality to main panel
             mainPanel.OnLeftMouseDown += StartDragging;
@@ -85,88 +92,105 @@ namespace TestMod.Content.UI
 
             // X Close button (top right)
             xCloseButton = new UITextPanel<string>("X");
-            xCloseButton.Left.Set(365, 0f);
+            xCloseButton.Left.Set(280, 0f);
             xCloseButton.Top.Set(5, 0f);
             xCloseButton.Width.Set(30, 0f);
             xCloseButton.Height.Set(25, 0f);
-            xCloseButton.BackgroundColor = new Color(180, 40, 40);
+            xCloseButton.BackgroundColor = new Color(180, 40, 40, 200);
             xCloseButton.OnLeftClick += CloseUI;
             mainPanel.Append(xCloseButton);
 
-            // Weapon slot
+            // Point budget display (moved to top)
+            pointBudgetText = new UIText("Points: 0/6 (Copper)");
+            pointBudgetText.Left.Set(10, 0f);
+            pointBudgetText.Top.Set(35, 0f);
+            mainPanel.Append(pointBudgetText);
+
+            // Weapon slot (top of stack)
             weaponSlot = new UIItemSlot(weaponItems, 0, ItemSlot.Context.BankItem);
-            weaponSlot.Left.Set(20, 0f);
-            weaponSlot.Top.Set(50, 0f);
+            weaponSlot.Left.Set(60, 0f);
+            weaponSlot.Top.Set(65, 0f);
             weaponSlot.Width.Set(52, 0f);
             weaponSlot.Height.Set(52, 0f);
             mainPanel.Append(weaponSlot);
 
             // Weapon label
-            UIText weaponLabel = new UIText("Weapon:");
-            weaponLabel.Left.Set(80, 0f);
-            weaponLabel.Top.Set(65, 0f);
+            UIText weaponLabel = new UIText("Modular Weapon");
+            weaponLabel.Left.Set(130, 0f);
+            weaponLabel.Top.Set(80, 0f);
             mainPanel.Append(weaponLabel);
 
-            // Modifier slots with labels
-            // Shot Type
-            shotTypeSlot = new UIItemSlot(shotTypeItems, 0, ItemSlot.Context.BankItem);
-            shotTypeSlot.Left.Set(20, 0f);
-            shotTypeSlot.Top.Set(120, 0f);
-            shotTypeSlot.Width.Set(52, 0f);
-            shotTypeSlot.Height.Set(52, 0f);
-            mainPanel.Append(shotTypeSlot);
+            // Modifier Slot 1
+            modifier1Slot = new UIItemSlot(modifier1Items, 0, ItemSlot.Context.BankItem);
+            modifier1Slot.Left.Set(60, 0f);
+            modifier1Slot.Top.Set(135, 0f);
+            modifier1Slot.Width.Set(52, 0f);
+            modifier1Slot.Height.Set(52, 0f);
+            mainPanel.Append(modifier1Slot);
 
-            UIText shotLabel = new UIText("Shot Type:");
-            shotLabel.Left.Set(80, 0f);
-            shotLabel.Top.Set(135, 0f);
-            mainPanel.Append(shotLabel);
+            modifier1Label = new UIText("Modifier Slot 1");
+            modifier1Label.Left.Set(130, 0f);
+            modifier1Label.Top.Set(150, 0f);
+            modifier1Label.TextColor = Color.Gray;
+            mainPanel.Append(modifier1Label);
 
-            // Damage Type
-            damageTypeSlot = new UIItemSlot(damageTypeItems, 0, ItemSlot.Context.BankItem);
-            damageTypeSlot.Left.Set(200, 0f);
-            damageTypeSlot.Top.Set(120, 0f);
-            damageTypeSlot.Width.Set(52, 0f);
-            damageTypeSlot.Height.Set(52, 0f);
-            mainPanel.Append(damageTypeSlot);
+            // Modifier Slot 2
+            modifier2Slot = new UIItemSlot(modifier2Items, 0, ItemSlot.Context.BankItem);
+            modifier2Slot.Left.Set(60, 0f);
+            modifier2Slot.Top.Set(205, 0f);
+            modifier2Slot.Width.Set(52, 0f);
+            modifier2Slot.Height.Set(52, 0f);
+            mainPanel.Append(modifier2Slot);
 
-            UIText damageLabel = new UIText("Damage Type:");
-            damageLabel.Left.Set(260, 0f);
-            damageLabel.Top.Set(135, 0f);
-            mainPanel.Append(damageLabel);
+            modifier2Label = new UIText("Modifier Slot 2");
+            modifier2Label.Left.Set(130, 0f);
+            modifier2Label.Top.Set(220, 0f);
+            modifier2Label.TextColor = Color.Gray;
+            mainPanel.Append(modifier2Label);
 
-            // Rate of Fire
-            rateOfFireSlot = new UIItemSlot(rateOfFireItems, 0, ItemSlot.Context.BankItem);
-            rateOfFireSlot.Left.Set(110, 0f);
-            rateOfFireSlot.Top.Set(190, 0f);
-            rateOfFireSlot.Width.Set(52, 0f);
-            rateOfFireSlot.Height.Set(52, 0f);
-            mainPanel.Append(rateOfFireSlot);
+            // Modifier Slot 3
+            modifier3Slot = new UIItemSlot(modifier3Items, 0, ItemSlot.Context.BankItem);
+            modifier3Slot.Left.Set(60, 0f);
+            modifier3Slot.Top.Set(275, 0f);
+            modifier3Slot.Width.Set(52, 0f);
+            modifier3Slot.Height.Set(52, 0f);
+            mainPanel.Append(modifier3Slot);
 
-            UIText rateLabel = new UIText("Rate of Fire:");
-            rateLabel.Left.Set(170, 0f);
-            rateLabel.Top.Set(205, 0f);
-            mainPanel.Append(rateLabel);
+            modifier3Label = new UIText("Modifier Slot 3");
+            modifier3Label.Left.Set(130, 0f);
+            modifier3Label.Top.Set(290, 0f);
+            modifier3Label.TextColor = Color.Gray;
+            mainPanel.Append(modifier3Label);
 
-            // ADD: Point budget display
-            pointBudgetText = new UIText("Points: 0/6 (Copper)");
-            pointBudgetText.Left.Set(200, 0f);
-            pointBudgetText.Top.Set(10, 0f);
-            mainPanel.Append(pointBudgetText);
+            // Special Effects Slot
+            specialSlot = new UIItemSlot(specialItems, 0, ItemSlot.Context.BankItem);
+            specialSlot.Left.Set(60, 0f);
+            specialSlot.Top.Set(345, 0f);
+            specialSlot.Width.Set(52, 0f);
+            specialSlot.Height.Set(52, 0f);
+            mainPanel.Append(specialSlot);
 
-            // ADD: Point warning text
+            specialLabel = new UIText("Special Effects");
+            specialLabel.Left.Set(130, 0f);
+            specialLabel.Top.Set(360, 0f);
+            specialLabel.TextColor = Color.Gold;
+            mainPanel.Append(specialLabel);
+
+            // Point warning text
             pointWarningText = new UIText("");
-            pointWarningText.Left.Set(20, 0f);
-            pointWarningText.Top.Set(240, 0f);
-            pointWarningText.Width.Set(360, 0f);
+            pointWarningText.Left.Set(10, 0f);
+            pointWarningText.Top.Set(400, 0f);
+            pointWarningText.Width.Set(300, 0f);
             pointWarningText.Height.Set(20, 0f);
             mainPanel.Append(pointWarningText);
 
-            // Update the status text position
-            UIText statusText = new UIText("Auto-install: Place weapon to extract mods, add mods to auto-install");
-            statusText.Left.Set(20, 0f);
-            statusText.Top.Set(270, 0f); // Moved down to make room for warning
-            statusText.Width.Set(360, 0f);
-            statusText.Height.Set(30, 0f);
+            // Status text
+            UIText statusText = new UIText("Place weapon to see modifier categories");
+            statusText.Left.Set(10, 0f);
+            statusText.Top.Set(420, 0f);
+            statusText.Width.Set(300, 0f);
+            statusText.Height.Set(25, 0f);
+            statusText.TextColor = Color.LightGray;
             mainPanel.Append(statusText);
         }
         
@@ -214,6 +238,49 @@ namespace TestMod.Content.UI
             HandleAutoModifierManagement();
             
             UpdatePointDisplay();
+            UpdateModifierLabels();
+        }
+
+        private void UpdateModifierLabels()
+        {
+            Item currentWeapon = weaponItems[0];
+            
+            if (currentWeapon.type == ModContent.ItemType<ModularGun>())
+            {
+                // Gun-specific labels
+                modifier1Label.SetText("Ammo Type");
+                modifier1Label.TextColor = Color.White;
+                
+                modifier2Label.SetText("Damage Type");
+                modifier2Label.TextColor = Color.White;
+                
+                modifier3Label.SetText("Shot Type");
+                modifier3Label.TextColor = Color.White;
+            }
+            // else if (currentWeapon.type == ModContent.ItemType<ModularSword>()) // When you add swords
+            // {
+            //     // Sword-specific labels
+            //     modifier1Label.SetText("Blade Type");
+            //     modifier1Label.TextColor = Color.White;
+                
+            //     modifier2Label.SetText("Damage Type");
+            //     modifier2Label.TextColor = Color.White;
+                
+            //     modifier3Label.SetText("Swing Type");
+            //     modifier3Label.TextColor = Color.White;
+            // }
+            else
+            {
+                // No weapon or unknown weapon type
+                modifier1Label.SetText("Modifier Slot 1");
+                modifier1Label.TextColor = Color.Gray;
+                
+                modifier2Label.SetText("Modifier Slot 2");
+                modifier2Label.TextColor = Color.Gray;
+                
+                modifier3Label.SetText("Modifier Slot 3");
+                modifier3Label.TextColor = Color.Gray;
+            }
         }
         
         private void HandleAutoModifierManagement()
@@ -252,9 +319,10 @@ namespace TestMod.Content.UI
             
             // Update previous states
             previousWeapon = currentWeapon.Clone();
-            previousShotType[0] = shotTypeItems[0].Clone();
-            previousDamageType[0] = damageTypeItems[0].Clone();
-            previousRateOfFire[0] = rateOfFireItems[0].Clone();
+            previousModifier1[0] = modifier1Items[0].Clone();
+            previousModifier2[0] = modifier2Items[0].Clone();
+            previousModifier3[0] = modifier3Items[0].Clone();
+            previousSpecial[0] = specialItems[0].Clone();
         }
 
         private void UpdatePointDisplay()
@@ -304,54 +372,40 @@ namespace TestMod.Content.UI
 
             bool installed = false;
 
-            // Check if shot type modifier was just added
-            if (previousShotType[0].IsAir && !shotTypeItems[0].IsAir && modularGun.shotTypeModifier == -1)
+            // Check modifier slot 1 (maps to shotType for guns)
+            if (previousModifier1[0].IsAir && !modifier1Items[0].IsAir && modularGun.shotTypeModifier == -1)
             {
-                // TEMPORARILY SKIP POINT VALIDATION
-                // if (modularGun.CanInstallModifier(shotTypeItems[0].type, "shot"))
-                // {
-                modularGun.shotTypeModifier = GetModifierID(shotTypeItems[0].type, "shot");
+                modularGun.shotTypeModifier = GetModifierID(modifier1Items[0].type, "shot");
                 if (modularGun.shotTypeModifier != -1)
                 {
                     installed = true;
-                    Main.NewText($"Shot modifier installed: ID {modularGun.shotTypeModifier}", Color.Green);
+                    Main.NewText($"Slot 1 modifier installed", Color.Green);
                 }
-                else
-                {
-                    //Main.NewText($"Failed to get modifier ID for item type {shotTypeItems[0].type}", Color.Red);
-                }
-                // }
             }
 
-            // Check if damage type modifier was just added
-            if (previousDamageType[0].IsAir && !damageTypeItems[0].IsAir && modularGun.damageTypeModifier == -1)
+            // Check modifier slot 2 (maps to damageType for guns)
+            if (previousModifier2[0].IsAir && !modifier2Items[0].IsAir && modularGun.damageTypeModifier == -1)
             {
-                modularGun.damageTypeModifier = GetModifierID(damageTypeItems[0].type, "damage");
+                modularGun.damageTypeModifier = GetModifierID(modifier2Items[0].type, "damage");
                 if (modularGun.damageTypeModifier != -1)
                 {
                     installed = true;
-                    Main.NewText($"Damage modifier installed: ID {modularGun.damageTypeModifier}", Color.Green);
-                }
-                else
-                {
-                    //Main.NewText($"Failed to get modifier ID for item type {damageTypeItems[0].type}", Color.Red);
+                    Main.NewText($"Slot 2 modifier installed", Color.Green);
                 }
             }
 
-            // Check if rate of fire modifier was just added
-            if (previousRateOfFire[0].IsAir && !rateOfFireItems[0].IsAir && modularGun.rateOfFireModifier == -1)
+            // Check modifier slot 3 (maps to rateOfFire for guns)
+            if (previousModifier3[0].IsAir && !modifier3Items[0].IsAir && modularGun.shotTypeModifier == -1)
             {
-                modularGun.rateOfFireModifier = GetModifierID(rateOfFireItems[0].type, "rate");
-                if (modularGun.rateOfFireModifier != -1)
+                modularGun.shotTypeModifier = GetModifierID(modifier3Items[0].type, "rate");
+                if (modularGun.shotTypeModifier != -1)
                 {
                     installed = true;
-                    Main.NewText($"Rate modifier installed: ID {modularGun.rateOfFireModifier}", Color.Green);
-                }
-                else
-                {
-                    //Main.NewText($"Failed to get modifier ID for item type {rateOfFireItems[0].type}", Color.Red);
+                    Main.NewText($"Slot 3 modifier installed", Color.Green);
                 }
             }
+
+            // TODO: Handle special slot when you implement special effects
 
             if (installed)
             {
@@ -361,9 +415,10 @@ namespace TestMod.Content.UI
 
         private void ClearAllModifierSlots()
         {
-            shotTypeItems[0].TurnToAir();
-            damageTypeItems[0].TurnToAir();
-            rateOfFireItems[0].TurnToAir();
+            modifier1Items[0].TurnToAir();
+            modifier2Items[0].TurnToAir();
+            modifier3Items[0].TurnToAir();
+            specialItems[0].TurnToAir();
             Main.NewText("Modifier slots cleared!", Color.Yellow);
         }
         
@@ -374,24 +429,24 @@ namespace TestMod.Content.UI
             
             bool removed = false;
             
-            // Check if shot type modifier was removed
-            if (!previousShotType[0].IsAir && shotTypeItems[0].IsAir && modularGun.shotTypeModifier != -1)
+            // Check if modifier 1 was removed
+            if (!previousModifier1[0].IsAir && modifier1Items[0].IsAir && modularGun.shotTypeModifier != -1)
             {
                 modularGun.shotTypeModifier = -1;
                 removed = true;
             }
             
-            // Check if damage type modifier was removed
-            if (!previousDamageType[0].IsAir && damageTypeItems[0].IsAir && modularGun.damageTypeModifier != -1)
+            // Check if modifier 2 was removed
+            if (!previousModifier2[0].IsAir && modifier2Items[0].IsAir && modularGun.damageTypeModifier != -1)
             {
                 modularGun.damageTypeModifier = -1;
                 removed = true;
             }
             
-            // Check if rate of fire modifier was removed
-            if (!previousRateOfFire[0].IsAir && rateOfFireItems[0].IsAir && modularGun.rateOfFireModifier != -1)
+            // Check if modifier 3 was removed
+            if (!previousModifier3[0].IsAir && modifier3Items[0].IsAir && modularGun.shotTypeModifier != -1)
             {
-                modularGun.rateOfFireModifier = -1;
+                modularGun.shotTypeModifier = -1;
                 removed = true;
             }
             
@@ -408,27 +463,27 @@ namespace TestMod.Content.UI
             
             bool extracted = false;
             
-            // Extract shot type modifier
-            if (modularGun.shotTypeModifier != -1 && shotTypeItems[0].IsAir)
+            // Extract to slot 1 (shotType)
+            if (modularGun.shotTypeModifier != -1 && modifier1Items[0].IsAir)
             {
-                shotTypeItems[0].SetDefaults(GetItemTypeFromModifier(modularGun.shotTypeModifier, "shot"));
+                modifier1Items[0].SetDefaults(GetItemTypeFromModifier(modularGun.shotTypeModifier, "shot"));
                 modularGun.shotTypeModifier = -1;
                 extracted = true;
             }
             
-            // Extract damage type modifier
-            if (modularGun.damageTypeModifier != -1 && damageTypeItems[0].IsAir)
+            // Extract to slot 2 (damageType)
+            if (modularGun.damageTypeModifier != -1 && modifier2Items[0].IsAir)
             {
-                damageTypeItems[0].SetDefaults(GetItemTypeFromModifier(modularGun.damageTypeModifier, "damage"));
+                modifier2Items[0].SetDefaults(GetItemTypeFromModifier(modularGun.damageTypeModifier, "damage"));
                 modularGun.damageTypeModifier = -1;
                 extracted = true;
             }
             
-            // Extract rate of fire modifier
-            if (modularGun.rateOfFireModifier != -1 && rateOfFireItems[0].IsAir)
+            // Extract to slot 3 (rateOfFire)
+            if (modularGun.shotTypeModifier != -1 && modifier3Items[0].IsAir)
             {
-                rateOfFireItems[0].SetDefaults(GetItemTypeFromModifier(modularGun.rateOfFireModifier, "rate"));
-                modularGun.rateOfFireModifier = -1;
+                modifier3Items[0].SetDefaults(GetItemTypeFromModifier(modularGun.shotTypeModifier, "rate"));
+                modularGun.shotTypeModifier = -1;
                 extracted = true;
             }
             
@@ -456,14 +511,35 @@ namespace TestMod.Content.UI
             // Only return modifier items if they're NOT installed in the weapon
             if (!weaponHasMods)
             {
-                // Return modifier items...
+                // Return modifier items that aren't installed
+                if (!modifier1Items[0].IsAir)
+                {
+                    player.QuickSpawnItem(player.GetSource_FromThis(), modifier1Items[0]);
+                    modifier1Items[0].TurnToAir();
+                }
+                if (!modifier2Items[0].IsAir)
+                {
+                    player.QuickSpawnItem(player.GetSource_FromThis(), modifier2Items[0]);
+                    modifier2Items[0].TurnToAir();
+                }
+                if (!modifier3Items[0].IsAir)
+                {
+                    player.QuickSpawnItem(player.GetSource_FromThis(), modifier3Items[0]);
+                    modifier3Items[0].TurnToAir();
+                }
+                if (!specialItems[0].IsAir)
+                {
+                    player.QuickSpawnItem(player.GetSource_FromThis(), specialItems[0]);
+                    specialItems[0].TurnToAir();
+                }
             }
             else
             {
                 // Just clear slots without returning items
-                shotTypeItems[0].TurnToAir();
-                damageTypeItems[0].TurnToAir();
-                rateOfFireItems[0].TurnToAir();
+                modifier1Items[0].TurnToAir();
+                modifier2Items[0].TurnToAir();
+                modifier3Items[0].TurnToAir();
+                specialItems[0].TurnToAir();
             }
 
             Visible = false;
@@ -491,6 +567,11 @@ namespace TestMod.Content.UI
                     else if (itemType == ModContent.ItemType<SlimeDamageModifier>()) result = 5;
                     break;
                 case "shot":
+                    if (itemType == ModContent.ItemType<AutoFireModifier>()) result = 0;
+                    else if (itemType == ModContent.ItemType<BurstFireModifier>()) result = 1;
+                    else if (itemType == ModContent.ItemType<ChargeFireModifier>()) result = 2;
+                    break;
+                case "rate":
                     if (itemType == ModContent.ItemType<AutoFireModifier>()) result = 0;
                     else if (itemType == ModContent.ItemType<BurstFireModifier>()) result = 1;
                     else if (itemType == ModContent.ItemType<ChargeFireModifier>()) result = 2;
@@ -525,6 +606,7 @@ namespace TestMod.Content.UI
                         _ => 0
                     };
                 case "shot":
+                case "rate":
                     return modifierID switch
                     {
                         0 => ModContent.ItemType<AutoFireModifier>(),
