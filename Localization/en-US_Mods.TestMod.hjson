@@ -325,6 +325,16 @@ Items: {
 		DisplayName: Perfect Wind Damage Modifier
 		Tooltip: ""
 	}
+
+	CopperModularGun: {
+		DisplayName: Copper Modular Gun
+		Tooltip: ""
+	}
+
+	IronModularGun: {
+		DisplayName: Iron Modular Gun
+		Tooltip: ""
+	}
 }
 
 Tiles.ModifierStation.MapEntry: Modifier Station

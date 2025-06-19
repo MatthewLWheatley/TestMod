@@ -6,27 +6,33 @@ using Terraria.DataStructures;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using TestMod.Content.Systems;
+using System.Linq;
 
 
 namespace TestMod.Content.Items
 {
-    public class ModularGun : ModItem
+    public abstract class BaseModularGun : ModItem
     {
         public int ammoTypeModifier = -1;
         public int damageTypeModifier = -1;
         public int shotTypeModifier = -1;
         public int specialEffectModifier = -1;
 
-        private int baseDamage = 15;
-        private float baseKnockback = 2f;
-        private int baseCrit = 4;
-        private int baseUseTime = 30;
 
-        public string weaponTier = "Copper";
-        public int maxPointBudget = 8;
+        protected int baseDamage;
+        protected float baseKnockback;
+        protected int baseCrit;
+        protected int baseUseTime;
+        public string weaponTier;
+        public int maxPointBudget;
+
+
+        protected abstract void SetTierDefaults();
 
         public override void SetDefaults()
         {
+            SetTierDefaults();
+
             Item.damage = baseDamage;
             Item.DamageType = DamageClass.Magic;
             Item.width = 40;
@@ -37,15 +43,30 @@ namespace TestMod.Content.Items
             Item.noMelee = true;
             Item.knockBack = baseKnockback;
             Item.value = Item.buyPrice(0, 1, 0, 0);
-            Item.rare = ItemRarityID.Blue;
+            Item.rare = GetRarityForTier();
             Item.UseSound = SoundID.Item11;
             Item.autoReuse = false;
             Item.shoot = ProjectileID.MagicMissile;
             Item.shootSpeed = 16f;
             Item.mana = 10;
             Item.crit = baseCrit;
-            weaponTier = "Copper";
             maxPointBudget = ModifierData.GetWeaponPointBudget(weaponTier);
+        }
+
+        private int GetRarityForTier()
+        {
+            var tierProgression = ModifierData.GetWeaponTierProgression();
+            int tierIndex = tierProgression.IndexOf(weaponTier);
+
+            return tierIndex switch
+            {
+                <= 3 => ItemRarityID.White,
+                <= 7 => ItemRarityID.Blue,
+                <= 10 => ItemRarityID.LightRed,
+                <= 12 => ItemRarityID.Pink,
+                <= 14 => ItemRarityID.Yellow,
+                _ => ItemRarityID.Red
+            };
         }
 
         public override Vector2? HoldoutOffset()
@@ -154,7 +175,7 @@ namespace TestMod.Content.Items
             Vector2 spawnPosition = position + Vector2.Normalize(velocity) * 25f;
 
             int projectileType = GetProjectileFromAmmoType();
-            
+
             ApplyShotTypeEffects(source, spawnPosition, velocity, projectileType, damage, knockback, player);
 
             return false;
@@ -179,7 +200,7 @@ namespace TestMod.Content.Items
                 case 0: // Auto Fire - single shot (handled by useTime/autoReuse)
                     SpawnProjectileWithEffects(source, position, velocity, projectileType, damage, knockback, player);
                     break;
-                    
+
                 case 1: // Burst Fire - 3 projectiles with spread
                     for (int i = 0; i < 3; i++)
                     {
@@ -187,11 +208,11 @@ namespace TestMod.Content.Items
                         SpawnProjectileWithEffects(source, position, perturbedSpeed, projectileType, (int)(damage * 0.8f), knockback, player);
                     }
                     break;
-                    
+
                 case 2: // Charge Fire - single powerful shot (damage boost handled in ModifyWeaponDamage)
                     SpawnProjectileWithEffects(source, position, velocity, projectileType, damage, knockback, player);
                     break;
-                    
+
                 default:
                     SpawnProjectileWithEffects(source, position, velocity, projectileType, damage, knockback, player);
                     break;
@@ -201,11 +222,11 @@ namespace TestMod.Content.Items
         private void SpawnProjectileWithEffects(EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int projectileType, int damage, float knockback, Player player)
         {
             int projIndex = Projectile.NewProjectile(source, position, velocity, projectileType, damage, knockback, player.whoAmI);
-            
+
             if (projIndex >= 0 && projIndex < Main.maxProjectiles)
             {
                 Projectile proj = Main.projectile[projIndex];
-                
+
                 ApplySpecialEffects(proj);
             }
         }
@@ -405,49 +426,55 @@ namespace TestMod.Content.Items
             }
         }
 
-    public override void ModifyTooltips(List<TooltipLine> tooltips)
-    {
-        int currentPoints = GetCurrentPointUsage();
-        TooltipLine pointLine = new TooltipLine(Mod, "PointBudget",
-            $"Points: {currentPoints}/{maxPointBudget} ({weaponTier} Tier)");
-        pointLine.OverrideColor = currentPoints <= maxPointBudget ? Color.White : Color.Red;
-        tooltips.Add(pointLine);
-
-        AddModifierTooltip(tooltips, "Ammo Type", ammoTypeModifier, "ammo");
-        AddModifierTooltip(tooltips, "Damage Type", damageTypeModifier, "damage");
-        AddModifierTooltip(tooltips, "Shot Type", shotTypeModifier, "shot");
-        AddModifierTooltip(tooltips, "Special Effect", specialEffectModifier, "special");
-        
-        if (currentPoints > maxPointBudget)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            TooltipLine overbudgetLine = new TooltipLine(Mod, "Overbudget", "OVER BUDGET - Cannot be used!");
-            overbudgetLine.OverrideColor = Color.Red;
-            tooltips.Add(overbudgetLine);
-        }
-        else if (!IsComplete())
-        {
-            TooltipLine incompleteLine = new TooltipLine(Mod, "Incomplete", "INCOMPLETE - Requires ammo, damage, and shot modifiers");
-            incompleteLine.OverrideColor = Color.Orange;
-            tooltips.Add(incompleteLine);
-        }
-    }
+            // Change the name line to include tier
+            var nameLine = tooltips.First(x => x.Name == "ItemName");
+            if (nameLine != null)
+            {
+                nameLine.Text = $"{weaponTier} Modular Gun";
+            }
+            int currentPoints = GetCurrentPointUsage();
+            TooltipLine pointLine = new TooltipLine(Mod, "PointBudget",
+                $"Points: {currentPoints}/{maxPointBudget} ({weaponTier} Tier)");
+            pointLine.OverrideColor = currentPoints <= maxPointBudget ? Color.White : Color.Red;
+            tooltips.Add(pointLine);
 
-    private void AddModifierTooltip(List<TooltipLine> tooltips, string slotName, int modifierID, string modifierType)
-    {
-        string modifierName = modifierID != -1 ? GetModifierName(modifierID, modifierType) : "Empty";
-        Color modifierColor = modifierID != -1 ? Color.White : Color.Gray;
+            AddModifierTooltip(tooltips, "Ammo Type", ammoTypeModifier, "ammo");
+            AddModifierTooltip(tooltips, "Damage Type", damageTypeModifier, "damage");
+            AddModifierTooltip(tooltips, "Shot Type", shotTypeModifier, "shot");
+            AddModifierTooltip(tooltips, "Special Effect", specialEffectModifier, "special");
 
-        if (modifierID != -1)
-        {
-            int itemType = GetItemTypeFromModifier(modifierID, modifierType);
-            int cost = ModifierData.GetModifierPointCost(itemType);
-            modifierName += $" ({cost}pt)";
+            if (currentPoints > maxPointBudget)
+            {
+                TooltipLine overbudgetLine = new TooltipLine(Mod, "Overbudget", "OVER BUDGET - Cannot be used!");
+                overbudgetLine.OverrideColor = Color.Red;
+                tooltips.Add(overbudgetLine);
+            }
+            else if (!IsComplete())
+            {
+                TooltipLine incompleteLine = new TooltipLine(Mod, "Incomplete", "INCOMPLETE - Requires ammo, damage, and shot modifiers");
+                incompleteLine.OverrideColor = Color.Orange;
+                tooltips.Add(incompleteLine);
+            }
         }
 
-        TooltipLine line = new TooltipLine(Mod, slotName, $"{slotName}: {modifierName}");
-        line.OverrideColor = modifierColor;
-        tooltips.Add(line);
-    }
+        private void AddModifierTooltip(List<TooltipLine> tooltips, string slotName, int modifierID, string modifierType)
+        {
+            string modifierName = modifierID != -1 ? GetModifierName(modifierID, modifierType) : "Empty";
+            Color modifierColor = modifierID != -1 ? Color.White : Color.Gray;
+
+            if (modifierID != -1)
+            {
+                int itemType = GetItemTypeFromModifier(modifierID, modifierType);
+                int cost = ModifierData.GetModifierPointCost(itemType);
+                modifierName += $" ({cost}pt)";
+            }
+
+            TooltipLine line = new TooltipLine(Mod, slotName, $"{slotName}: {modifierName}");
+            line.OverrideColor = modifierColor;
+            tooltips.Add(line);
+        }
 
         private string GetModifierName(int modifierID, string type)
         {
@@ -549,6 +576,118 @@ namespace TestMod.Content.Items
             copperRecipe.AddIngredient(ItemID.Wood, 10);
             copperRecipe.AddTile(TileID.WorkBenches);
             copperRecipe.Register();
+        }
+
+        public bool CanUpgradeToTier(string targetTier)
+        {
+            var tierProgression = ModifierData.GetWeaponTierProgression();
+            int currentIndex = tierProgression.IndexOf(weaponTier);
+            int targetIndex = tierProgression.IndexOf(targetTier);
+
+            return targetIndex == currentIndex + 1 && ModifierData.IsWeaponTierUnlocked(targetTier);
+        }
+
+        public void UpgradeToTier(string targetTier)
+        {
+            weaponTier = targetTier;
+            maxPointBudget = ModifierData.GetWeaponPointBudget(targetTier);
+
+            // Update base stats based on tier
+            UpdateStatsForTier();
+        }
+        private void UpdateStatsForTier()
+        {
+            // Scale stats based on tier progression
+            var tierProgression = ModifierData.GetWeaponTierProgression();
+            int tierIndex = tierProgression.IndexOf(weaponTier);
+
+            float multiplier = 1f + (tierIndex * 0.15f); // 15% increase per tier
+
+            Item.damage = (int)(baseDamage * multiplier);
+            Item.knockBack = baseKnockback * (1f + tierIndex * 0.1f);
+            Item.crit = baseCrit + (tierIndex * 2); // +2% crit per tier
+            Item.value = Item.buyPrice(0, 1 + tierIndex, 0, 0);
+
+            // Update rarity based on tier
+            Item.rare = tierIndex switch
+            {
+                <= 3 => ItemRarityID.White,
+                <= 7 => ItemRarityID.Blue,
+                <= 10 => ItemRarityID.LightRed,
+                <= 12 => ItemRarityID.Pink,
+                <= 14 => ItemRarityID.Yellow,
+                _ => ItemRarityID.Red
+            };
+        }
+
+        public override void OnConsumeItem(Player player)
+        {
+            // Called when this item is consumed in a recipe
+            // Store modifiers in a global player variable temporarily
+            if (ModContent.GetInstance<TestMod>().transferringModifiers == null)
+                ModContent.GetInstance<TestMod>().transferringModifiers = new int[4];
+
+            ModContent.GetInstance<TestMod>().transferringModifiers[0] = ammoTypeModifier;
+            ModContent.GetInstance<TestMod>().transferringModifiers[1] = damageTypeModifier;
+            ModContent.GetInstance<TestMod>().transferringModifiers[2] = shotTypeModifier;
+            ModContent.GetInstance<TestMod>().transferringModifiers[3] = specialEffectModifier;
+        }
+
+        public override void OnCreated(ItemCreationContext context)
+        {
+            // Called when item is crafted
+            if (context is RecipeItemCreationContext && ModContent.GetInstance<TestMod>().transferringModifiers != null)
+            {
+                ammoTypeModifier = ModContent.GetInstance<TestMod>().transferringModifiers[0];
+                damageTypeModifier = ModContent.GetInstance<TestMod>().transferringModifiers[1];
+                shotTypeModifier = ModContent.GetInstance<TestMod>().transferringModifiers[2];
+                specialEffectModifier = ModContent.GetInstance<TestMod>().transferringModifiers[3];
+
+                ModContent.GetInstance<TestMod>().transferringModifiers = null;
+            }
+        }
+    }
+
+    public class CopperModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 15;
+            baseKnockback = 2f;
+            baseCrit = 4;
+            baseUseTime = 30;
+            weaponTier = "Copper";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ItemID.CopperBar, 5);
+            recipe.AddIngredient(ItemID.Wood, 10);
+            recipe.AddTile(TileID.WorkBenches);
+            recipe.Register();
+        }
+    }
+
+    public class IronModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 18;
+            baseKnockback = 2.2f;
+            baseCrit = 6;
+            baseUseTime = 28;
+            weaponTier = "Iron";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<CopperModularGun>(), 1);
+            recipe.AddIngredient(ItemID.IronBar, 5);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
         }
     }
 

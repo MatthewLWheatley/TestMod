@@ -217,7 +217,7 @@ namespace TestMod.Content.UI
         {
             Item currentWeapon = weaponItems[0];
             
-            if (currentWeapon.type == ModContent.ItemType<ModularGun>())
+            if (currentWeapon.ModItem is BaseModularGun)
             {
                 modifier1Label.SetText("Ammo Type");
                 modifier1Label.TextColor = Color.White;
@@ -240,34 +240,36 @@ namespace TestMod.Content.UI
                 modifier3Label.TextColor = Color.Gray;
             }
         }
-        
+
+
+
         private void HandleAutoModifierManagement()
         {
             Item currentWeapon = weaponItems[0];
-            
-            if (!currentWeapon.IsAir && currentWeapon.type != ModContent.ItemType<ModularGun>())
+
+            if (!currentWeapon.IsAir && !(currentWeapon.ModItem is BaseModularGun))
             {
                 Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_FromThis(), currentWeapon);
                 weaponItems[0].TurnToAir();
                 Main.NewText("Only modular weapons can be placed here!", Color.Red);
                 return;
             }
-        
-            if (previousWeapon.IsAir && currentWeapon.type == ModContent.ItemType<ModularGun>())
+
+            if (previousWeapon.IsAir && (currentWeapon.ModItem is BaseModularGun))
             {
                 AutoExtractModifiers();
             }
-            else if (previousWeapon.type == ModContent.ItemType<ModularGun>() && currentWeapon.IsAir)
+            else if (previousWeapon.type == ModContent.ItemType<BaseModularGun>() && currentWeapon.IsAir)
             {
                 ClearAllModifierSlots();
             }
 
-            if (currentWeapon.type == ModContent.ItemType<ModularGun>())
+            if (currentWeapon.type == ModContent.ItemType<BaseModularGun>())
             {
                 CheckAndInstallNewModifiers();
                 CheckAndRemoveModifiers();
             }
-            
+
             previousWeapon = currentWeapon.Clone();
             previousModifier1[0] = modifier1Items[0].Clone();
             previousModifier2[0] = modifier2Items[0].Clone();
@@ -277,7 +279,7 @@ namespace TestMod.Content.UI
 
         private void UpdatePointDisplay()
         {
-            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
+            BaseModularGun modularGun = weaponItems[0].ModItem as BaseModularGun;
 
             if (modularGun != null)
             {
@@ -316,7 +318,7 @@ namespace TestMod.Content.UI
 
         private void CheckAndInstallNewModifiers()
         {
-            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
+            BaseModularGun modularGun = weaponItems[0].ModItem as BaseModularGun;
             if (modularGun == null) return;
 
             bool installed = false;
@@ -378,7 +380,7 @@ namespace TestMod.Content.UI
 
         private void CheckAndRemoveModifiers()
         {
-            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
+            BaseModularGun modularGun = weaponItems[0].ModItem as BaseModularGun;
             if (modularGun == null) return;
 
             bool removed = false;
@@ -419,7 +421,7 @@ namespace TestMod.Content.UI
 
         private void AutoExtractModifiers()
         {
-            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
+            BaseModularGun modularGun = weaponItems[0].ModItem as BaseModularGun;
             if (modularGun == null) return;
 
             bool extracted = false;
@@ -462,7 +464,7 @@ namespace TestMod.Content.UI
         {
             Player player = Main.LocalPlayer;
 
-            ModularGun modularGun = weaponItems[0].ModItem as ModularGun;
+            BaseModularGun modularGun = weaponItems[0].ModItem as BaseModularGun;
             bool weaponHasMods = modularGun != null && modularGun.IsComplete();
 
             if (!weaponItems[0].IsAir)
