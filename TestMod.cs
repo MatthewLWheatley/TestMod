@@ -12,19 +12,9 @@ namespace TestMod
     {
         public override void PostSetupContent()
         {
-            // Initialize the modifier point costs
             Content.Systems.ModifierData.InitializeModifierCosts();
-
-            // Debug log to confirm initialization
             ModContent.GetInstance<TestMod>().Logger.Info("Modifier point costs initialized");
         }
 
-        // Alternative: Initialize in Mod.Load if PostSetupContent doesn't work
-        public override void Load()
-        {
-            // Backup initialization
-        }
-        
-        public int[] transferringModifiers = null;
 	}
 }

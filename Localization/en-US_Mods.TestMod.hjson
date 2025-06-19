@@ -335,6 +335,71 @@ Items: {
 		DisplayName: Iron Modular Gun
 		Tooltip: ""
 	}
+
+	AdamantiteModularGun: {
+		DisplayName: Adamantite Modular Gun
+		Tooltip: ""
+	}
+
+	ChlorophyteModularGun: {
+		DisplayName: Chlorophyte Modular Gun
+		Tooltip: ""
+	}
+
+	CoboltModularGun: {
+		DisplayName: Cobolt Modular Gun
+		Tooltip: ""
+	}
+
+	GoldModularGun: {
+		DisplayName: Gold Modular Gun
+		Tooltip: ""
+	}
+
+	HallowedModularGun: {
+		DisplayName: Hallowed Modular Gun
+		Tooltip: ""
+	}
+
+	LeadModularGun: {
+		DisplayName: Lead Modular Gun
+		Tooltip: ""
+	}
+
+	LuminiteModularGun: {
+		DisplayName: Luminite Modular Gun
+		Tooltip: ""
+	}
+
+	PalladiumModularGun: {
+		DisplayName: Palladium Modular Gun
+		Tooltip: ""
+	}
+
+	PlatinumModularGun: {
+		DisplayName: Platinum Modular Gun
+		Tooltip: ""
+	}
+
+	SilverModularGun: {
+		DisplayName: Silver Modular Gun
+		Tooltip: ""
+	}
+
+	TinModularGun: {
+		DisplayName: Tin Modular Gun
+		Tooltip: ""
+	}
+
+	TitaniumModularGun: {
+		DisplayName: Titanium Modular Gun
+		Tooltip: ""
+	}
+
+	TungstenModularGun: {
+		DisplayName: Tungsten Modular Gun
+		Tooltip: ""
+	}
 }
 
 Tiles.ModifierStation.MapEntry: Modifier Station

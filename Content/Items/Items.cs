@@ -51,6 +51,7 @@ namespace TestMod.Content.Items
             Item.mana = 10;
             Item.crit = baseCrit;
             maxPointBudget = ModifierData.GetWeaponPointBudget(weaponTier);
+            Item.maxStack = 10;
         }
 
         private int GetRarityForTier()
@@ -620,30 +621,34 @@ namespace TestMod.Content.Items
             };
         }
 
-        public override void OnConsumeItem(Player player)
-        {
-            // Called when this item is consumed in a recipe
-            // Store modifiers in a global player variable temporarily
-            if (ModContent.GetInstance<TestMod>().transferringModifiers == null)
-                ModContent.GetInstance<TestMod>().transferringModifiers = new int[4];
-
-            ModContent.GetInstance<TestMod>().transferringModifiers[0] = ammoTypeModifier;
-            ModContent.GetInstance<TestMod>().transferringModifiers[1] = damageTypeModifier;
-            ModContent.GetInstance<TestMod>().transferringModifiers[2] = shotTypeModifier;
-            ModContent.GetInstance<TestMod>().transferringModifiers[3] = specialEffectModifier;
-        }
-
         public override void OnCreated(ItemCreationContext context)
         {
-            // Called when item is crafted
-            if (context is RecipeItemCreationContext && ModContent.GetInstance<TestMod>().transferringModifiers != null)
+            if (context is RecipeItemCreationContext recipeContext)
             {
-                ammoTypeModifier = ModContent.GetInstance<TestMod>().transferringModifiers[0];
-                damageTypeModifier = ModContent.GetInstance<TestMod>().transferringModifiers[1];
-                shotTypeModifier = ModContent.GetInstance<TestMod>().transferringModifiers[2];
-                specialEffectModifier = ModContent.GetInstance<TestMod>().transferringModifiers[3];
+                List<Item> consumedItems = recipeContext.ConsumedItems;
+                Recipe recipe = recipeContext.Recipe;
 
-                ModContent.GetInstance<TestMod>().transferringModifiers = null;
+                foreach (Item consumedItem in consumedItems)
+                {
+                    if (consumedItem.ModItem is BaseModularGun sourceGun)
+                    {
+                        this.ammoTypeModifier = sourceGun.ammoTypeModifier;
+                        this.damageTypeModifier = sourceGun.damageTypeModifier;
+                        this.shotTypeModifier = sourceGun.shotTypeModifier;
+                        this.specialEffectModifier = sourceGun.specialEffectModifier;
+
+                        ModContent.GetInstance<TestMod>().Logger.Info(
+                            $"Transferred modifiers from {sourceGun.weaponTier} to {this.weaponTier}: " +
+                            $"ammo={ammoTypeModifier}, damage={damageTypeModifier}, shot={shotTypeModifier}, special={specialEffectModifier}"
+                        );
+
+                        break;
+                    }
+                }
+
+                ModContent.GetInstance<TestMod>().Logger.Info(
+                    $"Crafted {weaponTier} weapon using recipe with {consumedItems.Count} consumed items"
+                );
             }
         }
     }
@@ -669,6 +674,27 @@ namespace TestMod.Content.Items
         }
     }
 
+    public class TinModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 15;
+            baseKnockback = 2f;
+            baseCrit = 4;
+            baseUseTime = 30;
+            weaponTier = "Tin";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ItemID.TinBar, 5);
+            recipe.AddIngredient(ItemID.Wood, 10);
+            recipe.AddTile(TileID.WorkBenches);
+            recipe.Register();
+        }
+    }
+
     public class IronModularGun : BaseModularGun
     {
         protected override void SetTierDefaults()
@@ -688,6 +714,42 @@ namespace TestMod.Content.Items
             recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 3);
             recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<TinModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.IronBar, 5);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 3);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+        }
+    }
+
+    public class LeadModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 18;
+            baseKnockback = 2.2f;
+            baseCrit = 6;
+            baseUseTime = 28;
+            weaponTier = "Lead";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<CopperModularGun>(), 1);
+            recipe.AddIngredient(ItemID.LeadBar, 5);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<TinModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.LeadBar, 5);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 3);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
         }
     }
 

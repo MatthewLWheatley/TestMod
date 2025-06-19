@@ -89,7 +89,7 @@ namespace TestMod.Content.Systems
             modifierPointCosts[ModContent.ItemType<EliteCritBoostModifier>()] = 3;
             modifierPointCosts[ModContent.ItemType<EliteHomingModifier>()] = 4;
             modifierPointCosts[ModContent.ItemType<EliteLifeStealModifier>()] = 4;
-            
+
             modifierPointCosts[ModContent.ItemType<PerfectPiercingModifier>()] = 3;
             modifierPointCosts[ModContent.ItemType<PerfectBouncingModifier>()] = 3;
             modifierPointCosts[ModContent.ItemType<PerfectCritBoostModifier>()] = 3;
@@ -348,6 +348,27 @@ namespace TestMod.Content.Systems
             if (Elite > 0) parts.Add($"{Elite} Elite");
             if (Perfect > 0) parts.Add($"{Perfect} Perfect");
             return string.Join(", ", parts) + " Components";
+        }
+    }
+    public class ModularWeaponPlayer : ModPlayer
+    {
+        private int[] transferringModifiers = null;
+
+        public void SetTransferringModifiers(int ammo, int damage, int shot, int special)
+        {
+            transferringModifiers = new int[] { ammo, damage, shot, special };
+        }
+
+        public bool HasTransferringModifiers()
+        {
+            return transferringModifiers != null;
+        }
+
+        public int[] GetAndClearTransferringModifiers()
+        {
+            var result = transferringModifiers;
+            transferringModifiers = null;
+            return result;
         }
     }
 }
