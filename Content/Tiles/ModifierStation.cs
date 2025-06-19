@@ -11,55 +11,45 @@ namespace TestMod.Content.Tiles
     {
         public override void SetStaticDefaults()
         {
-            // Basic tile properties
             Main.tileFrameImportant[Type] = true;
             Main.tileNoAttach[Type] = true;
             Main.tileLavaDeath[Type] = true;
+
             TileObjectData.newTile.CopyFrom(TileObjectData.Style2x1);
-            TileObjectData.newTile.Height = 2;
-            TileObjectData.newTile.Width = 3;
-            TileObjectData.newTile.CoordinateHeights = new[] { 16, 18 };
+            TileObjectData.newTile.Height = 1;              // Changed from 2 to 1
+            TileObjectData.newTile.Width = 2;               // Changed from 3 to 2
+            TileObjectData.newTile.CoordinateHeights = new[] { 16 }; // Changed from { 16, 18 } to just { 16 }
             TileObjectData.newTile.CoordinateWidth = 16;
             TileObjectData.newTile.CoordinatePadding = 2;
-            TileObjectData.newTile.Origin = new Point16(1, 1);
+            TileObjectData.newTile.Origin = new Point16(0, 0); // Changed from (1, 1) to (0, 0)
             TileObjectData.addTile(Type);
 
-            // Interaction properties
             TileID.Sets.HasOutlines[Type] = true;
             TileID.Sets.DisableSmartCursor[Type] = true;
-            
-            // Set the name (or use localization file)
-            // DisplayName.SetDefault("Modifier Station");
-            
-            // Add to the furniture map entry
+
             AddMapEntry(new Color(120, 85, 60), CreateMapEntryName());
-            
-            // Set dust type for breaking effects
+
             DustType = DustID.WoodFurniture;
-            
-            // Add light emission
+
             Main.tileLighted[Type] = true;
         }
         
         public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b)
         {
-            // Emit a soft blue light
             r = 0.1f;
             g = 0.2f;
             b = 0.4f;
         }
-        
+
         public override bool RightClick(int i, int j)
         {
             Player player = Main.LocalPlayer;
-            
-            // Calculate world position of the station for distance tracking
-            Vector2 stationWorldPosition = new Vector2(i * 16 + 24, j * 16 + 16); // Center of the 3x2 tile
-            
-            // Open the modifier UI with station position
+
+            Vector2 stationWorldPosition = new Vector2(i * 16 + 16, j * 16 + 8); // Center of the 2x1 tile
+
             Content.UI.ModifierStationUI.OpenUIAtStation(stationWorldPosition);
             Main.NewText("Modifier Station opened!", Color.Green);
-            
+
             return true;
         }
         
@@ -70,11 +60,10 @@ namespace TestMod.Content.Tiles
             player.cursorItemIconEnabled = true;
             player.cursorItemIconID = ModContent.ItemType<Content.Items.ModifierStationItem>();
         }
-        
+
         public override void KillMultiTile(int i, int j, int frameX, int frameY)
         {
-            // Drop the item when broken
-            Item.NewItem(new EntitySource_TileBreak(i, j), i * 16, j * 16, 48, 32, ModContent.ItemType<Items.ModifierStationItem>());
+            //Item.NewItem(new EntitySource_TileBreak(i, j), i * 16, j * 16, 32, 16, ModContent.ItemType<Items.ModifierStationItem>());
         }
     }
 }

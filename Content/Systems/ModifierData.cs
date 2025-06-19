@@ -324,9 +324,21 @@ namespace TestMod.Content.Systems
 
         public void ConsumeItems(Player player)
         {
-            if (Basic > 0) player.ConsumeItem(ModContent.ItemType<BasicModularComponent>(), Basic);
-            if (Elite > 0) player.ConsumeItem(ModContent.ItemType<EliteModularComponent>(), Elite);
-            if (Perfect > 0) player.ConsumeItem(ModContent.ItemType<PerfectModularComponent>(), Perfect);
+            // Use a loop to consume the correct amount of each component type
+            for (int i = 0; i < Basic; i++)
+            {
+                player.ConsumeItem(ModContent.ItemType<BasicModularComponent>());
+            }
+
+            for (int i = 0; i < Elite; i++)
+            {
+                player.ConsumeItem(ModContent.ItemType<EliteModularComponent>());
+            }
+
+            for (int i = 0; i < Perfect; i++)
+            {
+                player.ConsumeItem(ModContent.ItemType<PerfectModularComponent>());
+            }
         }
 
         public override string ToString()
