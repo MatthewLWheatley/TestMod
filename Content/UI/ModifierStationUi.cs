@@ -241,8 +241,6 @@ namespace TestMod.Content.UI
             }
         }
 
-
-
         private void HandleAutoModifierManagement()
         {
             Item currentWeapon = weaponItems[0];
@@ -264,7 +262,7 @@ namespace TestMod.Content.UI
                 ClearAllModifierSlots();
             }
 
-            if (currentWeapon.type == ModContent.ItemType<BaseModularGun>())
+            if (currentWeapon.ModItem is BaseModularGun)
             {
                 CheckAndInstallNewModifiers();
                 CheckAndRemoveModifiers();
@@ -319,6 +317,7 @@ namespace TestMod.Content.UI
         private void CheckAndInstallNewModifiers()
         {
             BaseModularGun modularGun = weaponItems[0].ModItem as BaseModularGun;
+
             if (modularGun == null) return;
 
             bool installed = false;
@@ -514,30 +513,79 @@ namespace TestMod.Content.UI
             switch (modifierType)
             {
                 case "ammo":
-                    if (itemType == ModContent.ItemType<MagicAmmoModifier>()) result = 0;
-                    else if (itemType == ModContent.ItemType<ArrowAmmoModifier>()) result = 1;
-                    else if (itemType == ModContent.ItemType<BulletAmmoModifier>()) result = 2;
-                    else if (itemType == ModContent.ItemType<RocketAmmoModifier>()) result = 3;
+                    if (itemType == ModContent.ItemType<MagicAmmoModifier>()) return 0;
+                    if (itemType == ModContent.ItemType<ArrowAmmoModifier>()) return 1;
+                    if (itemType == ModContent.ItemType<BulletAmmoModifier>()) return 2;
+                    if (itemType == ModContent.ItemType<RocketAmmoModifier>()) return 3;
+
+                    // Elite tier (same IDs, different items)
+                    if (itemType == ModContent.ItemType<EliteMagicAmmoModifier>()) return 0;
+                    if (itemType == ModContent.ItemType<EliteArrowAmmoModifier>()) return 1;
+                    if (itemType == ModContent.ItemType<EliteBulletAmmoModifier>()) return 2;
+                    if (itemType == ModContent.ItemType<EliteRocketAmmoModifier>()) return 3;
+
+                    // Perfect tier
+                    if (itemType == ModContent.ItemType<PerfectMagicAmmoModifier>()) return 0;
+                    if (itemType == ModContent.ItemType<PerfectArrowAmmoModifier>()) return 1;
+                    if (itemType == ModContent.ItemType<PerfectBulletAmmoModifier>()) return 2;
+                    if (itemType == ModContent.ItemType<PerfectRocketAmmoModifier>()) return 3;
                     break;
+
                 case "damage":
-                    if (itemType == ModContent.ItemType<FireDamageModifier>()) result = 0;
-                    else if (itemType == ModContent.ItemType<WaterDamageModifier>()) result = 1;
-                    else if (itemType == ModContent.ItemType<LightningDamageModifier>()) result = 2;
-                    else if (itemType == ModContent.ItemType<EarthDamageModifier>()) result = 3;
-                    else if (itemType == ModContent.ItemType<WindDamageModifier>()) result = 4;
-                    else if (itemType == ModContent.ItemType<SlimeDamageModifier>()) result = 5;
+                    if (itemType == ModContent.ItemType<FireDamageModifier>()) return 0;
+                    else if (itemType == ModContent.ItemType<WaterDamageModifier>()) return 1;
+                    else if (itemType == ModContent.ItemType<LightningDamageModifier>()) return 2;
+                    else if (itemType == ModContent.ItemType<EarthDamageModifier>()) return 3;
+                    else if (itemType == ModContent.ItemType<WindDamageModifier>()) return 4;
+                    else if (itemType == ModContent.ItemType<SlimeDamageModifier>()) return 5;
+
+                    else if (itemType == ModContent.ItemType<EliteFireDamageModifier>()) return 0;
+                    else if (itemType == ModContent.ItemType<EliteWaterDamageModifier>()) return 1;
+                    else if (itemType == ModContent.ItemType<EliteLightningDamageModifier>()) return 2;
+                    else if (itemType == ModContent.ItemType<EliteEarthDamageModifier>()) return 3;
+                    else if (itemType == ModContent.ItemType<EliteWindDamageModifier>()) return 4;
+                    else if (itemType == ModContent.ItemType<EliteSlimeDamageModifier>()) return 5;
+
+                    else if (itemType == ModContent.ItemType<PerfectFireDamageModifier>()) return 0;
+                    else if (itemType == ModContent.ItemType<PerfectWaterDamageModifier>()) return 1;
+                    else if (itemType == ModContent.ItemType<PerfectLightningDamageModifier>()) return 2;
+                    else if (itemType == ModContent.ItemType<PerfectEarthDamageModifier>()) return 3;
+                    else if (itemType == ModContent.ItemType<PerfectWindDamageModifier>()) return 4;
+                    else if (itemType == ModContent.ItemType<PerfectSlimeDamageModifier>()) return 5;
                     break;
+
                 case "shot":
-                    if (itemType == ModContent.ItemType<AutoFireModifier>()) result = 0;
-                    else if (itemType == ModContent.ItemType<BurstFireModifier>()) result = 1;
-                    else if (itemType == ModContent.ItemType<ChargeFireModifier>()) result = 2;
+                    if (itemType == ModContent.ItemType<AutoFireModifier>()) return 0;
+                    else if (itemType == ModContent.ItemType<BurstFireModifier>()) return 1;
+                    else if (itemType == ModContent.ItemType<ChargeFireModifier>()) return 2;
+
+                    else if (itemType == ModContent.ItemType<EliteAutoFireModifier>()) return 0;
+                    else if (itemType == ModContent.ItemType<EliteBurstFireModifier>()) return 1;
+                    else if (itemType == ModContent.ItemType<EliteChargeFireModifier>()) return 2;
+
+                    else if (itemType == ModContent.ItemType<PerfectAutoFireModifier>()) return 0;
+                    else if (itemType == ModContent.ItemType<PerfectBurstFireModifier>()) return 1;
+                    else if (itemType == ModContent.ItemType<PerfectChargeFireModifier>()) return 2;
                     break;
+
                 case "special":
-                    if (itemType == ModContent.ItemType<PiercingModifier>()) result = 0;
-                    else if (itemType == ModContent.ItemType<BouncingModifier>()) result = 1;
-                    else if (itemType == ModContent.ItemType<HomingModifier>()) result = 2;
-                    else if (itemType == ModContent.ItemType<LifeStealModifier>()) result = 3;
-                    else if (itemType == ModContent.ItemType<CritBoostModifier>()) result = 4;
+                    if (itemType == ModContent.ItemType<PiercingModifier>()) return 0;
+                    else if (itemType == ModContent.ItemType<BouncingModifier>()) return 1;
+                    else if (itemType == ModContent.ItemType<HomingModifier>()) return 2;
+                    else if (itemType == ModContent.ItemType<LifeStealModifier>()) return 3;
+                    else if (itemType == ModContent.ItemType<CritBoostModifier>()) return 4;
+
+                    else if (itemType == ModContent.ItemType<ElitePiercingModifier>()) return 0;
+                    else if (itemType == ModContent.ItemType<EliteBouncingModifier>()) return 1;
+                    else if (itemType == ModContent.ItemType<EliteHomingModifier>()) return 2;
+                    else if (itemType == ModContent.ItemType<EliteLifeStealModifier>()) return 3;
+                    else if (itemType == ModContent.ItemType<EliteCritBoostModifier>()) return 4;
+
+                    else if (itemType == ModContent.ItemType<PerfectPiercingModifier>()) return 0;
+                    else if (itemType == ModContent.ItemType<PerfectBouncingModifier>()) return 1;
+                    else if (itemType == ModContent.ItemType<PerfectHomingModifier>()) return 2;
+                    else if (itemType == ModContent.ItemType<PerfectLifeStealModifier>()) return 3;
+                    else if (itemType == ModContent.ItemType<PerfectCritBoostModifier>()) return 4;
                     break;
             }
 
