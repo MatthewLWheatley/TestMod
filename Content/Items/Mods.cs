@@ -52,8 +52,20 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1); // Replace with proper crafting materials
+            recipe.AddIngredient(ItemID.FallenStar, 3);
+            recipe.AddIngredient(ItemID.ManaCrystal, 1);
+            recipe.AddIngredient(ItemID.IronBar, 2);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe.AddTile(TileID.WorkBenches);
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ItemID.FallenStar, 3);
+            recipe2.AddIngredient(ItemID.ManaCrystal, 1);
+            recipe2.AddIngredient(ItemID.LeadBar, 2);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe2.AddTile(TileID.WorkBenches);
+            recipe2.Register();
         }
     }
 
@@ -96,8 +108,20 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ItemID.WoodenArrow, 50);
+            recipe.AddIngredient(ItemID.IronBar, 3);
+            recipe.AddIngredient(ItemID.Lens, 1);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe.AddTile(TileID.Anvils);
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ItemID.WoodenArrow, 50);
+            recipe2.AddIngredient(ItemID.LeadBar, 3);
+            recipe2.AddIngredient(ItemID.Lens, 1);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe2.AddTile(TileID.Anvils);
+            recipe2.Register();
         }
     }
 
@@ -140,8 +164,20 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ItemID.MusketBall, 100);
+            recipe.AddIngredient(ItemID.GoldBar, 3);
+            recipe.AddIngredient(ItemID.Lens, 2);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe.AddTile(TileID.Anvils);
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ItemID.MusketBall, 100);
+            recipe2.AddIngredient(ItemID.PlatinumBar, 3);
+            recipe2.AddIngredient(ItemID.Lens, 2);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe2.AddTile(TileID.Anvils);
+            recipe2.Register();
         }
     }
 
@@ -184,8 +220,20 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ItemID.RocketI, 10);
+            recipe.AddIngredient(ItemID.Dynamite, 100);
+            recipe.AddIngredient(ItemID.CobaltBar, 3);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe.AddTile(TileID.MythrilAnvil);
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ItemID.RocketI, 10);
+            recipe2.AddIngredient(ItemID.Dynamite, 100);
+            recipe2.AddIngredient(ItemID.PalladiumBar, 3);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe2.AddTile(TileID.MythrilAnvil);
+            recipe2.Register();
         }
     }
 
@@ -228,8 +276,20 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1); // Replace with proper crafting materials
+            recipe.AddIngredient(ModContent.ItemType<MagicAmmoModifier>(), 1);
+            recipe.AddIngredient(ItemID.FallenStar, 10);
+            recipe.AddIngredient(ItemID.GoldBar, 3);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<MagicAmmoModifier>(), 1);
+            recipe2.AddIngredient(ItemID.FallenStar, 10);
+            recipe2.AddIngredient(ItemID.PlatinumBar, 3);
+            recipe2.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
         }
     }
 
@@ -269,11 +329,23 @@ namespace TestMod.Content.Items
             tooltips.Add(effectLine);
         }
 
-        public override void AddRecipes()
+        public override void AddRecipes() // EliteArrowAmmoModifier
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<ArrowAmmoModifier>(), 1);
+            recipe.AddIngredient(ItemID.WoodenArrow, 200);
+            recipe.AddIngredient(ItemID.GoldBar, 5);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<ArrowAmmoModifier>(), 1);
+            recipe2.AddIngredient(ItemID.WoodenArrow, 200);
+            recipe2.AddIngredient(ItemID.PlatinumBar, 5);
+            recipe2.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
         }
     }
 
@@ -316,8 +388,20 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<BulletAmmoModifier>(), 1);
+            recipe.AddIngredient(ItemID.SilverBullet, 200);
+            recipe.AddIngredient(ItemID.CobaltBar, 5);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<BulletAmmoModifier>(), 1);
+            recipe2.AddIngredient(ItemID.SilverBullet, 200);
+            recipe2.AddIngredient(ItemID.PalladiumBar, 5);
+            recipe2.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
         }
     }
 
@@ -360,7 +444,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<RocketAmmoModifier>(), 1);
+            recipe.AddIngredient(ItemID.RocketII, 25);
+            recipe.AddIngredient(ItemID.HallowedBar, 8);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -404,7 +492,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1); // Replace with proper crafting materials
+            recipe.AddIngredient(ModContent.ItemType<EliteMagicAmmoModifier>(), 1);
+            recipe.AddIngredient(ItemID.FallenStar, 25);
+            recipe.AddIngredient(ItemID.HallowedBar, 5);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -448,7 +540,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<EliteArrowAmmoModifier>(), 1);
+            recipe.AddIngredient(ItemID.HolyArrow, 100);
+            recipe.AddIngredient(ItemID.HallowedBar, 5);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -492,7 +588,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<EliteBulletAmmoModifier>(), 1);
+            recipe.AddIngredient(ItemID.CrystalBullet, 150);
+            recipe.AddIngredient(ItemID.HallowedBar, 5);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -536,7 +636,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<EliteRocketAmmoModifier>(), 1);
+            recipe.AddIngredient(ItemID.RocketIV, 50);
+            recipe.AddIngredient(ItemID.LunarBar, 8);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -584,7 +688,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ItemID.Torch, 10);
+            recipe.AddIngredient(ItemID.Gel, 5);
+            recipe.AddIngredient(ItemID.Wood, 15);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe.AddTile(TileID.WorkBenches);
             recipe.Register();
         }
     }
@@ -628,7 +736,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ItemID.Coral, 5);
+            recipe.AddIngredient(ItemID.Seashell, 3);
+            recipe.AddIngredient(ItemID.WaterBucket, 1);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe.AddTile(TileID.WorkBenches);
             recipe.Register();
         }
     }
@@ -672,7 +784,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ItemID.WireBulb, 5);
+            recipe.AddIngredient(ItemID.IronBar, 3);
+            recipe.AddIngredient(ItemID.FallenStar, 2);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe.AddTile(TileID.Anvils);
             recipe.Register();
         }
     }
@@ -716,8 +832,60 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ItemID.StoneBlock, 50);
+            recipe.AddIngredient(ItemID.Diamond, 5);
+            recipe.AddIngredient(ItemID.IronOre, 10);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe.AddTile(TileID.Anvils);
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ItemID.StoneBlock, 50);
+            recipe2.AddIngredient(ItemID.Amber, 5);
+            recipe2.AddIngredient(ItemID.IronOre, 10);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe2.AddTile(TileID.Anvils);
+            recipe2.Register();
+
+            Recipe recipe3 = CreateRecipe();
+            recipe3.AddIngredient(ItemID.StoneBlock, 50);
+            recipe3.AddIngredient(ItemID.Ruby, 5);
+            recipe3.AddIngredient(ItemID.IronOre, 10);
+            recipe3.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe3.AddTile(TileID.Anvils);
+            recipe3.Register();
+
+            Recipe recipe4 = CreateRecipe();
+            recipe4.AddIngredient(ItemID.StoneBlock, 50);
+            recipe4.AddIngredient(ItemID.Emerald, 5);
+            recipe4.AddIngredient(ItemID.IronOre, 10);
+            recipe4.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe4.AddTile(TileID.Anvils);
+            recipe4.Register();
+
+            Recipe recipe5 = CreateRecipe();
+            recipe5.AddIngredient(ItemID.StoneBlock, 50);
+            recipe5.AddIngredient(ItemID.Sapphire, 5);
+            recipe5.AddIngredient(ItemID.IronOre, 10);
+            recipe5.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe5.AddTile(TileID.Anvils);
+            recipe5.Register();
+
+            Recipe recipe6 = CreateRecipe();
+            recipe6.AddIngredient(ItemID.StoneBlock, 50);
+            recipe6.AddIngredient(ItemID.Topaz, 5);
+            recipe6.AddIngredient(ItemID.IronOre, 10);
+            recipe6.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe6.AddTile(TileID.Anvils);
+            recipe6.Register();
+
+            Recipe recipe7 = CreateRecipe();
+            recipe7.AddIngredient(ItemID.StoneBlock, 50);
+            recipe7.AddIngredient(ItemID.Amethyst, 5);
+            recipe7.AddIngredient(ItemID.IronOre, 10);
+            recipe7.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe7.AddTile(TileID.Anvils);
+            recipe7.Register();
         }
     }
 
@@ -760,7 +928,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ItemID.CloudinaBottle, 1);
+            recipe.AddIngredient(ItemID.PinWheel, 1);
+            recipe.AddIngredient(ItemID.SilverBar, 2);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe.AddTile(TileID.Anvils);
             recipe.Register();
         }
     }
@@ -804,8 +976,20 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ItemID.Gel, 25);
+            recipe.AddIngredient(ItemID.PinkGel, 5);
+            recipe.AddIngredient(ItemID.IronBar, 3);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe.AddTile(TileID.Anvils);
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ItemID.Gel, 25);
+            recipe2.AddIngredient(ItemID.PinkGel, 5);
+            recipe2.AddIngredient(ItemID.LeadBar, 3);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe2.AddTile(TileID.Anvils);
+            recipe2.Register();
         }
     }
 
@@ -848,7 +1032,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<FireDamageModifier>(), 1);
+            recipe.AddIngredient(ItemID.Torch, 50);
+            recipe.AddIngredient(ItemID.Hellstone, 10);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -892,7 +1080,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<WaterDamageModifier>(), 1);
+            recipe.AddIngredient(ItemID.Coral, 20);
+            recipe.AddIngredient(ItemID.SharkFin, 3);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -936,7 +1128,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<LightningDamageModifier>(), 1);
+            recipe.AddIngredient(ItemID.LightningBug, 25);
+            recipe.AddIngredient(ItemID.SoulofLight, 5);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -980,8 +1176,60 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<EarthDamageModifier>(), 1);
+            recipe.AddIngredient(ItemID.StoneBlock, 200);
+            recipe.AddIngredient(ItemID.Diamond, 10);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<EarthDamageModifier>(), 1);
+            recipe2.AddIngredient(ItemID.StoneBlock, 200);
+            recipe2.AddIngredient(ItemID.Amber, 10);
+            recipe2.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+
+            Recipe recipe3 = CreateRecipe();
+            recipe3.AddIngredient(ModContent.ItemType<EarthDamageModifier>(), 1);
+            recipe3.AddIngredient(ItemID.StoneBlock, 200);
+            recipe3.AddIngredient(ItemID.Ruby, 10);
+            recipe3.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe3.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe3.Register();
+
+            Recipe recipe4 = CreateRecipe();
+            recipe4.AddIngredient(ModContent.ItemType<EarthDamageModifier>(), 1);
+            recipe4.AddIngredient(ItemID.StoneBlock, 200);
+            recipe4.AddIngredient(ItemID.Emerald, 10);
+            recipe4.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe4.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe4.Register();
+
+            Recipe recipe5 = CreateRecipe();
+            recipe5.AddIngredient(ModContent.ItemType<EarthDamageModifier>(), 1);
+            recipe5.AddIngredient(ItemID.StoneBlock, 200);
+            recipe5.AddIngredient(ItemID.Sapphire, 10);
+            recipe5.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe5.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe5.Register();
+
+            Recipe recipe6 = CreateRecipe();
+            recipe6.AddIngredient(ModContent.ItemType<EarthDamageModifier>(), 1);
+            recipe6.AddIngredient(ItemID.StoneBlock, 200);
+            recipe6.AddIngredient(ItemID.Topaz, 10);
+            recipe6.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe6.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe6.Register();
+
+            Recipe recipe7 = CreateRecipe();
+            recipe7.AddIngredient(ModContent.ItemType<EarthDamageModifier>(), 1);
+            recipe7.AddIngredient(ItemID.StoneBlock, 200);
+            recipe7.AddIngredient(ItemID.Amethyst, 10);
+            recipe7.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe7.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe7.Register();
         }
     }
 
@@ -1024,7 +1272,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<WindDamageModifier>(), 1);
+            recipe.AddIngredient(ItemID.Feather, 10);
+            recipe.AddIngredient(ItemID.SoulofFlight, 5);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -1068,7 +1320,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<SlimeDamageModifier>(), 1);
+            recipe.AddIngredient(ItemID.Gel, 100);
+            recipe.AddIngredient(ItemID.SlimeStaff, 1); // King Slime drop
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -1112,7 +1368,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<EliteFireDamageModifier>(), 1);
+            recipe.AddIngredient(ItemID.LivingFireBlock, 20);
+            recipe.AddIngredient(ItemID.HellstoneBar, 8);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -1156,7 +1416,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<EliteWaterDamageModifier>(), 1);
+            recipe.AddIngredient(ItemID.SoulofFlight, 10);
+            recipe.AddIngredient(ItemID.Trident, 1);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 4);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -1200,7 +1464,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<EliteLightningDamageModifier>(), 1);
+            recipe.AddIngredient(ItemID.SoulofLight, 15);
+            recipe.AddIngredient(ItemID.LightShard, 5);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -1244,8 +1512,60 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<EliteEarthDamageModifier>(), 1);
+            recipe.AddIngredient(ItemID.Diamond, 15);
+            recipe.AddIngredient(ItemID.LifeCrystal, 3);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<EliteEarthDamageModifier>(), 1);
+            recipe2.AddIngredient(ItemID.Amber, 15);
+            recipe2.AddIngredient(ItemID.LifeCrystal, 3);
+            recipe2.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+
+            Recipe recipe3 = CreateRecipe();
+            recipe3.AddIngredient(ModContent.ItemType<EliteEarthDamageModifier>(), 1);
+            recipe3.AddIngredient(ItemID.Ruby, 15);
+            recipe3.AddIngredient(ItemID.LifeCrystal, 3);
+            recipe3.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe3.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe3.Register();
+
+            Recipe recipe4 = CreateRecipe();
+            recipe4.AddIngredient(ModContent.ItemType<EliteEarthDamageModifier>(), 1);
+            recipe4.AddIngredient(ItemID.Emerald, 15);
+            recipe4.AddIngredient(ItemID.LifeCrystal, 3);
+            recipe4.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe4.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe4.Register();
+
+            Recipe recipe5 = CreateRecipe();
+            recipe5.AddIngredient(ModContent.ItemType<EliteEarthDamageModifier>(), 1);
+            recipe5.AddIngredient(ItemID.Sapphire, 15);
+            recipe5.AddIngredient(ItemID.LifeCrystal, 3);
+            recipe5.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe5.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe5.Register();
+
+            Recipe recipe6 = CreateRecipe();
+            recipe6.AddIngredient(ModContent.ItemType<EliteEarthDamageModifier>(), 1);
+            recipe6.AddIngredient(ItemID.Topaz, 15);
+            recipe6.AddIngredient(ItemID.LifeCrystal, 3);
+            recipe6.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe6.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe6.Register();
+
+            Recipe recipe7 = CreateRecipe();
+            recipe7.AddIngredient(ModContent.ItemType<EliteEarthDamageModifier>(), 1);
+            recipe7.AddIngredient(ItemID.Amethyst, 15);
+            recipe7.AddIngredient(ItemID.LifeCrystal, 3);
+            recipe7.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe7.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe7.Register();
         }
     }
 
@@ -1288,7 +1608,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<EliteWindDamageModifier>(), 1);
+            recipe.AddIngredient(ItemID.SoulofFlight, 15);
+            recipe.AddIngredient(ItemID.Jetpack, 1);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -1332,7 +1656,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<EliteSlimeDamageModifier>(), 1);
+            recipe.AddIngredient(ItemID.QueenSlimeBossBag, 1); // Or alternative Queen Slime materials
+            recipe.AddIngredient(ItemID.Gel, 250);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -1380,7 +1708,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ItemID.ClockworkAssaultRifle, 1); // High-tier gun
+            recipe.AddIngredient(ItemID.Cog, 10);
+            recipe.AddIngredient(ItemID.Wire, 50);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 2);
+            recipe.AddTile(TileID.Anvils);
             recipe.Register();
         }
     }
@@ -1424,7 +1756,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ItemID.IronBar, 5);
+            recipe.AddIngredient(ItemID.Lens, 2);
+            recipe.AddIngredient(ItemID.Bomb, 1);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 1);
+            recipe.AddTile(TileID.Anvils);
             recipe.Register();
         }
     }
@@ -1468,8 +1804,60 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ItemID.GoldBar, 5);
+            recipe.AddIngredient(ItemID.ManaCrystal, 2);
+            recipe.AddIngredient(ItemID.Diamond, 1);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 1);
+            recipe.AddTile(TileID.Anvils);
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ItemID.GoldBar, 5);
+            recipe2.AddIngredient(ItemID.ManaCrystal, 2);
+            recipe2.AddIngredient(ItemID.Topaz, 1);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 1);
+            recipe2.AddTile(TileID.Anvils);
+            recipe2.Register();
+
+            Recipe recipe3 = CreateRecipe();
+            recipe3.AddIngredient(ItemID.GoldBar, 5);
+            recipe3.AddIngredient(ItemID.ManaCrystal, 2);
+            recipe3.AddIngredient(ItemID.Emerald, 1);
+            recipe3.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 1);
+            recipe3.AddTile(TileID.Anvils);
+            recipe3.Register();
+
+            Recipe recipe4 = CreateRecipe();
+            recipe4.AddIngredient(ItemID.GoldBar, 5);
+            recipe4.AddIngredient(ItemID.ManaCrystal, 2);
+            recipe4.AddIngredient(ItemID.Amethyst, 1);
+            recipe4.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 1);
+            recipe4.AddTile(TileID.Anvils);
+            recipe4.Register();
+
+            Recipe recipe5 = CreateRecipe();
+            recipe5.AddIngredient(ItemID.GoldBar, 5);
+            recipe5.AddIngredient(ItemID.ManaCrystal, 2);
+            recipe5.AddIngredient(ItemID.Amber, 1);
+            recipe5.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 1);
+            recipe5.AddTile(TileID.Anvils);
+            recipe5.Register();
+
+            Recipe recipe6 = CreateRecipe();
+            recipe6.AddIngredient(ItemID.GoldBar, 5);
+            recipe6.AddIngredient(ItemID.ManaCrystal, 2);
+            recipe6.AddIngredient(ItemID.Ruby, 1);
+            recipe6.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 1);
+            recipe6.AddTile(TileID.Anvils);
+            recipe6.Register();
+
+            Recipe recipe7 = CreateRecipe();
+            recipe7.AddIngredient(ItemID.GoldBar, 5);
+            recipe7.AddIngredient(ItemID.ManaCrystal, 2);
+            recipe7.AddIngredient(ItemID.Sapphire, 1);
+            recipe7.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 1);
+            recipe7.AddTile(TileID.Anvils);
+            recipe7.Register();
         }
     }
 
@@ -1512,7 +1900,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<AutoFireModifier>(), 1);
+            recipe.AddIngredient(ItemID.Cog, 25);
+            recipe.AddIngredient(ItemID.Timer1Second, 5);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -1556,7 +1948,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<BurstFireModifier>(), 1);
+            recipe.AddIngredient(ItemID.Cog, 5);
+            recipe.AddIngredient(ItemID.Wire, 25);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -1600,8 +1996,60 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<ChargeFireModifier>(), 1);
+            recipe.AddIngredient(ItemID.Diamond, 3);
+            recipe.AddIngredient(ItemID.CrystalShard, 5);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<ChargeFireModifier>(), 1);
+            recipe2.AddIngredient(ItemID.Topaz, 3);
+            recipe2.AddIngredient(ItemID.CrystalShard, 5);
+            recipe2.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+
+            Recipe recipe3 = CreateRecipe();
+            recipe3.AddIngredient(ModContent.ItemType<ChargeFireModifier>(), 1);
+            recipe3.AddIngredient(ItemID.Amethyst, 3);
+            recipe3.AddIngredient(ItemID.CrystalShard, 5);
+            recipe3.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe3.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe3.Register();
+
+            Recipe recipe4 = CreateRecipe();
+            recipe4.AddIngredient(ModContent.ItemType<ChargeFireModifier>(), 1);
+            recipe4.AddIngredient(ItemID.Amber, 3);
+            recipe4.AddIngredient(ItemID.CrystalShard, 5);
+            recipe4.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe4.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe4.Register();
+
+            Recipe recipe5 = CreateRecipe();
+            recipe5.AddIngredient(ModContent.ItemType<ChargeFireModifier>(), 1);
+            recipe5.AddIngredient(ItemID.Emerald, 3);
+            recipe5.AddIngredient(ItemID.CrystalShard, 5);
+            recipe5.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe5.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe5.Register();
+
+            Recipe recipe6 = CreateRecipe();
+            recipe6.AddIngredient(ModContent.ItemType<ChargeFireModifier>(), 1);
+            recipe6.AddIngredient(ItemID.Sapphire, 3);
+            recipe6.AddIngredient(ItemID.CrystalShard, 5);
+            recipe6.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe6.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe6.Register();
+
+            Recipe recipe7 = CreateRecipe();
+            recipe7.AddIngredient(ModContent.ItemType<ChargeFireModifier>(), 1);
+            recipe7.AddIngredient(ItemID.Ruby, 3);
+            recipe7.AddIngredient(ItemID.CrystalShard, 5);
+            recipe7.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe7.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe7.Register();
         }
     }
 
@@ -1644,7 +2092,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<EliteAutoFireModifier>(), 1);
+            recipe.AddIngredient(ItemID.Megashark, 1); // End-game gun reference
+            recipe.AddIngredient(ItemID.Cog, 50);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -1688,7 +2140,11 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<EliteBurstFireModifier>(), 1);
+            recipe.AddIngredient(ItemID.Cog, 15);
+            recipe.AddIngredient(ItemID.MechanicalEye, 1); // Mechanical boss material
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
         }
     }
@@ -1732,8 +2188,60 @@ namespace TestMod.Content.Items
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.DirtBlock, 1);
+            recipe.AddIngredient(ModContent.ItemType<EliteChargeFireModifier>(), 1);
+            recipe.AddIngredient(ItemID.Diamond, 8);
+            recipe.AddIngredient(ItemID.MagicPowerPotion, 5);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<EliteChargeFireModifier>(), 1);
+            recipe2.AddIngredient(ItemID.Topaz, 8);
+            recipe2.AddIngredient(ItemID.MagicPowerPotion, 5);
+            recipe2.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+
+            Recipe recipe3 = CreateRecipe();
+            recipe3.AddIngredient(ModContent.ItemType<EliteChargeFireModifier>(), 1);
+            recipe3.AddIngredient(ItemID.Ruby, 8);
+            recipe3.AddIngredient(ItemID.MagicPowerPotion, 5);
+            recipe3.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe3.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe3.Register();
+
+            Recipe recipe4 = CreateRecipe();
+            recipe4.AddIngredient(ModContent.ItemType<EliteChargeFireModifier>(), 1);
+            recipe4.AddIngredient(ItemID.Amethyst, 8);
+            recipe4.AddIngredient(ItemID.MagicPowerPotion, 5);
+            recipe4.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe4.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe4.Register();
+
+            Recipe recipe5 = CreateRecipe();
+            recipe5.AddIngredient(ModContent.ItemType<EliteChargeFireModifier>(), 1);
+            recipe5.AddIngredient(ItemID.Sapphire, 8);
+            recipe5.AddIngredient(ItemID.MagicPowerPotion, 5);
+            recipe5.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe5.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe5.Register();
+
+            Recipe recipe6 = CreateRecipe();
+            recipe6.AddIngredient(ModContent.ItemType<EliteChargeFireModifier>(), 1);
+            recipe6.AddIngredient(ItemID.Amber, 8);
+            recipe6.AddIngredient(ItemID.MagicPowerPotion, 5);
+            recipe6.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe6.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe6.Register();
+
+            Recipe recipe7 = CreateRecipe();
+            recipe7.AddIngredient(ModContent.ItemType<EliteChargeFireModifier>(), 1);
+            recipe7.AddIngredient(ItemID.Emerald, 8);
+            recipe7.AddIngredient(ItemID.MagicPowerPotion, 5);
+            recipe7.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe7.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe7.Register();
         }
     }
 

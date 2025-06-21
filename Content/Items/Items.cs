@@ -753,6 +753,384 @@ namespace TestMod.Content.Items
         }
     }
 
+    public class SilverModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 22;
+            baseKnockback = 2.4f;
+            baseCrit = 8;
+            baseUseTime = 26;
+            weaponTier = "Silver";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<IronModularGun>(), 1);
+            recipe.AddIngredient(ItemID.SilverBar, 5);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 4);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<LeadModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.SilverBar, 5);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 4);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+        }
+    }
+
+    public class TungstenModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 22;
+            baseKnockback = 2.4f;
+            baseCrit = 8;
+            baseUseTime = 26;
+            weaponTier = "Tungsten";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<IronModularGun>(), 1);
+            recipe.AddIngredient(ItemID.TungstenBar, 5);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 4);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<LeadModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.TungstenBar, 5);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 4);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+        }
+    }
+
+    public class GoldModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 26;
+            baseKnockback = 2.6f;
+            baseCrit = 10;
+            baseUseTime = 24;
+            weaponTier = "Gold";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<SilverModularGun>(), 1);
+            recipe.AddIngredient(ItemID.GoldBar, 5);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<TungstenModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.GoldBar, 5);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 5);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+        }
+    }
+
+    public class PlatinumModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 26;
+            baseKnockback = 2.6f;
+            baseCrit = 10;
+            baseUseTime = 24;
+            weaponTier = "Platinum";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<SilverModularGun>(), 1);
+            recipe.AddIngredient(ItemID.PlatinumBar, 5);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<TungstenModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.PlatinumBar, 5);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 5);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+        }
+    }
+
+    // Hardmode Ore Progression (Cobalt through Titanium)
+
+    public class CobaltModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 32;
+            baseKnockback = 3.0f;
+            baseCrit = 12;
+            baseUseTime = 22;
+            weaponTier = "Cobalt";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<GoldModularGun>(), 1);
+            recipe.AddIngredient(ItemID.CobaltBar, 8);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 8);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 2);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<PlatinumModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.CobaltBar, 8);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 8);
+            recipe2.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 2);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+        }
+    }
+
+    public class PalladiumModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 32;
+            baseKnockback = 3.0f;
+            baseCrit = 12;
+            baseUseTime = 22;
+            weaponTier = "Palladium";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<GoldModularGun>(), 1);
+            recipe.AddIngredient(ItemID.PalladiumBar, 8);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 8);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 2);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<PlatinumModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.PalladiumBar, 8);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>(), 8);
+            recipe2.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 2);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+        }
+    }
+
+    public class MythrilModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 38;
+            baseKnockback = 3.2f;
+            baseCrit = 14;
+            baseUseTime = 20;
+            weaponTier = "Mythril";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<CobaltModularGun>(), 1);
+            recipe.AddIngredient(ItemID.MythrilBar, 8);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<PalladiumModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.MythrilBar, 8);
+            recipe2.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+        }
+    }
+
+    public class OrichalcumModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 38;
+            baseKnockback = 3.2f;
+            baseCrit = 14;
+            baseUseTime = 20;
+            weaponTier = "Orichalcum";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<CobaltModularGun>(), 1);
+            recipe.AddIngredient(ItemID.OrichalcumBar, 8);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<PalladiumModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.OrichalcumBar, 8);
+            recipe2.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+        }
+    }
+
+    public class AdamantiteModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 44;
+            baseKnockback = 3.4f;
+            baseCrit = 16;
+            baseUseTime = 18;
+            weaponTier = "Adamantite";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<MythrilModularGun>(), 1);
+            recipe.AddIngredient(ItemID.AdamantiteBar, 8);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 4);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<OrichalcumModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.AdamantiteBar, 8);
+            recipe2.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 4);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+        }
+    }
+
+    public class TitaniumModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 44;
+            baseKnockback = 3.4f;
+            baseCrit = 16;
+            baseUseTime = 18;
+            weaponTier = "Titanium";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<MythrilModularGun>(), 1);
+            recipe.AddIngredient(ItemID.TitaniumBar, 8);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 7);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<OrichalcumModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.TitaniumBar, 8);
+            recipe2.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 7);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+        }
+    }
+
+    // Post-Mechanical Bosses
+
+    public class HallowedModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 52;
+            baseKnockback = 3.6f;
+            baseCrit = 18;
+            baseUseTime = 16;
+            weaponTier = "Hallowed";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<AdamantiteModularGun>(), 1);
+            recipe.AddIngredient(ItemID.HallowedBar, 10);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 8);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 2);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<TitaniumModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.HallowedBar, 10);
+            recipe2.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 8);
+            recipe2.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 2);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
+        }
+    }
+
+    // Post-Plantera
+
+    public class ChlorophyteModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 60;
+            baseKnockback = 3.8f;
+            baseCrit = 20;
+            baseUseTime = 14;
+            weaponTier = "Chlorophyte";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<HallowedModularGun>(), 1);
+            recipe.AddIngredient(ItemID.ChlorophyteBar, 12);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 5);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 8);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+        }
+    }
+
+    // Post-Moon Lord
+
+    public class LuminiteModularGun : BaseModularGun
+    {
+        protected override void SetTierDefaults()
+        {
+            baseDamage = 75;
+            baseKnockback = 4.0f;
+            baseCrit = 25;
+            baseUseTime = 12;
+            weaponTier = "Luminite";
+        }
+
+        public override void AddRecipes()
+        {
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<ChlorophyteModularGun>(), 1);
+            recipe.AddIngredient(ItemID.LunarBar, 12);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 10);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
+        }
+    }
+
     public class ModifierStationItem : ModItem
     {
         public override void SetDefaults()

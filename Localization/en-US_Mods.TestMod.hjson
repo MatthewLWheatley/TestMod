@@ -400,6 +400,21 @@ Items: {
 		DisplayName: Tungsten Modular Gun
 		Tooltip: ""
 	}
+
+	CobaltModularGun: {
+		DisplayName: Cobalt Modular Gun
+		Tooltip: ""
+	}
+
+	MythrilModularGun: {
+		DisplayName: Mythril Modular Gun
+		Tooltip: ""
+	}
+
+	OrichalcumModularGun: {
+		DisplayName: Orichalcum Modular Gun
+		Tooltip: ""
+	}
 }
 
 Tiles.ModifierStation.MapEntry: Modifier Station
