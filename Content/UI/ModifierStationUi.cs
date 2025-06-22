@@ -518,13 +518,11 @@ namespace TestMod.Content.UI
                     if (itemType == ModContent.ItemType<BulletAmmoModifier>()) return 2;
                     if (itemType == ModContent.ItemType<RocketAmmoModifier>()) return 3;
 
-                    // Elite tier (same IDs, different items)
                     if (itemType == ModContent.ItemType<EliteMagicAmmoModifier>()) return 4;
                     if (itemType == ModContent.ItemType<EliteArrowAmmoModifier>()) return 5;
                     if (itemType == ModContent.ItemType<EliteBulletAmmoModifier>()) return 6;
                     if (itemType == ModContent.ItemType<EliteRocketAmmoModifier>()) return 7;
 
-                    // Perfect tier
                     if (itemType == ModContent.ItemType<PerfectMagicAmmoModifier>()) return 8;
                     if (itemType == ModContent.ItemType<PerfectArrowAmmoModifier>()) return 9;
                     if (itemType == ModContent.ItemType<PerfectBulletAmmoModifier>()) return 10;

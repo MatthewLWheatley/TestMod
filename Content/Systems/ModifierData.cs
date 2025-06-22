@@ -117,9 +117,8 @@ namespace TestMod.Content.Systems
             return pointCost switch
             {
                 1 => "Basic",
-                2 => "Standard",
-                3 => "Advanced",
-                4 => "Superior",
+                2 => "Elite",
+                3 => "Perfect",
                 _ => "Unknown"
             };
         }
@@ -135,7 +134,7 @@ namespace TestMod.Content.Systems
             { "Tungsten", 12 },
             { "Gold", 15 },       // Mix of basic/elite
             { "Platinum", 15 },
-            
+
             // Early hardmode (Elite tier unlocked)
             { "Cobalt", 20 },     // Elite focus: 8+6+8 = 22 max without special
             { "Palladium", 20 },
@@ -143,13 +142,13 @@ namespace TestMod.Content.Systems
             { "Orichalcum", 25 },
             { "Adamantite", 30 }, // Full elite loadout possible
             { "Titanium", 30 },
-            
+
             // Post-mechanical bosses (Perfect tier preparation)
             { "Hallowed", 40 },   // Perfect pieces start becoming viable
-            
+
             // Post-Plantera (Perfect tier focus)
             { "Chlorophyte", 55 }, // Most perfect combinations possible
-            
+
             // Post-Moon Lord (Perfect tier mastery)
             { "Luminite", 70 }    // Full perfect loadout: 16+12+16+16 = 60 + wiggle room
         };

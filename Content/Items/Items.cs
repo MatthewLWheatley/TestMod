@@ -308,6 +308,14 @@ namespace TestMod.Content.Items
                 1 => ProjectileID.WoodenArrowFriendly, // Arrow
                 2 => ProjectileID.Bullet,              // Bullet
                 3 => ProjectileID.RocketI,             // Rocket
+                4 => ProjectileID.MagicMissile,        // Elite Magic (same as basic for now)
+                5 => ProjectileID.WoodenArrowFriendly, // Elite Arrow (same as basic for now)
+                6 => ProjectileID.Bullet,              // Elite Bullet (same as basic for now)
+                7 => ProjectileID.RocketI,             // Elite Rocket (same as basic for now)
+                8 => ProjectileID.MagicMissile,        // Perfect Magic (same as basic for now)
+                9 => ProjectileID.WoodenArrowFriendly, // Perfect Arrow (same as basic for now)
+                10 => ProjectileID.Bullet,             // Perfect Bullet (same as basic for now)
+                11 => ProjectileID.RocketI,            // Perfect Rocket (same as basic for now)
                 _ => ProjectileID.WoodenArrowFriendly  // Default
             };
         }
@@ -444,6 +452,26 @@ namespace TestMod.Content.Items
             }
         }
 
+        private bool IsMagicAmmoType()
+        {
+            return ammoTypeModifier == 0 || ammoTypeModifier == 4 || ammoTypeModifier == 8; // Basic, Elite, Perfect Magic
+        }
+
+        private bool IsArrowAmmoType()
+        {
+            return ammoTypeModifier == 1 || ammoTypeModifier == 5 || ammoTypeModifier == 9; // Basic, Elite, Perfect Arrow
+        }
+
+        private bool IsBulletAmmoType()
+        {
+            return ammoTypeModifier == 2 || ammoTypeModifier == 6 || ammoTypeModifier == 10; // Basic, Elite, Perfect Bullet
+        }
+
+        private bool IsRocketAmmoType()
+        {
+            return ammoTypeModifier == 3 || ammoTypeModifier == 7 || ammoTypeModifier == 11; // Basic, Elite, Perfect Rocket
+        }
+
         public override void UpdateInventory(Player player)
         {
             if (!IsComplete()) return;
@@ -451,32 +479,35 @@ namespace TestMod.Content.Items
             ModifierTier ammoTier = GetAmmoTypeTier();
             ModifierTier shotTier = GetShotTypeTier();
 
-            switch (ammoTypeModifier)
+            if (IsMagicAmmoType())
             {
-                case 0: // Magic - mana efficiency improves with tier
-                    Item.DamageType = DamageClass.Magic;
-                    Item.useAmmo = AmmoID.None;
-                    // Better efficiency at higher tiers: 10, 8, 5 mana
-                    Item.mana = 12 - (2 * (int)ammoTier);
-                    break;
-
-                case 1: // Arrow
-                    Item.DamageType = DamageClass.Ranged;
-                    Item.useAmmo = AmmoID.Arrow;
-                    Item.mana = 0;
-                    break;
-
-                case 2: // Bullet  
-                    Item.DamageType = DamageClass.Ranged;
-                    Item.useAmmo = AmmoID.Bullet;
-                    Item.mana = 0;
-                    break;
-
-                case 3: // Rocket
-                    Item.DamageType = DamageClass.Ranged;
-                    Item.useAmmo = AmmoID.Rocket;
-                    Item.mana = 0;
-                    break;
+                Item.DamageType = DamageClass.Magic;
+                Item.useAmmo = AmmoID.None;
+                Item.mana = 12 - (2 * (int)ammoTier);
+            }
+            else if (IsArrowAmmoType())
+            {
+                Item.DamageType = DamageClass.Ranged;
+                Item.useAmmo = AmmoID.Arrow;
+                Item.mana = 0;
+            }
+            else if (IsBulletAmmoType())
+            {
+                Item.DamageType = DamageClass.Ranged;
+                Item.useAmmo = AmmoID.Bullet;
+                Item.mana = 0;
+            }
+            else if (IsRocketAmmoType())
+            {
+                Item.DamageType = DamageClass.Ranged;
+                Item.useAmmo = AmmoID.Rocket;
+                Item.mana = 0;
+            }
+            else
+            {
+                Item.DamageType = DamageClass.Magic; // Default to magic if no ammo type set
+                Item.useAmmo = AmmoID.None;
+                Item.mana = 10; // Default mana cost
             }
 
             // Shot type timing improves with tier
@@ -677,9 +708,17 @@ namespace TestMod.Content.Items
                     return modifierID switch
                     {
                         0 => "Magic",
-                        1 => "Arrow",
+                        1 => "Arrow", 
                         2 => "Bullet",
                         3 => "Rocket",
+                        4 => "Elite Magic",
+                        5 => "Elite Arrow",
+                        6 => "Elite Bullet", 
+                        7 => "Elite Rocket",
+                        8 => "Perfect Magic",
+                        9 => "Perfect Arrow",
+                        10 => "Perfect Bullet",
+                        11 => "Perfect Rocket",
                         _ => "Unknown"
                     };
                 case "damage":
@@ -691,6 +730,18 @@ namespace TestMod.Content.Items
                         3 => "Earth",
                         4 => "Wind",
                         5 => "Slime",
+                        6 => "Elite Fire",
+                        7 => "Elite Water",
+                        8 => "Elite Lightning",
+                        9 => "Elite Earth",
+                        10 => "Elite Wind",
+                        11 => "Elite Slime",
+                        12 => "Perfect Fire",
+                        13 => "Perfect Water",
+                        14 => "Perfect Lightning",
+                        15 => "Perfect Earth",
+                        16 => "Perfect Wind",
+                        17 => "Perfect Slime",
                         _ => "Unknown"
                     };
                 case "shot":
@@ -699,6 +750,12 @@ namespace TestMod.Content.Items
                         0 => "Auto",
                         1 => "Burst",
                         2 => "Charge",
+                        3 => "Elite Auto",
+                        4 => "Elite Burst",
+                        5 => "Elite Charge",
+                        6 => "Perfect Auto",
+                        7 => "Perfect Burst",
+                        8 => "Perfect Charge",
                         _ => "Unknown"
                     };
                 case "special":
@@ -709,6 +766,16 @@ namespace TestMod.Content.Items
                         2 => "Homing",
                         3 => "Life Steal",
                         4 => "Crit Boost",
+                        5 => "Elite Piercing",
+                        6 => "Elite Bouncing",
+                        7 => "Elite Homing",
+                        8 => "Elite Life Steal",
+                        9 => "Elite Crit Boost",
+                        10 => "Perfect Piercing",
+                        11 => "Perfect Bouncing",
+                        12 => "Perfect Homing",
+                        13 => "Perfect Life Steal",
+                        14 => "Perfect Crit Boost",
                         _ => "Unknown"
                     };
                 default:
@@ -727,6 +794,14 @@ namespace TestMod.Content.Items
                         1 => ModContent.ItemType<ArrowAmmoModifier>(),
                         2 => ModContent.ItemType<BulletAmmoModifier>(),
                         3 => ModContent.ItemType<RocketAmmoModifier>(),
+                        4 => ModContent.ItemType<EliteMagicAmmoModifier>(),
+                        5 => ModContent.ItemType<EliteArrowAmmoModifier>(),
+                        6 => ModContent.ItemType<EliteBulletAmmoModifier>(),
+                        7 => ModContent.ItemType<EliteRocketAmmoModifier>(),
+                        8 => ModContent.ItemType<PerfectMagicAmmoModifier>(),
+                        9 => ModContent.ItemType<PerfectArrowAmmoModifier>(),
+                        10 => ModContent.ItemType<PerfectBulletAmmoModifier>(),
+                        11 => ModContent.ItemType<PerfectRocketAmmoModifier>(),
                         _ => 0
                     };
                 case "damage":
@@ -738,6 +813,18 @@ namespace TestMod.Content.Items
                         3 => ModContent.ItemType<EarthDamageModifier>(),
                         4 => ModContent.ItemType<WindDamageModifier>(),
                         5 => ModContent.ItemType<SlimeDamageModifier>(),
+                        6 => ModContent.ItemType<EliteFireDamageModifier>(),
+                        7 => ModContent.ItemType<EliteWaterDamageModifier>(),
+                        8 => ModContent.ItemType<EliteLightningDamageModifier>(),
+                        9 => ModContent.ItemType<EliteEarthDamageModifier>(),
+                        10 => ModContent.ItemType<EliteWindDamageModifier>(),
+                        11 => ModContent.ItemType<EliteSlimeDamageModifier>(),
+                        12 => ModContent.ItemType<PerfectFireDamageModifier>(),
+                        13 => ModContent.ItemType<PerfectWaterDamageModifier>(),
+                        14 => ModContent.ItemType<PerfectLightningDamageModifier>(),
+                        15 => ModContent.ItemType<PerfectEarthDamageModifier>(),
+                        16 => ModContent.ItemType<PerfectWindDamageModifier>(),
+                        17 => ModContent.ItemType<PerfectSlimeDamageModifier>(),
                         _ => 0
                     };
                 case "shot":
@@ -746,6 +833,12 @@ namespace TestMod.Content.Items
                         0 => ModContent.ItemType<AutoFireModifier>(),
                         1 => ModContent.ItemType<BurstFireModifier>(),
                         2 => ModContent.ItemType<ChargeFireModifier>(),
+                        3 => ModContent.ItemType<EliteAutoFireModifier>(),
+                        4 => ModContent.ItemType<EliteBurstFireModifier>(),
+                        5 => ModContent.ItemType<EliteChargeFireModifier>(),
+                        6 => ModContent.ItemType<PerfectAutoFireModifier>(),
+                        7 => ModContent.ItemType<PerfectBurstFireModifier>(),
+                        8 => ModContent.ItemType<PerfectChargeFireModifier>(),
                         _ => 0
                     };
                 case "special":
@@ -756,6 +849,16 @@ namespace TestMod.Content.Items
                         2 => ModContent.ItemType<HomingModifier>(),
                         3 => ModContent.ItemType<LifeStealModifier>(),
                         4 => ModContent.ItemType<CritBoostModifier>(),
+                        5 => ModContent.ItemType<ElitePiercingModifier>(),
+                        6 => ModContent.ItemType<EliteBouncingModifier>(),
+                        7 => ModContent.ItemType<EliteHomingModifier>(),
+                        8 => ModContent.ItemType<EliteLifeStealModifier>(),
+                        9 => ModContent.ItemType<EliteCritBoostModifier>(),
+                        10 => ModContent.ItemType<PerfectPiercingModifier>(),
+                        11 => ModContent.ItemType<PerfectBouncingModifier>(),
+                        12 => ModContent.ItemType<PerfectHomingModifier>(),
+                        13 => ModContent.ItemType<PerfectLifeStealModifier>(),
+                        14 => ModContent.ItemType<PerfectCritBoostModifier>(),
                         _ => 0
                     };
             }
