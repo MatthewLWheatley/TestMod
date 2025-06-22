@@ -2680,7 +2680,6 @@ namespace TestMod.Content.Items
         // NO RECIPE - Boss drop only!
     }
 
-
     public class PerfectPiercingModifier : ModItem
     {
         public override void SetDefaults()
