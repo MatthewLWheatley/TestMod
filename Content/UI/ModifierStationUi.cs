@@ -519,16 +519,16 @@ namespace TestMod.Content.UI
                     if (itemType == ModContent.ItemType<RocketAmmoModifier>()) return 3;
 
                     // Elite tier (same IDs, different items)
-                    if (itemType == ModContent.ItemType<EliteMagicAmmoModifier>()) return 0;
-                    if (itemType == ModContent.ItemType<EliteArrowAmmoModifier>()) return 1;
-                    if (itemType == ModContent.ItemType<EliteBulletAmmoModifier>()) return 2;
-                    if (itemType == ModContent.ItemType<EliteRocketAmmoModifier>()) return 3;
+                    if (itemType == ModContent.ItemType<EliteMagicAmmoModifier>()) return 4;
+                    if (itemType == ModContent.ItemType<EliteArrowAmmoModifier>()) return 5;
+                    if (itemType == ModContent.ItemType<EliteBulletAmmoModifier>()) return 6;
+                    if (itemType == ModContent.ItemType<EliteRocketAmmoModifier>()) return 7;
 
                     // Perfect tier
-                    if (itemType == ModContent.ItemType<PerfectMagicAmmoModifier>()) return 0;
-                    if (itemType == ModContent.ItemType<PerfectArrowAmmoModifier>()) return 1;
-                    if (itemType == ModContent.ItemType<PerfectBulletAmmoModifier>()) return 2;
-                    if (itemType == ModContent.ItemType<PerfectRocketAmmoModifier>()) return 3;
+                    if (itemType == ModContent.ItemType<PerfectMagicAmmoModifier>()) return 8;
+                    if (itemType == ModContent.ItemType<PerfectArrowAmmoModifier>()) return 9;
+                    if (itemType == ModContent.ItemType<PerfectBulletAmmoModifier>()) return 10;
+                    if (itemType == ModContent.ItemType<PerfectRocketAmmoModifier>()) return 11;
                     break;
 
                 case "damage":
@@ -539,19 +539,19 @@ namespace TestMod.Content.UI
                     else if (itemType == ModContent.ItemType<WindDamageModifier>()) return 4;
                     else if (itemType == ModContent.ItemType<SlimeDamageModifier>()) return 5;
 
-                    else if (itemType == ModContent.ItemType<EliteFireDamageModifier>()) return 0;
-                    else if (itemType == ModContent.ItemType<EliteWaterDamageModifier>()) return 1;
-                    else if (itemType == ModContent.ItemType<EliteLightningDamageModifier>()) return 2;
-                    else if (itemType == ModContent.ItemType<EliteEarthDamageModifier>()) return 3;
-                    else if (itemType == ModContent.ItemType<EliteWindDamageModifier>()) return 4;
-                    else if (itemType == ModContent.ItemType<EliteSlimeDamageModifier>()) return 5;
+                    else if (itemType == ModContent.ItemType<EliteFireDamageModifier>()) return 6;
+                    else if (itemType == ModContent.ItemType<EliteWaterDamageModifier>()) return 7;
+                    else if (itemType == ModContent.ItemType<EliteLightningDamageModifier>()) return 8;
+                    else if (itemType == ModContent.ItemType<EliteEarthDamageModifier>()) return 9;
+                    else if (itemType == ModContent.ItemType<EliteWindDamageModifier>()) return 10;
+                    else if (itemType == ModContent.ItemType<EliteSlimeDamageModifier>()) return 11;
 
-                    else if (itemType == ModContent.ItemType<PerfectFireDamageModifier>()) return 0;
-                    else if (itemType == ModContent.ItemType<PerfectWaterDamageModifier>()) return 1;
-                    else if (itemType == ModContent.ItemType<PerfectLightningDamageModifier>()) return 2;
-                    else if (itemType == ModContent.ItemType<PerfectEarthDamageModifier>()) return 3;
-                    else if (itemType == ModContent.ItemType<PerfectWindDamageModifier>()) return 4;
-                    else if (itemType == ModContent.ItemType<PerfectSlimeDamageModifier>()) return 5;
+                    else if (itemType == ModContent.ItemType<PerfectFireDamageModifier>()) return 12;
+                    else if (itemType == ModContent.ItemType<PerfectWaterDamageModifier>()) return 13;
+                    else if (itemType == ModContent.ItemType<PerfectLightningDamageModifier>()) return 14;
+                    else if (itemType == ModContent.ItemType<PerfectEarthDamageModifier>()) return 15;
+                    else if (itemType == ModContent.ItemType<PerfectWindDamageModifier>()) return 16;
+                    else if (itemType == ModContent.ItemType<PerfectSlimeDamageModifier>()) return 17;
                     break;
 
                 case "shot":
@@ -559,13 +559,13 @@ namespace TestMod.Content.UI
                     else if (itemType == ModContent.ItemType<BurstFireModifier>()) return 1;
                     else if (itemType == ModContent.ItemType<ChargeFireModifier>()) return 2;
 
-                    else if (itemType == ModContent.ItemType<EliteAutoFireModifier>()) return 0;
-                    else if (itemType == ModContent.ItemType<EliteBurstFireModifier>()) return 1;
-                    else if (itemType == ModContent.ItemType<EliteChargeFireModifier>()) return 2;
+                    else if (itemType == ModContent.ItemType<EliteAutoFireModifier>()) return 3;
+                    else if (itemType == ModContent.ItemType<EliteBurstFireModifier>()) return 4;
+                    else if (itemType == ModContent.ItemType<EliteChargeFireModifier>()) return 5;
 
-                    else if (itemType == ModContent.ItemType<PerfectAutoFireModifier>()) return 0;
-                    else if (itemType == ModContent.ItemType<PerfectBurstFireModifier>()) return 1;
-                    else if (itemType == ModContent.ItemType<PerfectChargeFireModifier>()) return 2;
+                    else if (itemType == ModContent.ItemType<PerfectAutoFireModifier>()) return 6;
+                    else if (itemType == ModContent.ItemType<PerfectBurstFireModifier>()) return 7;
+                    else if (itemType == ModContent.ItemType<PerfectChargeFireModifier>()) return 8;
                     break;
 
                 case "special":
@@ -575,17 +575,17 @@ namespace TestMod.Content.UI
                     else if (itemType == ModContent.ItemType<LifeStealModifier>()) return 3;
                     else if (itemType == ModContent.ItemType<CritBoostModifier>()) return 4;
 
-                    else if (itemType == ModContent.ItemType<ElitePiercingModifier>()) return 0;
-                    else if (itemType == ModContent.ItemType<EliteBouncingModifier>()) return 1;
-                    else if (itemType == ModContent.ItemType<EliteHomingModifier>()) return 2;
-                    else if (itemType == ModContent.ItemType<EliteLifeStealModifier>()) return 3;
-                    else if (itemType == ModContent.ItemType<EliteCritBoostModifier>()) return 4;
+                    else if (itemType == ModContent.ItemType<ElitePiercingModifier>()) return 5;
+                    else if (itemType == ModContent.ItemType<EliteBouncingModifier>()) return 6;
+                    else if (itemType == ModContent.ItemType<EliteHomingModifier>()) return 7;
+                    else if (itemType == ModContent.ItemType<EliteLifeStealModifier>()) return 8;
+                    else if (itemType == ModContent.ItemType<EliteCritBoostModifier>()) return 9;
 
-                    else if (itemType == ModContent.ItemType<PerfectPiercingModifier>()) return 0;
-                    else if (itemType == ModContent.ItemType<PerfectBouncingModifier>()) return 1;
-                    else if (itemType == ModContent.ItemType<PerfectHomingModifier>()) return 2;
-                    else if (itemType == ModContent.ItemType<PerfectLifeStealModifier>()) return 3;
-                    else if (itemType == ModContent.ItemType<PerfectCritBoostModifier>()) return 4;
+                    else if (itemType == ModContent.ItemType<PerfectPiercingModifier>()) return 10;
+                    else if (itemType == ModContent.ItemType<PerfectBouncingModifier>()) return 11;
+                    else if (itemType == ModContent.ItemType<PerfectHomingModifier>()) return 12;
+                    else if (itemType == ModContent.ItemType<PerfectLifeStealModifier>()) return 13;
+                    else if (itemType == ModContent.ItemType<PerfectCritBoostModifier>()) return 14;
                     break;
             }
 
@@ -603,7 +603,16 @@ namespace TestMod.Content.UI
                         1 => ModContent.ItemType<ArrowAmmoModifier>(),
                         2 => ModContent.ItemType<BulletAmmoModifier>(),
                         3 => ModContent.ItemType<RocketAmmoModifier>(),
+                        4 => ModContent.ItemType<EliteMagicAmmoModifier>(),
+                        5 => ModContent.ItemType<EliteArrowAmmoModifier>(),
+                        6 => ModContent.ItemType<EliteBulletAmmoModifier>(),
+                        7 => ModContent.ItemType<EliteRocketAmmoModifier>(),
+                        8 => ModContent.ItemType<PerfectMagicAmmoModifier>(),
+                        9 => ModContent.ItemType<PerfectArrowAmmoModifier>(),
+                        10 => ModContent.ItemType<PerfectBulletAmmoModifier>(),
+                        11 => ModContent.ItemType<PerfectRocketAmmoModifier>(),
                         _ => 0
+
                     };
                 case "damage":
                     return modifierID switch
@@ -614,6 +623,18 @@ namespace TestMod.Content.UI
                         3 => ModContent.ItemType<EarthDamageModifier>(),
                         4 => ModContent.ItemType<WindDamageModifier>(),
                         5 => ModContent.ItemType<SlimeDamageModifier>(),
+                        6 => ModContent.ItemType<EliteFireDamageModifier>(),
+                        7 => ModContent.ItemType<EliteWaterDamageModifier>(),
+                        8 => ModContent.ItemType<EliteLightningDamageModifier>(),
+                        9 => ModContent.ItemType<EliteEarthDamageModifier>(),
+                        10 => ModContent.ItemType<EliteWindDamageModifier>(),
+                        11 => ModContent.ItemType<EliteSlimeDamageModifier>(),
+                        12 => ModContent.ItemType<PerfectFireDamageModifier>(),
+                        13 => ModContent.ItemType<PerfectWaterDamageModifier>(),
+                        14 => ModContent.ItemType<PerfectLightningDamageModifier>(),
+                        15 => ModContent.ItemType<PerfectEarthDamageModifier>(),
+                        16 => ModContent.ItemType<PerfectWindDamageModifier>(),
+                        17 => ModContent.ItemType<PerfectSlimeDamageModifier>(),
                         _ => 0
                     };
                 case "shot":
@@ -623,6 +644,12 @@ namespace TestMod.Content.UI
                         0 => ModContent.ItemType<AutoFireModifier>(),
                         1 => ModContent.ItemType<BurstFireModifier>(),
                         2 => ModContent.ItemType<ChargeFireModifier>(),
+                        3 => ModContent.ItemType<EliteAutoFireModifier>(),
+                        4 => ModContent.ItemType<EliteBurstFireModifier>(),
+                        5 => ModContent.ItemType<EliteChargeFireModifier>(),
+                        6 => ModContent.ItemType<PerfectAutoFireModifier>(),
+                        7 => ModContent.ItemType<PerfectBurstFireModifier>(),
+                        8 => ModContent.ItemType<PerfectChargeFireModifier>(),
                         _ => 0
                     };
                 case "special":
@@ -633,6 +660,16 @@ namespace TestMod.Content.UI
                         2 => ModContent.ItemType<HomingModifier>(),
                         3 => ModContent.ItemType<LifeStealModifier>(),
                         4 => ModContent.ItemType<CritBoostModifier>(),
+                        5 => ModContent.ItemType<ElitePiercingModifier>(),
+                        6 => ModContent.ItemType<EliteBouncingModifier>(),
+                        7 => ModContent.ItemType<EliteHomingModifier>(),
+                        8 => ModContent.ItemType<EliteLifeStealModifier>(),
+                        9 => ModContent.ItemType<EliteCritBoostModifier>(),
+                        10 => ModContent.ItemType<PerfectPiercingModifier>(),
+                        11 => ModContent.ItemType<PerfectBouncingModifier>(),
+                        12 => ModContent.ItemType<PerfectHomingModifier>(),
+                        13 => ModContent.ItemType<PerfectLifeStealModifier>(),
+                        14 => ModContent.ItemType<PerfectCritBoostModifier>(),
                         _ => 0
                     };
             }
