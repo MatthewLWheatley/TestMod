@@ -169,7 +169,7 @@ namespace TestMod.Content.Items
             Item.mana = 10;
             Item.crit = baseCrit;
             maxPointBudget = ModifierData.GetWeaponPointBudget(weaponTier);
-            Item.maxStack = 10;
+            Item.maxStack = 1;
         }
 
         private int GetRarityForTier()
