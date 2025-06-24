@@ -322,7 +322,7 @@ namespace TestMod.Content.UI
         private void UpdateStatsDisplay()
         {
             BaseModularGun modularGun = weaponItems[0].ModItem as BaseModularGun;
-            
+
             if (modularGun == null)
             {
                 // Clear all stats when no weapon
@@ -338,44 +338,36 @@ namespace TestMod.Content.UI
                 return;
             }
 
-            var weaponItem = weaponItems[0];
-            
-            // Calculate actual damage with all modifiers
-            float calculatedDamage = CalculateActualDamage(modularGun, weaponItem);
-            damageText.SetText($"Damage: {calculatedDamage:F0}");
-            damageText.TextColor = calculatedDamage > weaponItem.damage ? Color.LightGreen : Color.White;
-            
-            // Calculate actual knockback with modifiers
-            float calculatedKnockback = CalculateActualKnockback(modularGun, weaponItem);
-            knockbackText.SetText($"Knockback: {calculatedKnockback:F1}");
-            knockbackText.TextColor = calculatedKnockback > weaponItem.knockBack ? Color.LightGreen : Color.White;
-            
-            // Calculate actual crit with modifiers
-            float calculatedCrit = CalculateActualCrit(modularGun, weaponItem);
-            critText.SetText($"Critical Chance: {calculatedCrit:F0}%");
-            critText.TextColor = calculatedCrit > weaponItem.crit ? Color.LightGreen : Color.White;
-            
-            // Calculate actual use time with modifiers
-            int calculatedUseTime = CalculateActualUseTime(modularGun, weaponItem);
-            useTimeText.SetText($"Use Time: {calculatedUseTime} frames");
-            useTimeText.TextColor = calculatedUseTime < weaponItem.useTime ? Color.LightGreen : Color.White;
-            
-            // Calculate actual mana cost with modifiers
-            int calculatedMana = CalculateActualManaCost(modularGun, weaponItem);
-            manaText.SetText($"Mana Cost: {calculatedMana}");
-            manaText.TextColor = calculatedMana > 0 ? Color.LightBlue : Color.Gray;
+            // Use the shared calculator
+            var stats = WeaponStatsCalculator.CalculateStats(modularGun, weaponItems[0]);
 
-            // Ammo type info
-            UpdateAmmoTypeDisplay(modularGun);
-            
-            // Debuff info
-            UpdateDebuffDisplay(modularGun);
-            
-            // Special effects info
-            UpdateSpecialEffectDisplay(modularGun);
-            
-            // Tier bonus info
-            UpdateTierBonusDisplay(modularGun);
+            // Update all displays with calculated values
+            damageText.SetText($"Damage: {stats.Damage:F0}");
+            damageText.TextColor = stats.Damage > weaponItems[0].damage ? Color.LightGreen : Color.White;
+
+            knockbackText.SetText($"Knockback: {stats.Knockback:F1}");
+            knockbackText.TextColor = stats.Knockback > weaponItems[0].knockBack ? Color.LightGreen : Color.White;
+
+            critText.SetText($"Critical Chance: {stats.CritChance:F0}%");
+            critText.TextColor = stats.CritChance > weaponItems[0].crit ? Color.LightGreen : Color.White;
+
+            useTimeText.SetText($"Use Time: {stats.UseTime} frames");
+            useTimeText.TextColor = stats.UseTime < weaponItems[0].useTime ? Color.LightGreen : Color.White;
+
+            manaText.SetText($"Mana Cost: {stats.ManaCost}");
+            manaText.TextColor = stats.ManaCost > 0 ? Color.LightBlue : Color.Gray;
+
+            ammoTypeText.SetText($"Ammo: {stats.AmmoInfo}");
+            ammoTypeText.TextColor = Color.LightBlue;
+
+            debuffText.SetText($"Debuff: {stats.DebuffInfo}");
+            debuffText.TextColor = stats.DebuffInfo != "None" ? Color.Orange : Color.Gray;
+
+            specialEffectText.SetText($"Special: {stats.SpecialInfo}");
+            specialEffectText.TextColor = stats.SpecialInfo != "None" ? Color.Gold : Color.Gray;
+
+            tierBonusText.SetText($"Tier Bonus: +{((stats.TierBonus - 1) * 100):F0}% damage");
+            tierBonusText.TextColor = stats.TierBonus > 1.0f ? Color.LightGreen : Color.Gray;
         }
 
         // NEW: Calculate actual damage including all modifier effects

@@ -6,8 +6,6 @@ using TestMod.Content.Items;
 
 namespace TestMod.Content.Systems
 {
-
-
     public static class ModifierData
     {
 
@@ -242,5 +240,272 @@ namespace TestMod.Content.Systems
             transferringModifiers = null;
             return result;
         }
+    }
+
+    public static class WeaponStatsCalculator
+    {
+        public static WeaponStats CalculateStats(BaseModularGun modularGun, Item weaponItem)
+        {
+            if (modularGun == null || !modularGun.IsComplete())
+            {
+                return new WeaponStats
+                {
+                    Damage = weaponItem.damage,
+                    Knockback = weaponItem.knockBack,
+                    CritChance = weaponItem.crit,
+                    UseTime = weaponItem.useTime,
+                    ManaCost = weaponItem.mana,
+                    AmmoInfo = "None",
+                    DebuffInfo = "None",
+                    SpecialInfo = "None",
+                    TierBonus = 0f
+                };
+            }
+
+            var stats = new WeaponStats();
+            
+            // Calculate damage
+            stats.Damage = CalculateActualDamage(modularGun, weaponItem);
+            
+            // Calculate knockback
+            stats.Knockback = CalculateActualKnockback(modularGun, weaponItem);
+            
+            // Calculate crit
+            stats.CritChance = CalculateActualCrit(modularGun, weaponItem);
+            
+            // Calculate use time
+            stats.UseTime = CalculateActualUseTime(modularGun, weaponItem);
+            
+            // Calculate mana cost
+            stats.ManaCost = CalculateActualManaCost(modularGun, weaponItem);
+            
+            // Get descriptive info
+            stats.AmmoInfo = GetAmmoTypeDescription(modularGun);
+            stats.DebuffInfo = GetDebuffDescription(modularGun);
+            stats.SpecialInfo = GetSpecialEffectDescription(modularGun);
+            stats.TierBonus = GetTierBonusMultiplier(modularGun);
+
+            return stats;
+        }
+
+        private static float CalculateActualDamage(BaseModularGun modularGun, Item weaponItem)
+        {
+            float damage = weaponItem.damage;
+            
+            // Apply shot type damage modifiers
+            var shotTier = GetShotTypeTier(modularGun);
+            float tierMultiplier = (float)shotTier / (float)BaseModularGun.ModifierTier.Basic;
+
+            switch (modularGun.shotTypeModifier % 3)
+            {
+                case 0: // Auto Fire
+                    float autoReduction = 0.8f - (0.1f * (tierMultiplier - 1));
+                    damage *= autoReduction;
+                    break;
+                case 1: // Burst Fire
+                    float burstBonus = 1.0f + (0.15f * (tierMultiplier - 1));
+                    damage *= burstBonus;
+                    break;
+                case 2: // Charge Fire
+                    float chargeBonus = 1.4f + (0.3f * (tierMultiplier - 1));
+                    damage *= chargeBonus;
+                    break;
+            }
+
+            // Apply ammo type tier bonus
+            var ammoTier = GetAmmoTypeTier(modularGun);
+            if (ammoTier > BaseModularGun.ModifierTier.Basic)
+            {
+                float ammoBonus = 1.0f + (0.1f * ((float)ammoTier - 1));
+                damage *= ammoBonus;
+            }
+
+            // Apply weapon tier bonus
+            var tierProgression = ModifierData.GetWeaponTierProgression();
+            int tierIndex = tierProgression.IndexOf(modularGun.weaponTier);
+            float weaponTierMultiplier = 1f + (tierIndex * 0.15f);
+            damage *= weaponTierMultiplier;
+
+            return damage;
+        }
+
+        private static float CalculateActualKnockback(BaseModularGun modularGun, Item weaponItem)
+        {
+            float knockback = weaponItem.knockBack;
+
+            // Apply wind damage type knockback bonus
+            if (modularGun.damageTypeModifier % 6 == 4) // Wind damage
+            {
+                var damageTier = GetDamageTypeTier(modularGun);
+                float knockbackBonus = 1.5f + (0.5f * ((float)damageTier - 1));
+                knockback *= knockbackBonus;
+            }
+
+            return knockback;
+        }
+
+        private static float CalculateActualCrit(BaseModularGun modularGun, Item weaponItem)
+        {
+            float crit = weaponItem.crit;
+
+            // Apply crit boost special effect
+            if (modularGun.specialEffectModifier % 5 == 4) // Crit Boost modifier
+            {
+                var specialTier = GetSpecialEffectTier(modularGun);
+                float critBonus = 10f * (float)specialTier;
+                crit += critBonus;
+            }
+
+            return crit;
+        }
+
+        private static int CalculateActualUseTime(BaseModularGun modularGun, Item weaponItem)
+        {
+            var shotTier = GetShotTypeTier(modularGun);
+            float speedBonus = 1.0f + (0.15f * ((int)shotTier - 1));
+
+            int useTime = weaponItem.useTime;
+
+            switch (modularGun.shotTypeModifier % 3)
+            {
+                case 0: // Auto Fire
+                    useTime = (int)(weaponItem.useTime / 2 / speedBonus);
+                    break;
+                case 1: // Burst Fire
+                    useTime = (int)(weaponItem.useTime / speedBonus);
+                    break;
+                case 2: // Charge Fire
+                    useTime = (int)(weaponItem.useTime * 2 / speedBonus);
+                    break;
+            }
+
+            return useTime;
+        }
+
+        private static int CalculateActualManaCost(BaseModularGun modularGun, Item weaponItem)
+        {
+            if (modularGun.ammoTypeModifier % 4 == 0) // Magic ammo type
+            {
+                var ammoTier = GetAmmoTypeTier(modularGun);
+                return 12 - (2 * (int)ammoTier);
+            }
+            return 0;
+        }
+
+        private static string GetAmmoTypeDescription(BaseModularGun modularGun)
+        {
+            string ammoType = (modularGun.ammoTypeModifier % 4) switch
+            {
+                0 => "Magic",
+                1 => "Arrows",
+                2 => "Bullets",
+                3 => "Rockets",
+                _ => "Unknown"
+            };
+
+            string tier = GetAmmoTypeTier(modularGun) switch
+            {
+                BaseModularGun.ModifierTier.Perfect => "Perfect",
+                BaseModularGun.ModifierTier.Elite => "Elite",
+                _ => "Basic"
+            };
+
+            return $"{ammoType} ({tier})";
+        }
+
+        private static string GetDebuffDescription(BaseModularGun modularGun)
+        {
+            if (modularGun.damageTypeModifier == -1) return "None";
+
+            var tier = GetDamageTypeTier(modularGun);
+            float tierMultiplier = tier switch
+            {
+                BaseModularGun.ModifierTier.Perfect => 4f,
+                BaseModularGun.ModifierTier.Elite => 2f,
+                _ => 1f
+            };
+
+            float duration = 5f * tierMultiplier;
+
+            string debuffName = (modularGun.damageTypeModifier % 6) switch
+            {
+                0 => "On Fire!",
+                1 => "Slow",
+                2 => "Ichor",
+                3 => "Bleeding",
+                4 => "Knockback+",
+                5 => "Poisoned",
+                _ => "Unknown"
+            };
+
+            return $"{debuffName} ({duration:F1}s)";
+        }
+
+        private static string GetSpecialEffectDescription(BaseModularGun modularGun)
+        {
+            if (modularGun.specialEffectModifier == -1) return "None";
+
+            var tier = GetSpecialEffectTier(modularGun);
+            string tierName = tier.ToString();
+
+            return (modularGun.specialEffectModifier % 5) switch
+            {
+                0 => $"Piercing +{(int)tier} ({tierName})",
+                1 => $"Bouncing x{(int)tier * 2} ({tierName})",
+                2 => $"Homing {tier} ({tierName})",
+                3 => $"Life Steal {(int)tier * 2}% ({tierName})",
+                4 => $"Crit +{(int)tier * 10}% ({tierName})",
+                _ => "Unknown"
+            };
+        }
+
+        private static float GetTierBonusMultiplier(BaseModularGun modularGun)
+        {
+            var tierProgression = ModifierData.GetWeaponTierProgression();
+            int tierIndex = tierProgression.IndexOf(modularGun.weaponTier);
+            return 1f + (tierIndex * 0.15f);
+        }
+
+        // Helper methods for tier detection
+        private static BaseModularGun.ModifierTier GetAmmoTypeTier(BaseModularGun modularGun)
+        {
+            if (modularGun.ammoTypeModifier >= 8) return BaseModularGun.ModifierTier.Perfect;
+            if (modularGun.ammoTypeModifier >= 4) return BaseModularGun.ModifierTier.Elite;
+            return BaseModularGun.ModifierTier.Basic;
+        }
+
+        private static BaseModularGun.ModifierTier GetShotTypeTier(BaseModularGun modularGun)
+        {
+            if (modularGun.shotTypeModifier >= 6) return BaseModularGun.ModifierTier.Perfect;
+            if (modularGun.shotTypeModifier >= 3) return BaseModularGun.ModifierTier.Elite;
+            return BaseModularGun.ModifierTier.Basic;
+        }
+
+        private static BaseModularGun.ModifierTier GetDamageTypeTier(BaseModularGun modularGun)
+        {
+            if (modularGun.damageTypeModifier >= 12) return BaseModularGun.ModifierTier.Perfect;
+            if (modularGun.damageTypeModifier >= 6) return BaseModularGun.ModifierTier.Elite;
+            return BaseModularGun.ModifierTier.Basic;
+        }
+
+        private static BaseModularGun.ModifierTier GetSpecialEffectTier(BaseModularGun modularGun)
+        {
+            if (modularGun.specialEffectModifier >= 10) return BaseModularGun.ModifierTier.Perfect;
+            if (modularGun.specialEffectModifier >= 5) return BaseModularGun.ModifierTier.Elite;
+            return BaseModularGun.ModifierTier.Basic;
+        }
+    }
+
+    public class WeaponStats
+    {
+        public float Damage { get; set; }
+        public float Knockback { get; set; }
+        public float CritChance { get; set; }
+        public int UseTime { get; set; }
+        public int ManaCost { get; set; }
+        public string AmmoInfo { get; set; } = "";
+        public string DebuffInfo { get; set; } = "";
+        public string SpecialInfo { get; set; } = "";
+        public float TierBonus { get; set; }
     }
 }
