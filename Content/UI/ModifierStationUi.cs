@@ -766,38 +766,39 @@ namespace TestMod.Content.UI
         // [Keep all the existing methods: CheckAndInstallNewModifiers, ClearAllModifierSlots, 
         // CheckAndRemoveModifiers, AutoExtractModifiers, CloseUI, GetModifierID, 
         // GetItemTypeFromModifier, ToggleUI, OpenUI, CloseUI, OpenUIAtStation]
-        
+
         // ... (rest of existing methods remain unchanged)
-        
+
         private void CheckAndInstallNewModifiers()
         {
             BaseModularGun modularGun = weaponItems[0].ModItem as BaseModularGun;
-
             if (modularGun == null) return;
 
             bool installed = false;
 
-            if (previousModifier1[0].IsAir && !modifier1Items[0].IsAir && modularGun.ammoTypeModifier == -1)
+            if (!modifier1Items[0].IsAir && (previousModifier1[0].IsAir || previousModifier1[0].type != modifier1Items[0].type))
             {
-                modularGun.ammoTypeModifier = GetModifierID(modifier1Items[0].type, "ammo");
-                if (modularGun.ammoTypeModifier != -1)
+                int newModifierID = GetModifierID(modifier1Items[0].type, "ammo");
+                if (newModifierID != -1)
                 {
+                    modularGun.ammoTypeModifier = newModifierID;
                     installed = true;
-                    Main.NewText($"Ammo type modifier installed", Color.Green);
+                    Main.NewText($"Ammo type modifier {(previousModifier1[0].IsAir ? "installed" : "swapped")}", Color.Green);
                 }
             }
 
-            if (previousModifier2[0].IsAir && !modifier2Items[0].IsAir && modularGun.damageTypeModifier == -1)
+            if (!modifier2Items[0].IsAir && (previousModifier2[0].IsAir || previousModifier2[0].type != modifier2Items[0].type))
             {
-                modularGun.damageTypeModifier = GetModifierID(modifier2Items[0].type, "damage");
-                if (modularGun.damageTypeModifier != -1)
+                int newModifierID = GetModifierID(modifier2Items[0].type, "damage");
+                if (newModifierID != -1)
                 {
+                    modularGun.damageTypeModifier = newModifierID;
                     installed = true;
-                    Main.NewText($"Damage type modifier installed", Color.Green);
+                    Main.NewText($"Damage type modifier {(previousModifier2[0].IsAir ? "installed" : "swapped")}", Color.Green);
                 }
             }
 
-            if (previousModifier3[0].IsAir && !modifier3Items[0].IsAir && modularGun.shotTypeModifier == -1)
+            if (!modifier3Items[0].IsAir && (previousModifier3[0].IsAir || previousModifier3[0].type != modifier3Items[0].type))
             {
                 modularGun.shotTypeModifier = GetModifierID(modifier3Items[0].type, "shot");
                 if (modularGun.shotTypeModifier != -1)
@@ -807,7 +808,7 @@ namespace TestMod.Content.UI
                 }
             }
 
-            if (previousSpecial[0].IsAir && !specialItems[0].IsAir && modularGun.specialEffectModifier == -1)
+            if (!specialItems[0].IsAir &&(previousSpecial[0].IsAir || previousSpecial[0].type != specialItems[0].type))
             {
                 modularGun.specialEffectModifier = GetModifierID(specialItems[0].type, "special");
                 if (modularGun.specialEffectModifier != -1)
@@ -829,7 +830,6 @@ namespace TestMod.Content.UI
             modifier2Items[0].TurnToAir();
             modifier3Items[0].TurnToAir();
             specialItems[0].TurnToAir();
-            Main.NewText("Modifier slots cleared!", Color.Yellow);
         }
 
         private void CheckAndRemoveModifiers()

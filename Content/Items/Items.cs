@@ -116,7 +116,7 @@ namespace TestMod.Content.Items
             return ModifierTier.Basic;
         }
 
-        private ModifierTier GetSpecialEffectTier()
+        public ModifierTier GetSpecialEffectTier()
         {
             if (specialEffectModifier == -1) return ModifierTier.Basic;
 
@@ -511,23 +511,30 @@ namespace TestMod.Content.Items
             }
 
             // Shot type timing improves with tier
-            float speedBonus = 1.0f + (0.15f * ((int)shotTier - 1)); // 15% faster per tier
+            float speedBonus = 1.0f + (0.1f * ((int)shotTier - 1));
 
-            switch (shotTypeModifier)
+            switch (shotTypeModifier % 3)
             {
-                case 0: // Auto Fire - gets faster and more efficient
-                    Item.useTime = (int)(baseUseTime / 2 / speedBonus);
-                    Item.useAnimation = (int)(baseUseTime / 2 / speedBonus);
+                case 0:
+                    int autoFrames = shotTypeModifier switch
+                    {
+                        0 => 8,
+                        3 => 4, 
+                        6 => 2,
+                        _ => 8
+                    };
+                    Item.useTime = autoFrames;
+                    Item.useAnimation = autoFrames;
                     Item.autoReuse = true;
                     break;
 
-                case 1: // Burst Fire - faster burst timing
+                case 1: // Burst Fire
                     Item.useTime = (int)(baseUseTime / speedBonus);
                     Item.useAnimation = (int)(baseUseTime / speedBonus);
                     Item.autoReuse = false;
                     break;
 
-                case 2: // Charge Fire - faster charge time at higher tiers
+                case 2: // Charge Fire
                     Item.useTime = (int)(baseUseTime * 2 / speedBonus);
                     Item.useAnimation = (int)(baseUseTime * 2 / speedBonus);
                     Item.autoReuse = false;
@@ -538,79 +545,6 @@ namespace TestMod.Content.Items
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
             if (!IsComplete()) return;
-
-            ModifierTier damageTier = GetDamageTypeTier();
-            float tierMultiplier = (float)damageTier; // 1x, 2x, or 4x
-
-            // Base durations (in frames, 60 = 1 second)
-            int baseDuration = 300; // 5 seconds
-            int scaledDuration = (int)(baseDuration * tierMultiplier);
-
-            switch (damageTypeModifier)
-            {
-                case 0: // Fire - longer burn + chance for stronger debuff
-                    target.AddBuff(BuffID.OnFire, scaledDuration);
-                    if (damageTier >= ModifierTier.Elite && Main.rand.NextFloat() < 0.3f)
-                    {
-                        target.AddBuff(BuffID.CursedInferno, scaledDuration / 2); // Elite+: chance for cursed fire
-                    }
-                    break;
-
-                case 1: // Water - longer slow + chance for freeze
-                    target.AddBuff(BuffID.Slow, scaledDuration);
-                    if (damageTier >= ModifierTier.Perfect && Main.rand.NextFloat() < 0.2f)
-                    {
-                        target.AddBuff(BuffID.Frozen, 60); // Perfect: chance to freeze for 1 second
-                    }
-                    break;
-
-                case 2: // Lightning - longer ichor + chance for electrified
-                    target.AddBuff(BuffID.Ichor, scaledDuration);
-                    if (damageTier >= ModifierTier.Elite && Main.rand.NextFloat() < 0.25f)
-                    {
-                        target.AddBuff(BuffID.Electrified, scaledDuration / 3);
-                    }
-                    break;
-
-                case 3: // Earth - longer bleeding + chance for broken armor
-                    target.AddBuff(BuffID.Bleeding, scaledDuration);
-                    if (damageTier >= ModifierTier.Perfect && Main.rand.NextFloat() < 0.2f)
-                    {
-                        target.AddBuff(BuffID.BrokenArmor, scaledDuration / 2);
-                    }
-                    break;
-
-                case 4: // Wind - knockback already handled, but add confusion at higher tiers
-                    if (damageTier >= ModifierTier.Elite && Main.rand.NextFloat() < 0.15f)
-                    {
-                        target.AddBuff(BuffID.Confused, scaledDuration / 4);
-                    }
-                    break;
-
-                case 5: // Slime - longer poison + chance for stronger poison
-                    target.AddBuff(BuffID.Poisoned, scaledDuration);
-                    if (damageTier >= ModifierTier.Perfect && Main.rand.NextFloat() < 0.3f)
-                    {
-                        target.AddBuff(BuffID.Venom, scaledDuration / 2);
-                    }
-                    break;
-            }
-
-            // Life steal scaling with special effect tier
-            if (specialEffectModifier == 3) // Life Steal
-            {
-                ModifierTier specialTier = GetSpecialEffectTier();
-                float stealRate = 0.02f * (float)specialTier; // 2%, 4%, or 8%
-
-                int healAmount = (int)(damageDone * stealRate);
-                if (healAmount > 0)
-                {
-                    player.statLife += healAmount;
-                    if (player.statLife > player.statLifeMax2)
-                        player.statLife = player.statLifeMax2;
-                    player.HealEffect(healAmount);
-                }
-            }
         }
 
         public override void SaveData(TagCompound tag)
@@ -1357,6 +1291,14 @@ namespace TestMod.Content.Items
             recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 2);
             recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
             recipe.Register();
+
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ModContent.ItemType<TitaniumModularGun>(), 1);
+            recipe2.AddIngredient(ItemID.HallowedBar, 10);
+            recipe2.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 8);
+            recipe2.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 2);
+            recipe2.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe2.Register();
         }
     }
 

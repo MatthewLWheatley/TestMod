@@ -13,21 +13,26 @@ namespace TestMod.Content.Items
     // ==================== AMMO TYPE MODIFIERS ====================
     // Replace your old "Shot Type" modifiers with these
 
-    public class MagicAmmoModifier : ModItem
+    public abstract class BaseAmmoTypeModifier : ModItem
     {
+        protected abstract string AmmoTypeName { get; }
+        protected abstract string EffectDescription { get; }
+        protected abstract int ItemValue { get; }
+        protected abstract int ItemRarity { get; }
+
         public override void SetDefaults()
         {
             Item.width = 20;
             Item.height = 20;
             Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 5, 0);
-            Item.rare = ItemRarityID.Blue;
+            Item.value = Item.buyPrice(0, 0, ItemValue, 0);
+            Item.rare = ItemRarity;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
+            int pointCost = ModifierData.GetModifierPointCost(Item.type);
+            string tier = ModifierData.GetModifierTier(pointCost);
 
             TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
             pointLine.OverrideColor = pointCost switch
@@ -44,10 +49,17 @@ namespace TestMod.Content.Items
             typeLine.OverrideColor = Color.LightBlue;
             tooltips.Add(typeLine);
 
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Infinite ammo, consumes mana instead");
-            effectLine.OverrideColor = Color.LightGray;
+            TooltipLine effectLine = new TooltipLine(Mod, "Effect", EffectDescription);
             tooltips.Add(effectLine);
         }
+    }
+
+    public class MagicAmmoModifier : BaseAmmoTypeModifier
+    {
+        protected override string AmmoTypeName => "Magic";
+        protected override string EffectDescription => "Infinite ammo, consumes mana instead";
+        protected override int ItemValue => 5;
+        protected override int ItemRarity => ItemRarityID.Blue;
 
         public override void AddRecipes()
         {
@@ -69,210 +81,12 @@ namespace TestMod.Content.Items
         }
     }
 
-    public class ArrowAmmoModifier : ModItem
+    public class EliteMagicAmmoModifier : BaseAmmoTypeModifier
     {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 10, 0);
-            Item.rare = ItemRarityID.White;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Uses arrow ammunition - cheap and plentiful");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.WoodenArrow, 50);
-            recipe.AddIngredient(ItemID.IronBar, 3);
-            recipe.AddIngredient(ItemID.Lens, 1);
-            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
-            recipe.AddTile(TileID.Anvils);
-            recipe.Register();
-
-            Recipe recipe2 = CreateRecipe();
-            recipe2.AddIngredient(ItemID.WoodenArrow, 50);
-            recipe2.AddIngredient(ItemID.LeadBar, 3);
-            recipe2.AddIngredient(ItemID.Lens, 1);
-            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>());
-            recipe2.AddTile(TileID.Anvils);
-            recipe2.Register();
-        }
-    }
-
-    public class BulletAmmoModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 15, 0);
-            Item.rare = ItemRarityID.Green;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Uses bullet ammunition - mid-tier damage/cost");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.MusketBall, 100);
-            recipe.AddIngredient(ItemID.GoldBar, 3);
-            recipe.AddIngredient(ItemID.Lens, 2);
-            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
-            recipe.AddTile(TileID.Anvils);
-            recipe.Register();
-
-            Recipe recipe2 = CreateRecipe();
-            recipe2.AddIngredient(ItemID.MusketBall, 100);
-            recipe2.AddIngredient(ItemID.PlatinumBar, 3);
-            recipe2.AddIngredient(ItemID.Lens, 2);
-            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>());
-            recipe2.AddTile(TileID.Anvils);
-            recipe2.Register();
-        }
-    }
-
-    public class RocketAmmoModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 25, 0);
-            Item.rare = ItemRarityID.Orange;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Uses rocket ammunition - high damage/cost");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.RocketI, 10);
-            recipe.AddIngredient(ItemID.Dynamite, 100);
-            recipe.AddIngredient(ItemID.CobaltBar, 3);
-            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
-            recipe.AddTile(TileID.MythrilAnvil);
-            recipe.Register();
-
-            Recipe recipe2 = CreateRecipe();
-            recipe2.AddIngredient(ItemID.RocketI, 10);
-            recipe2.AddIngredient(ItemID.Dynamite, 100);
-            recipe2.AddIngredient(ItemID.PalladiumBar, 3);
-            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>());
-            recipe2.AddTile(TileID.MythrilAnvil);
-            recipe2.Register();
-        }
-    }
-
-    public class EliteMagicAmmoModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 5, 0);
-            Item.rare = ItemRarityID.Blue;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Infinite ammo, consumes mana instead");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
+        protected override string AmmoTypeName => "Magic";
+        protected override string EffectDescription => "Infinite ammo, consumes mana instead";
+        protected override int ItemValue => 5;
+        protected override int ItemRarity => ItemRarityID.Blue;
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
@@ -293,43 +107,57 @@ namespace TestMod.Content.Items
         }
     }
 
-    public class EliteArrowAmmoModifier : ModItem
+    public class PerfectMagicAmmoModifier : BaseAmmoTypeModifier
     {
-        public override void SetDefaults()
+        protected override string AmmoTypeName => "Magic";
+        protected override string EffectDescription => "Infinite ammo, consumes mana instead";
+        protected override int ItemValue => 5;
+        protected override int ItemRarity => ItemRarityID.Blue;
+        public override void AddRecipes()
         {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 10, 0);
-            Item.rare = ItemRarityID.White;
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<EliteMagicAmmoModifier>(), 1);
+            recipe.AddIngredient(ItemID.FallenStar, 25);
+            recipe.AddIngredient(ItemID.HallowedBar, 5);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
         }
+    }
 
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
+    public class ArrowAmmoModifier : BaseAmmoTypeModifier
+    {
+        protected override string AmmoTypeName => "Arrow";
+        protected override string EffectDescription => "Uses arrow ammunition - cheap and plentiful";
+        protected override int ItemValue => 5;
+        protected override int ItemRarity => ItemRarityID.Blue;
+        public override void AddRecipes()
         {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ItemID.WoodenArrow, 50);
+            recipe.AddIngredient(ItemID.IronBar, 3);
+            recipe.AddIngredient(ItemID.Lens, 1);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe.AddTile(TileID.Anvils);
+            recipe.Register();
 
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Uses arrow ammunition - cheap and plentiful");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ItemID.WoodenArrow, 50);
+            recipe2.AddIngredient(ItemID.LeadBar, 3);
+            recipe2.AddIngredient(ItemID.Lens, 1);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe2.AddTile(TileID.Anvils);
+            recipe2.Register();
         }
+    }
 
-        public override void AddRecipes() // EliteArrowAmmoModifier
+    public class EliteArrowAmmoModifier : BaseAmmoTypeModifier
+    {
+        protected override string AmmoTypeName => "Arrow";
+        protected override string EffectDescription => "Uses arrow ammunition - cheap and plentiful";
+        protected override int ItemValue => 5;
+        protected override int ItemRarity => ItemRarityID.Blue;
+        public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
             recipe.AddIngredient(ModContent.ItemType<ArrowAmmoModifier>(), 1);
@@ -349,42 +177,56 @@ namespace TestMod.Content.Items
         }
     }
 
-    public class EliteBulletAmmoModifier : ModItem
+    public class PerfectArrowAmmoModifier : BaseAmmoTypeModifier
     {
-        public override void SetDefaults()
+        protected override string AmmoTypeName => "Arrow";
+        protected override string EffectDescription => "Uses arrow ammunition - cheap and plentiful";
+        protected override int ItemValue => 5;
+        protected override int ItemRarity => ItemRarityID.Blue;
+        public override void AddRecipes()
         {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 15, 0);
-            Item.rare = ItemRarityID.Green;
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<EliteArrowAmmoModifier>(), 1);
+            recipe.AddIngredient(ItemID.HolyArrow, 100);
+            recipe.AddIngredient(ItemID.HallowedBar, 5);
+            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
         }
+    }
 
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
+    public class BulletAmmoModifier : BaseAmmoTypeModifier
+    {
+        protected override string AmmoTypeName => "Bullet";
+        protected override string EffectDescription => "Uses bullet ammunition - mid-tier damage/cost";
+        protected override int ItemValue => 5;
+        protected override int ItemRarity => ItemRarityID.Blue;
+        public override void AddRecipes()
         {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ItemID.MusketBall, 100);
+            recipe.AddIngredient(ItemID.GoldBar, 3);
+            recipe.AddIngredient(ItemID.Lens, 2);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe.AddTile(TileID.Anvils);
+            recipe.Register();
 
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Uses bullet ammunition - mid-tier damage/cost");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ItemID.MusketBall, 100);
+            recipe2.AddIngredient(ItemID.PlatinumBar, 3);
+            recipe2.AddIngredient(ItemID.Lens, 2);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe2.AddTile(TileID.Anvils);
+            recipe2.Register();
         }
+    }
 
+    public class EliteBulletAmmoModifier : BaseAmmoTypeModifier
+    {
+        protected override string AmmoTypeName => "Bullet";
+        protected override string EffectDescription => "Uses bullet ammunition - mid-tier damage/cost";
+        protected override int ItemValue => 5;
+        protected override int ItemRarity => ItemRarityID.Blue;
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
@@ -405,186 +247,12 @@ namespace TestMod.Content.Items
         }
     }
 
-    public class EliteRocketAmmoModifier : ModItem
+    public class PerfectBulletAmmoModifier : BaseAmmoTypeModifier
     {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 25, 0);
-            Item.rare = ItemRarityID.Orange;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Uses rocket ammunition - high damage/cost");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ModContent.ItemType<RocketAmmoModifier>(), 1);
-            recipe.AddIngredient(ItemID.RocketII, 25);
-            recipe.AddIngredient(ItemID.HallowedBar, 8);
-            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
-            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
-            recipe.Register();
-        }
-    }
-
-    public class PerfectMagicAmmoModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 5, 0);
-            Item.rare = ItemRarityID.Blue;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Infinite ammo, consumes mana instead");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ModContent.ItemType<EliteMagicAmmoModifier>(), 1);
-            recipe.AddIngredient(ItemID.FallenStar, 25);
-            recipe.AddIngredient(ItemID.HallowedBar, 5);
-            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
-            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
-            recipe.Register();
-        }
-    }
-
-    public class PerfectArrowAmmoModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 10, 0);
-            Item.rare = ItemRarityID.White;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Uses arrow ammunition - cheap and plentiful");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
-        public override void AddRecipes()
-        {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ModContent.ItemType<EliteArrowAmmoModifier>(), 1);
-            recipe.AddIngredient(ItemID.HolyArrow, 100);
-            recipe.AddIngredient(ItemID.HallowedBar, 5);
-            recipe.AddIngredient(ModContent.ItemType<PerfectModularComponent>(), 5);
-            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
-            recipe.Register();
-        }
-    }
-
-    public class PerfectBulletAmmoModifier : ModItem
-    {
-        public override void SetDefaults()
-        {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 15, 0);
-            Item.rare = ItemRarityID.Green;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Uses bullet ammunition - mid-tier damage/cost");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
-        }
-
+        protected override string AmmoTypeName => "Bullet";
+        protected override string EffectDescription => "Uses bullet ammunition - mid-tier damage/cost";
+        protected override int ItemValue => 5;
+        protected override int ItemRarity => ItemRarityID.Blue;
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
@@ -597,42 +265,56 @@ namespace TestMod.Content.Items
         }
     }
 
-    public class PerfectRocketAmmoModifier : ModItem
+    public class RocketAmmoModifier : BaseAmmoTypeModifier
     {
-        public override void SetDefaults()
+        protected override string AmmoTypeName => "Rocket";
+        protected override string EffectDescription => "Uses rocket ammunition - high damage/cost";
+        protected override int ItemValue => 5;
+        protected override int ItemRarity => ItemRarityID.Blue;
+        public override void AddRecipes()
         {
-            Item.width = 20;
-            Item.height = 20;
-            Item.maxStack = 1;
-            Item.value = Item.buyPrice(0, 0, 25, 0);
-            Item.rare = ItemRarityID.Orange;
-        }
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ItemID.RocketI, 10);
+            recipe.AddIngredient(ItemID.Dynamite, 100);
+            recipe.AddIngredient(ItemID.CobaltBar, 3);
+            recipe.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe.AddTile(TileID.MythrilAnvil);
+            recipe.Register();
 
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
+            Recipe recipe2 = CreateRecipe();
+            recipe2.AddIngredient(ItemID.RocketI, 10);
+            recipe2.AddIngredient(ItemID.Dynamite, 100);
+            recipe2.AddIngredient(ItemID.PalladiumBar, 3);
+            recipe2.AddIngredient(ModContent.ItemType<BasicModularComponent>());
+            recipe2.AddTile(TileID.MythrilAnvil);
+            recipe2.Register();
+        }
+    }
+
+    public class EliteRocketAmmoModifier : BaseAmmoTypeModifier
+    {
+        protected override string AmmoTypeName => "Rocket";
+        protected override string EffectDescription => "Uses rocket ammunition - high damage/cost";
+        protected override int ItemValue => 5;
+        protected override int ItemRarity => ItemRarityID.Blue;
+        public override void AddRecipes()
         {
-            int pointCost = Content.Systems.ModifierData.GetModifierPointCost(Item.type);
-            string tier = Content.Systems.ModifierData.GetModifierTier(pointCost);
-
-            TooltipLine pointLine = new TooltipLine(Mod, "PointCost", $"Point Cost: {pointCost} ({tier})");
-            pointLine.OverrideColor = pointCost switch
-            {
-                1 => Color.White,
-                2 => Color.LightGreen,
-                3 => Color.Yellow,
-                4 => Color.Orange,
-                _ => Color.Gray
-            };
-            tooltips.Add(pointLine);
-
-            TooltipLine typeLine = new TooltipLine(Mod, "ModifierType", "Ammo Type Modifier");
-            typeLine.OverrideColor = Color.LightBlue;
-            tooltips.Add(typeLine);
-
-            TooltipLine effectLine = new TooltipLine(Mod, "Effect", "Uses rocket ammunition - high damage/cost");
-            effectLine.OverrideColor = Color.LightGray;
-            tooltips.Add(effectLine);
+            Recipe recipe = CreateRecipe();
+            recipe.AddIngredient(ModContent.ItemType<RocketAmmoModifier>(), 1);
+            recipe.AddIngredient(ItemID.RocketII, 25);
+            recipe.AddIngredient(ItemID.HallowedBar, 8);
+            recipe.AddIngredient(ModContent.ItemType<EliteModularComponent>(), 3);
+            recipe.AddTile(ModContent.TileType<Content.Tiles.ModifierStation>());
+            recipe.Register();
         }
+    }
 
+    public class PerfectRocketAmmoModifier : BaseAmmoTypeModifier
+    {
+        protected override string AmmoTypeName => "Rocket";
+        protected override string EffectDescription => "Uses rocket ammunition - high damage/cost";
+        protected override int ItemValue => 5;
+        protected override int ItemRarity => ItemRarityID.Blue;
         public override void AddRecipes()
         {
             Recipe recipe = CreateRecipe();
@@ -644,7 +326,6 @@ namespace TestMod.Content.Items
             recipe.Register();
         }
     }
-
 
     // ==================== DAMAGE TYPE MODIFIERS ====================
     // Keep your existing Fire, Water, Lightning, Earth and add these two

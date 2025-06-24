@@ -58,9 +58,9 @@ namespace TestMod.Content.Systems
             modifierPointCosts[ModContent.ItemType<PerfectFireDamageModifier>()] = 8;
             modifierPointCosts[ModContent.ItemType<PerfectWaterDamageModifier>()] = 8;
             modifierPointCosts[ModContent.ItemType<PerfectWindDamageModifier>()] = 8;
-            modifierPointCosts[ModContent.ItemType<PerfectLightningDamageModifier>()] = 6;
-            modifierPointCosts[ModContent.ItemType<PerfectEarthDamageModifier>()] = 6;
-            modifierPointCosts[ModContent.ItemType<PerfectSlimeDamageModifier>()] = 6;
+            modifierPointCosts[ModContent.ItemType<PerfectLightningDamageModifier>()] = 12;
+            modifierPointCosts[ModContent.ItemType<PerfectEarthDamageModifier>()] = 12;
+            modifierPointCosts[ModContent.ItemType<PerfectSlimeDamageModifier>()] = 12;
 
             // ==================== SHOT TYPE MODIFIERS ====================
 
@@ -70,14 +70,14 @@ namespace TestMod.Content.Systems
             modifierPointCosts[ModContent.ItemType<AutoFireModifier>()] = 4;
 
             // Elite Tier
-            modifierPointCosts[ModContent.ItemType<EliteBurstFireModifier>()] = 2;
-            modifierPointCosts[ModContent.ItemType<EliteChargeFireModifier>()] = 3;
-            modifierPointCosts[ModContent.ItemType<EliteAutoFireModifier>()] = 4;
+            modifierPointCosts[ModContent.ItemType<EliteBurstFireModifier>()] = 4;
+            modifierPointCosts[ModContent.ItemType<EliteChargeFireModifier>()] = 6;
+            modifierPointCosts[ModContent.ItemType<EliteAutoFireModifier>()] = 8;
 
             // Perfect Tier
-            modifierPointCosts[ModContent.ItemType<PerfectBurstFireModifier>()] = 2;
-            modifierPointCosts[ModContent.ItemType<PerfectChargeFireModifier>()] = 3;
-            modifierPointCosts[ModContent.ItemType<PerfectAutoFireModifier>()] = 4;
+            modifierPointCosts[ModContent.ItemType<PerfectBurstFireModifier>()] = 8;
+            modifierPointCosts[ModContent.ItemType<PerfectChargeFireModifier>()] = 12;
+            modifierPointCosts[ModContent.ItemType<PerfectAutoFireModifier>()] = 16;
 
             // ==================== SPECIAL EFFECTS (BOSS DROPS) ====================
 
@@ -89,17 +89,17 @@ namespace TestMod.Content.Systems
             modifierPointCosts[ModContent.ItemType<LifeStealModifier>()] = 4;
 
             // Enhanced special effects (crafted from base + components)
-            modifierPointCosts[ModContent.ItemType<ElitePiercingModifier>()] = 3; // Same cost but better effects
-            modifierPointCosts[ModContent.ItemType<EliteBouncingModifier>()] = 3;
-            modifierPointCosts[ModContent.ItemType<EliteCritBoostModifier>()] = 3;
-            modifierPointCosts[ModContent.ItemType<EliteHomingModifier>()] = 4;
-            modifierPointCosts[ModContent.ItemType<EliteLifeStealModifier>()] = 4;
+            modifierPointCosts[ModContent.ItemType<ElitePiercingModifier>()] = 6;
+            modifierPointCosts[ModContent.ItemType<EliteBouncingModifier>()] = 6;
+            modifierPointCosts[ModContent.ItemType<EliteCritBoostModifier>()] = 6;
+            modifierPointCosts[ModContent.ItemType<EliteHomingModifier>()] = 8;
+            modifierPointCosts[ModContent.ItemType<EliteLifeStealModifier>()] = 8;
 
-            modifierPointCosts[ModContent.ItemType<PerfectPiercingModifier>()] = 3;
-            modifierPointCosts[ModContent.ItemType<PerfectBouncingModifier>()] = 3;
-            modifierPointCosts[ModContent.ItemType<PerfectCritBoostModifier>()] = 3;
-            modifierPointCosts[ModContent.ItemType<PerfectHomingModifier>()] = 4;
-            modifierPointCosts[ModContent.ItemType<PerfectLifeStealModifier>()] = 4;
+            modifierPointCosts[ModContent.ItemType<PerfectPiercingModifier>()] = 12;
+            modifierPointCosts[ModContent.ItemType<PerfectBouncingModifier>()] = 12;
+            modifierPointCosts[ModContent.ItemType<PerfectCritBoostModifier>()] = 12;
+            modifierPointCosts[ModContent.ItemType<PerfectHomingModifier>()] = 16;
+            modifierPointCosts[ModContent.ItemType<PerfectLifeStealModifier>()] = 16;
         }
 
         public static int GetModifierPointCost(int itemType)
