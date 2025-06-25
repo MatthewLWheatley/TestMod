@@ -170,6 +170,8 @@ namespace TestMod.Content.Items
             Item.mana = 10;
             Item.crit = baseCrit;
             maxPointBudget = ModifierData.GetWeaponPointBudget(weaponTier);
+            Item.useAmmo = AmmoID.None;
+            Item.mana = 0;
             Item.maxStack = 1;
         }
 
@@ -292,47 +294,102 @@ namespace TestMod.Content.Items
         {
             if (!IsComplete()) return false;
 
-            Vector2 spawnPosition = position + Vector2.Normalize(velocity) * 25f;
-            int projectileType = IsMagicAmmoType() ? ProjectileID.MagicMissile : type;
+            // Handle ammo/mana consumption and get projectile type
+            var ammoResult = ConsumeAmmoAndGetProjectile(player);
+            if (!ammoResult.canShoot) return false;
 
-            ApplyShotTypeEffects(source, spawnPosition, velocity, type, damage, knockback, player);
+            Vector2 spawnPosition = position + Vector2.Normalize(velocity) * 25f;
+            ApplyShotTypeEffects(source, spawnPosition, velocity, ammoResult.projectileType, damage, knockback, player);
             return false;
         }
 
-        public void RefreshAmmoType()
+        private (bool canShoot, int projectileType) ConsumeAmmoAndGetProjectile(Player player)
         {
-            if (IsMagicAmmoType())
+            switch (ammoTypeModifier % 4) // Base ammo type
             {
-                Item.DamageType = DamageClass.Magic;
-                Item.useAmmo = AmmoID.None;
-                Item.mana = 12 - (2 * (int)GetAmmoTypeTier());
-                Main.NewText("wtf");
+                case 0: // Magic
+                    int manaCost = 12 - (2 * (int)GetAmmoTypeTier());
+                    if (player.statMana < manaCost)
+                    {
+                        Main.NewText("Not enough mana!", Color.Red);
+                        return (false, 0);
+                    }
+                    player.statMana -= manaCost;
+                    return (true, ProjectileID.MagicMissile);
+
+                case 1: // Arrow
+                    var arrowResult = FindAndConsumeAmmo(player, AmmoID.Arrow);
+                    return (arrowResult.found, arrowResult.projectileType);
+
+                case 2: // Bullet
+                    var bulletResult = FindAndConsumeAmmo(player, AmmoID.Bullet);
+                    return (bulletResult.found, bulletResult.projectileType);
+
+                case 3: // Rocket
+                    var rocketResult = FindAndConsumeAmmo(player, AmmoID.Rocket);
+                    return (rocketResult.found, rocketResult.projectileType);
+
+                default:
+                    return (false, 0);
             }
-            else if (IsArrowAmmoType())
+        }
+
+        private (bool found, int projectileType) FindAndConsumeAmmo(Player player, int ammoType)
+        {
+            // Priority system - use better ammo first
+            var ammoItems = new List<(int index, Item item, int priority)>();
+
+            for (int i = 0; i < player.inventory.Length; i++)
             {
-                Item.DamageType = DamageClass.Ranged;
-                Item.useAmmo = AmmoID.Arrow;
-                Item.mana = 0;
+                Item item = player.inventory[i];
+                if (item.IsAir || item.ammo != ammoType) continue;
+
+                // Assign priority (higher = better ammo used first)
+                int priority = GetAmmoPriority(item.type);
+                ammoItems.Add((i, item, priority));
             }
-            else if (IsBulletAmmoType())
+
+            if (ammoItems.Count == 0)
             {
-                Item.DamageType = DamageClass.Ranged;
-                Item.useAmmo = AmmoID.Bullet;
-                Item.mana = 0;
+                return (false, 0);
             }
-            else if (IsRocketAmmoType())
+
+            // Use the best ammo available
+            var bestAmmo = ammoItems.OrderByDescending(x => x.priority).First();
+
+            // Apply tier-based efficiency
+            ModifierTier ammoTier = GetAmmoTypeTier();
+            float efficiencyChance = 0.15f * (int)ammoTier; // 15%, 30%, 60% chance to not consume
+
+            bool shouldConsume = Main.rand.NextFloat() >= efficiencyChance;
+
+            if (shouldConsume)
             {
-                Item.DamageType = DamageClass.Ranged;
-                Item.useAmmo = AmmoID.Rocket;
-                Item.mana = 0;
-                Main.NewText("good");
+                player.inventory[bestAmmo.index].stack--;
+                if (player.inventory[bestAmmo.index].stack <= 0)
+                {
+                    player.inventory[bestAmmo.index].TurnToAir();
+                }
             }
-            else
+
+            return (true, bestAmmo.item.shoot);
+        }
+
+        private int GetAmmoPriority(int itemType)
+        {
+            // Higher numbers = better ammo used first
+            return itemType switch
             {
-                Item.DamageType = DamageClass.Magic;
-                Item.useAmmo = AmmoID.None;
-                Item.mana = 10;
-            }
+                ItemID.WoodenArrow => 1,
+                ItemID.FlamingArrow => 2,
+                ItemID.UnholyArrow => 3,
+                ItemID.HolyArrow => 4,
+                ItemID.MusketBall => 1,
+                ItemID.SilverBullet => 2,
+                ItemID.CrystalBullet => 3,
+                ItemID.ChlorophyteBullet => 4,
+                _ => 1
+            };
         }
 
         private void ApplyShotTypeEffects(EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int projectileType, int damage, float knockback, Player player)
@@ -379,6 +436,16 @@ namespace TestMod.Content.Items
 
             ModifierTier specialTier = GetSpecialEffectTier();
             var globalProj = projectile.GetGlobalProjectile<ModularProjectileEffects>();
+
+            if (projectile.TryGetGlobalProjectile<ModularProjectileEffects>(out var effects))
+            {
+                // Use effects
+            }
+            else
+            {
+                // Handle missing case
+                ModContent.GetInstance<TestMod>().Logger.Warn("ModularProjectileEffects not found");
+            }
 
             switch (specialEffectModifier)
             {
@@ -518,12 +585,6 @@ namespace TestMod.Content.Items
                 Item.useAmmo = AmmoID.Rocket;
                 Item.mana = 0;
             }
-            else
-            {
-                Item.DamageType = DamageClass.Magic; // Default to magic if no ammo type set
-                Item.useAmmo = AmmoID.None;
-                Item.mana = 10; // Default mana cost
-            }
 
             // Shot type timing improves with tier
             float speedBonus = 1.0f + (0.1f * ((int)shotTier - 1));
@@ -534,7 +595,7 @@ namespace TestMod.Content.Items
                     int autoFrames = shotTypeModifier switch
                     {
                         0 => 8,
-                        3 => 4, 
+                        3 => 4,
                         6 => 2,
                         _ => 8
                     };
@@ -555,6 +616,7 @@ namespace TestMod.Content.Items
                     Item.autoReuse = false;
                     break;
             }
+
         }
 
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
@@ -696,8 +758,6 @@ namespace TestMod.Content.Items
             AddModifierTooltip(tooltips, "Shot Type", shotTypeModifier, "shot");
             AddModifierTooltip(tooltips, "Special Effect", specialEffectModifier, "special");
 
-            RefreshAmmoType();
-            
             // Status warnings
             if (currentPoints > maxPointBudget)
             {
