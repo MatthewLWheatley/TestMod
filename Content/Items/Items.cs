@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using TestMod.Content.Systems;
 using System.Linq;
-using System;
 
 
 namespace TestMod.Content.Items
@@ -170,8 +169,6 @@ namespace TestMod.Content.Items
             Item.mana = 10;
             Item.crit = baseCrit;
             maxPointBudget = ModifierData.GetWeaponPointBudget(weaponTier);
-            Item.useAmmo = AmmoID.None;
-            Item.mana = 0;
             Item.maxStack = 1;
         }
 
@@ -294,101 +291,32 @@ namespace TestMod.Content.Items
         {
             if (!IsComplete()) return false;
 
-            // Handle ammo/mana consumption and get projectile type
-            var ammoResult = ConsumeAmmoAndGetProjectile(player);
-            if (!ammoResult.canShoot) return false;
-
             Vector2 spawnPosition = position + Vector2.Normalize(velocity) * 25f;
-            ApplyShotTypeEffects(source, spawnPosition, velocity, ammoResult.projectileType, damage, knockback, player);
+
+            int projectileType = GetProjectileFromAmmoType();
+
+            ApplyShotTypeEffects(source, spawnPosition, velocity, projectileType, damage, knockback, player);
+
             return false;
         }
 
-        private (bool canShoot, int projectileType) ConsumeAmmoAndGetProjectile(Player player)
+        private int GetProjectileFromAmmoType()
         {
-            switch (ammoTypeModifier % 4) // Base ammo type
+            return ammoTypeModifier switch
             {
-                case 0: // Magic
-                    int manaCost = 12 - (2 * (int)GetAmmoTypeTier());
-                    if (player.statMana < manaCost)
-                    {
-                        Main.NewText("Not enough mana!", Color.Red);
-                        return (false, 0);
-                    }
-                    player.statMana -= manaCost;
-                    return (true, ProjectileID.MagicMissile);
-
-                case 1: // Arrow
-                    var arrowResult = FindAndConsumeAmmo(player, AmmoID.Arrow);
-                    return (arrowResult.found, arrowResult.projectileType);
-
-                case 2: // Bullet
-                    var bulletResult = FindAndConsumeAmmo(player, AmmoID.Bullet);
-                    return (bulletResult.found, bulletResult.projectileType);
-
-                case 3: // Rocket
-                    var rocketResult = FindAndConsumeAmmo(player, AmmoID.Rocket);
-                    return (rocketResult.found, rocketResult.projectileType);
-
-                default:
-                    return (false, 0);
-            }
-        }
-
-        private (bool found, int projectileType) FindAndConsumeAmmo(Player player, int ammoType)
-        {
-            // Priority system - use better ammo first
-            var ammoItems = new List<(int index, Item item, int priority)>();
-
-            for (int i = 0; i < player.inventory.Length; i++)
-            {
-                Item item = player.inventory[i];
-                if (item.IsAir || item.ammo != ammoType) continue;
-
-                // Assign priority (higher = better ammo used first)
-                int priority = GetAmmoPriority(item.type);
-                ammoItems.Add((i, item, priority));
-            }
-
-            if (ammoItems.Count == 0)
-            {
-                return (false, 0);
-            }
-
-            // Use the best ammo available
-            var bestAmmo = ammoItems.OrderByDescending(x => x.priority).First();
-
-            // Apply tier-based efficiency
-            ModifierTier ammoTier = GetAmmoTypeTier();
-            float efficiencyChance = 0.15f * (int)ammoTier; // 15%, 30%, 60% chance to not consume
-
-            bool shouldConsume = Main.rand.NextFloat() >= efficiencyChance;
-
-            if (shouldConsume)
-            {
-                player.inventory[bestAmmo.index].stack--;
-                if (player.inventory[bestAmmo.index].stack <= 0)
-                {
-                    player.inventory[bestAmmo.index].TurnToAir();
-                }
-            }
-
-            return (true, bestAmmo.item.shoot);
-        }
-
-        private int GetAmmoPriority(int itemType)
-        {
-            // Higher numbers = better ammo used first
-            return itemType switch
-            {
-                ItemID.WoodenArrow => 1,
-                ItemID.FlamingArrow => 2,
-                ItemID.UnholyArrow => 3,
-                ItemID.HolyArrow => 4,
-                ItemID.MusketBall => 1,
-                ItemID.SilverBullet => 2,
-                ItemID.CrystalBullet => 3,
-                ItemID.ChlorophyteBullet => 4,
-                _ => 1
+                0 => ProjectileID.MagicMissile,        // Magic
+                1 => ProjectileID.WoodenArrowFriendly, // Arrow
+                2 => ProjectileID.Bullet,              // Bullet
+                3 => ProjectileID.RocketI,             // Rocket
+                4 => ProjectileID.MagicMissile,        // Elite Magic (same as basic for now)
+                5 => ProjectileID.WoodenArrowFriendly, // Elite Arrow (same as basic for now)
+                6 => ProjectileID.Bullet,              // Elite Bullet (same as basic for now)
+                7 => ProjectileID.RocketI,             // Elite Rocket (same as basic for now)
+                8 => ProjectileID.MagicMissile,        // Perfect Magic (same as basic for now)
+                9 => ProjectileID.WoodenArrowFriendly, // Perfect Arrow (same as basic for now)
+                10 => ProjectileID.Bullet,             // Perfect Bullet (same as basic for now)
+                11 => ProjectileID.RocketI,            // Perfect Rocket (same as basic for now)
+                _ => ProjectileID.WoodenArrowFriendly  // Default
             };
         }
 
@@ -435,17 +363,7 @@ namespace TestMod.Content.Items
             if (specialEffectModifier == -1) return;
 
             ModifierTier specialTier = GetSpecialEffectTier();
-            var globalProj = projectile.GetGlobalProjectile<ModularProjectileEffects>();
-
-            if (projectile.TryGetGlobalProjectile<ModularProjectileEffects>(out var effects))
-            {
-                // Use effects
-            }
-            else
-            {
-                // Handle missing case
-                ModContent.GetInstance<TestMod>().Logger.Warn("ModularProjectileEffects not found");
-            }
+            var globalProj = projectile.GetGlobalProjectile<Content.Projectiles.ModularProjectileEffects>();
 
             switch (specialEffectModifier)
             {
@@ -585,6 +503,12 @@ namespace TestMod.Content.Items
                 Item.useAmmo = AmmoID.Rocket;
                 Item.mana = 0;
             }
+            else
+            {
+                Item.DamageType = DamageClass.Magic; // Default to magic if no ammo type set
+                Item.useAmmo = AmmoID.None;
+                Item.mana = 10; // Default mana cost
+            }
 
             // Shot type timing improves with tier
             float speedBonus = 1.0f + (0.1f * ((int)shotTier - 1));
@@ -595,7 +519,7 @@ namespace TestMod.Content.Items
                     int autoFrames = shotTypeModifier switch
                     {
                         0 => 8,
-                        3 => 4,
+                        3 => 4, 
                         6 => 2,
                         _ => 8
                     };
@@ -616,7 +540,6 @@ namespace TestMod.Content.Items
                     Item.autoReuse = false;
                     break;
             }
-
         }
 
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
@@ -669,96 +592,17 @@ namespace TestMod.Content.Items
             {
                 nameLine.Text = $"{weaponTier} Modular Gun";
             }
-
             int currentPoints = GetCurrentPointUsage();
             TooltipLine pointLine = new TooltipLine(Mod, "PointBudget",
                 $"Points: {currentPoints}/{maxPointBudget} ({weaponTier} Tier)");
             pointLine.OverrideColor = currentPoints <= maxPointBudget ? Color.White : Color.Red;
             tooltips.Add(pointLine);
 
-            var calculatedStats = WeaponStatsCalculator.CalculateStats(this, Item);
-
-            // Add calculated stats to tooltip
-            if (IsComplete())
-            {
-                // Damage comparison
-                TooltipLine damageLine = new TooltipLine(Mod, "CalculatedDamage",
-                    $"Actual Damage: {calculatedStats.Damage:F0}");
-                damageLine.OverrideColor = calculatedStats.Damage > Item.damage ? Color.LightGreen : Color.White;
-                tooltips.Add(damageLine);
-
-                // Knockback comparison
-                if (Math.Abs(calculatedStats.Knockback - Item.knockBack) > 0.1f)
-                {
-                    TooltipLine knockbackLine = new TooltipLine(Mod, "CalculatedKnockback",
-                        $"Actual Knockback: {calculatedStats.Knockback:F1}");
-                    knockbackLine.OverrideColor = calculatedStats.Knockback > Item.knockBack ? Color.LightGreen : Color.White;
-                    tooltips.Add(knockbackLine);
-                }
-
-                // Critical chance
-                if (Math.Abs(calculatedStats.CritChance - Item.crit) > 0.1f)
-                {
-                    TooltipLine critLine = new TooltipLine(Mod, "CalculatedCrit",
-                        $"Actual Crit: {calculatedStats.CritChance:F0}%");
-                    critLine.OverrideColor = calculatedStats.CritChance > Item.crit ? Color.LightGreen : Color.White;
-                    tooltips.Add(critLine);
-                }
-
-                // Use time
-                if (calculatedStats.UseTime != Item.useTime)
-                {
-                    TooltipLine useTimeLine = new TooltipLine(Mod, "CalculatedUseTime",
-                        $"Actual Use Time: {calculatedStats.UseTime} frames");
-                    useTimeLine.OverrideColor = calculatedStats.UseTime < Item.useTime ? Color.LightGreen : Color.White;
-                    tooltips.Add(useTimeLine);
-                }
-
-                // Mana cost
-                if (calculatedStats.ManaCost != Item.mana)
-                {
-                    TooltipLine manaLine = new TooltipLine(Mod, "CalculatedMana",
-                        $"Mana Cost: {calculatedStats.ManaCost}");
-                    manaLine.OverrideColor = calculatedStats.ManaCost > 0 ? Color.LightBlue : Color.Gray;
-                    tooltips.Add(manaLine);
-                }
-
-                // Effects summary
-                TooltipLine ammoLine = new TooltipLine(Mod, "AmmoType", $"Ammo: {calculatedStats.AmmoInfo}");
-                ammoLine.OverrideColor = Color.LightBlue;
-                tooltips.Add(ammoLine);
-
-                if (calculatedStats.DebuffInfo != "None")
-                {
-                    TooltipLine debuffLine = new TooltipLine(Mod, "DebuffType", $"Debuff: {calculatedStats.DebuffInfo}");
-                    debuffLine.OverrideColor = Color.Orange;
-                    tooltips.Add(debuffLine);
-                }
-
-                if (calculatedStats.SpecialInfo != "None")
-                {
-                    TooltipLine specialLine = new TooltipLine(Mod, "SpecialEffect", $"Special: {calculatedStats.SpecialInfo}");
-                    specialLine.OverrideColor = Color.Gold;
-                    tooltips.Add(specialLine);
-                }
-
-                // Tier bonus
-                if (calculatedStats.TierBonus > 1.0f)
-                {
-                    TooltipLine tierLine = new TooltipLine(Mod, "TierBonus",
-                        $"Tier Bonus: +{((calculatedStats.TierBonus - 1) * 100):F0}% damage");
-                    tierLine.OverrideColor = Color.LightGreen;
-                    tooltips.Add(tierLine);
-                }
-            }
-
-            // Modifier details
             AddModifierTooltip(tooltips, "Ammo Type", ammoTypeModifier, "ammo");
             AddModifierTooltip(tooltips, "Damage Type", damageTypeModifier, "damage");
             AddModifierTooltip(tooltips, "Shot Type", shotTypeModifier, "shot");
             AddModifierTooltip(tooltips, "Special Effect", specialEffectModifier, "special");
 
-            // Status warnings
             if (currentPoints > maxPointBudget)
             {
                 TooltipLine overbudgetLine = new TooltipLine(Mod, "Overbudget", "OVER BUDGET - Cannot be used!");
