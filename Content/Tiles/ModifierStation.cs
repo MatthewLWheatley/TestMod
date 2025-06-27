@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 using Terraria.ObjectData;
 using Terraria.DataStructures;
 
-namespace TestMod.Content.Tiles
+namespace ModularWeapons.Content.Tiles
 {
     public class ModifierStation : ModTile
     {

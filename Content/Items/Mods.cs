@@ -5,10 +5,10 @@ using Terraria.ModLoader.IO;
 using Terraria.DataStructures;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using TestMod.Content.Systems;
+using ModularWeapons.Content.Systems;
 
 
-namespace TestMod.Content.Items
+namespace ModularWeapons.Content.Items
 {
     // ==================== AMMO TYPE MODIFIERS ====================
     // Replace your old "Shot Type" modifiers with these

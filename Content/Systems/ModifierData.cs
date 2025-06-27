@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using Humanizer;
 using Terraria;
 using Terraria.ModLoader;
-using TestMod.Content.Items;
+using ModularWeapons.Content.Items;
 
-namespace TestMod.Content.Systems
+namespace ModularWeapons.Content.Systems
 {
     public static class ModifierData
     {

@@ -2,9 +2,9 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
-using TestMod.Content.Items;
+using ModularWeapons.Content.Items;
 
-namespace TestMod.Content.Projectiles
+namespace ModularWeapons.Content.Projectiles
 {
     public class ModularProjectileEffects : GlobalProjectile
     {

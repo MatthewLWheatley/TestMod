@@ -6,10 +6,10 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
-using TestMod.Content.Items;
-using TestMod.Content.Systems;
+using ModularWeapons.Content.Items;
+using ModularWeapons.Content.Systems;
 
-namespace TestMod.Content.UI
+namespace ModularWeapons.Content.UI
 {
     public class ModifierStationUI : UIState
     {
@@ -1156,7 +1156,7 @@ namespace TestMod.Content.UI
             if (mouseTextIndex != -1)
             {
                 layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
-                    "TestMod: Modifier Station UI",
+                    "ModularWeapons: Modifier Station UI",
                     delegate
                     {
                         if (ModifierStationUI.Visible)

@@ -5,11 +5,11 @@ using Terraria.ModLoader.IO;
 using Terraria.DataStructures;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using TestMod.Content.Systems;
+using ModularWeapons.Content.Systems;
 using System.Linq;
 
 
-namespace TestMod.Content.Items
+namespace ModularWeapons.Content.Items
 {
     public abstract class BaseModularGun : ModItem
     {
@@ -293,42 +293,163 @@ namespace TestMod.Content.Items
 
             Vector2 spawnPosition = position + Vector2.Normalize(velocity) * 25f;
 
-            int projectileType = GetProjectileFromAmmoType();
+            Item ammoUsed;
+            int projectileType = GetProjectileFromAmmoType(player, out ammoUsed);
+
+            // Consume ammo if not magic type
+            if (!IsMagicAmmoType() && !ammoUsed.IsAir)
+            {
+                ammoUsed.stack--;
+                if (ammoUsed.stack <= 0)
+                {
+                    ammoUsed.TurnToAir();
+                }
+            }
 
             ApplyShotTypeEffects(source, spawnPosition, velocity, projectileType, damage, knockback, player);
 
             return false;
         }
 
-        private int GetProjectileFromAmmoType()
+        private int GetProjectileFromAmmoType(Player player, out Item ammoItem)
         {
-            return ammoTypeModifier switch
+            ammoItem = new Item(); // Default empty item
+
+            // Magic doesn't need ammo
+            if (IsMagicAmmoType())
             {
-                0 => ProjectileID.MagicMissile,        // Magic
-                1 => ProjectileID.WoodenArrowFriendly, // Arrow
-                2 => ProjectileID.Bullet,              // Bullet
-                3 => ProjectileID.RocketI,             // Rocket
-                4 => ProjectileID.MagicMissile,        // Elite Magic (same as basic for now)
-                5 => ProjectileID.WoodenArrowFriendly, // Elite Arrow (same as basic for now)
-                6 => ProjectileID.Bullet,              // Elite Bullet (same as basic for now)
-                7 => ProjectileID.RocketI,             // Elite Rocket (same as basic for now)
-                8 => ProjectileID.MagicMissile,        // Perfect Magic (same as basic for now)
-                9 => ProjectileID.WoodenArrowFriendly, // Perfect Arrow (same as basic for now)
-                10 => ProjectileID.Bullet,             // Perfect Bullet (same as basic for now)
-                11 => ProjectileID.RocketI,            // Perfect Rocket (same as basic for now)
-                _ => ProjectileID.WoodenArrowFriendly  // Default
+                return ProjectileID.MagicMissile; // Or whatever magic projectile you want
+            }
+
+            int requiredAmmoType = GetRequiredAmmoID();
+            if (requiredAmmoType == AmmoID.None)
+            {
+                return ProjectileID.WoodenArrowFriendly; // Fallback
+            }
+
+            // First check the 4 dedicated ammo slots (54-57)
+            for (int i = 54; i <= 57; i++)
+            {
+                Item item = player.inventory[i];
+                if (!item.IsAir && item.ammo == requiredAmmoType && item.stack > 0)
+                {
+                    ammoItem = item;
+
+                    // DEBUG: Let's see what's actually happening
+                    Main.NewText($"Found ammo: {item.Name} (ID: {item.type}) shoots projectile: {item.shoot}", Color.Yellow);
+
+                    // Get the correct projectile since vanilla data is apparently broken
+                    int correctProjectile = GetCorrectProjectileForAmmo(item);
+                    Main.NewText($"Using corrected projectile: {correctProjectile}", Color.LightGreen);
+
+                    return correctProjectile;
+                }
+            }
+
+            // Then search backwards through main inventory (53 down to 0)
+            for (int i = 53; i >= 0; i--)
+            {
+                Item item = player.inventory[i];
+                if (!item.IsAir && item.ammo == requiredAmmoType && item.stack > 0)
+                {
+                    ammoItem = item;
+
+                    // DEBUG: Let's see what's actually happening
+                    Main.NewText($"Found ammo: {item.Name} (ID: {item.type}) shoots projectile: {item.shoot}", Color.Yellow);
+
+                    // Get the correct projectile since vanilla data is apparently broken
+                    int correctProjectile = GetCorrectProjectileForAmmo(item);
+                    Main.NewText($"Using corrected projectile: {correctProjectile}", Color.LightGreen);
+
+                    return correctProjectile;
+                }
+            }
+
+            // No ammo found - return default based on ammo type
+            Main.NewText($"No ammo found for type {requiredAmmoType}, using fallback", Color.Red);
+            return GetFallbackProjectile();
+        }
+
+        private int GetCorrectProjectileForAmmo(Item ammoItem)
+        {
+            // Manual mapping
+            return ammoItem.type switch
+            {
+                // Arrows
+                ItemID.WoodenArrow => ProjectileID.WoodenArrowFriendly,
+                ItemID.FlamingArrow => ProjectileID.FlamingArrow,
+                ItemID.UnholyArrow => ProjectileID.UnholyArrow,
+                ItemID.JestersArrow => ProjectileID.JestersArrow,
+                ItemID.HellfireArrow => ProjectileID.HellfireArrow,
+                ItemID.HolyArrow => ProjectileID.HolyArrow,
+                ItemID.CursedArrow => ProjectileID.CursedArrow,
+                ItemID.FrostburnArrow => ProjectileID.FrostburnArrow,
+                ItemID.ChlorophyteArrow => ProjectileID.ChlorophyteArrow,
+                ItemID.IchorArrow => ProjectileID.IchorArrow,
+                ItemID.VenomArrow => ProjectileID.VenomArrow,
+                ItemID.BoneArrow => ProjectileID.BoneArrow,
+                ItemID.MoonlordArrow => ProjectileID.MoonlordArrow,
+
+                // Bullets
+                ItemID.MusketBall => ProjectileID.Bullet,
+                ItemID.SilverBullet => ProjectileID.SilverBullet,
+                ItemID.MeteorShot => ProjectileID.MeteorShot,
+                ItemID.PartyBullet => ProjectileID.PartyBullet,
+                ItemID.GoldenBullet => ProjectileID.GoldenBullet,
+                ItemID.HighVelocityBullet => ProjectileID.BulletHighVelocity,
+                ItemID.CrystalBullet => ProjectileID.CrystalBullet,
+                ItemID.CursedBullet => ProjectileID.CursedBullet,
+                ItemID.ChlorophyteBullet => ProjectileID.ChlorophyteBullet,
+                ItemID.IchorBullet => ProjectileID.IchorBullet,
+                ItemID.VenomBullet => ProjectileID.VenomBullet,
+                ItemID.ExplodingBullet => ProjectileID.ExplosiveBullet,
+                ItemID.EndlessMusketPouch => ProjectileID.Bullet,
+                ItemID.NanoBullet => ProjectileID.NanoBullet,
+                ItemID.MoonlordBullet => ProjectileID.MoonlordBullet,
+
+                // Rockets
+                ItemID.RocketI => ProjectileID.RocketI,
+                ItemID.RocketII => ProjectileID.RocketII,
+                ItemID.RocketIII => ProjectileID.RocketIII,
+                ItemID.RocketIV => ProjectileID.RocketIV,
+                ItemID.MiniNukeI => ProjectileID.MiniNukeRocketI,
+                ItemID.MiniNukeII => ProjectileID.MiniNukeRocketII,
+                ItemID.ClusterRocketI => ProjectileID.ClusterRocketI,
+                ItemID.ClusterRocketII => ProjectileID.ClusterRocketII,
+                ItemID.DryRocket => ProjectileID.DryRocket,
+                ItemID.WetRocket => ProjectileID.WetRocket,
+                ItemID.LavaRocket => ProjectileID.LavaRocket,
+                ItemID.HoneyRocket => ProjectileID.HoneyRocket,
+
+                _ => ammoItem.shoot
             };
+        }
+
+        private int GetRequiredAmmoID()
+        {
+            if (IsArrowAmmoType()) return AmmoID.Arrow;
+            if (IsBulletAmmoType()) return AmmoID.Bullet;
+            if (IsRocketAmmoType()) return AmmoID.Rocket;
+            return AmmoID.None;
+        }
+
+        private int GetFallbackProjectile()
+        {
+            if (IsArrowAmmoType()) return ProjectileID.WoodenArrowFriendly;
+            if (IsBulletAmmoType()) return ProjectileID.Bullet;
+            if (IsRocketAmmoType()) return ProjectileID.RocketI;
+            return ProjectileID.WoodenArrowFriendly;
         }
 
         private void ApplyShotTypeEffects(EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int projectileType, int damage, float knockback, Player player)
         {
             switch (shotTypeModifier)
             {
-                case 0: // Auto Fire - single shot (handled by useTime/autoReuse)
+                case 0: // Auto Fire
                     SpawnProjectileWithEffects(source, position, velocity, projectileType, damage, knockback, player);
                     break;
 
-                case 1: // Burst Fire - 3 projectiles with spread
+                case 1: // Burst Fire
                     for (int i = 0; i < 3; i++)
                     {
                         Vector2 perturbedSpeed = velocity.RotatedByRandom(MathHelper.ToRadians(15));
@@ -336,7 +457,7 @@ namespace TestMod.Content.Items
                     }
                     break;
 
-                case 2: // Charge Fire - single powerful shot (damage boost handled in ModifyWeaponDamage)
+                case 2: // Charge Fire
                     SpawnProjectileWithEffects(source, position, velocity, projectileType, damage, knockback, player);
                     break;
 
@@ -365,16 +486,21 @@ namespace TestMod.Content.Items
             ModifierTier specialTier = GetSpecialEffectTier();
             var globalProj = projectile.GetGlobalProjectile<Content.Projectiles.ModularProjectileEffects>();
 
-            switch (specialEffectModifier)
+            // Use modulo to get the base effect type, ignoring tier
+            int baseEffectType = specialEffectModifier % 5;
+
+            switch (baseEffectType)
             {
                 case 0: // Piercing - more penetration at higher tiers
                     int pierceAmount = (int)specialTier; // 1, 2, or 4 enemies
                     projectile.penetrate += pierceAmount;
+                    Main.NewText($"Applied piercing: +{pierceAmount} penetration (tier: {specialTier})", Color.Purple);
                     break;
 
                 case 1: // Bouncing - more bounces and better angles
                     globalProj.hasBouncing = true;
                     globalProj.bouncesLeft = (int)specialTier * 2; // 2, 4, or 8 bounces
+                    Main.NewText($"Applied bouncing: {globalProj.bouncesLeft} bounces (tier: {specialTier})", Color.Orange);
                     break;
 
                 case 2: // Homing - much stronger homing at higher tiers
@@ -383,13 +509,20 @@ namespace TestMod.Content.Items
                     globalProj.homingStrength = 0.02f * (float)specialTier * (float)specialTier / 2;
                     // Longer range: 100, 200, 400 pixels
                     globalProj.homingRange = 100 * (int)specialTier;
+                    Main.NewText($"Applied homing: strength {globalProj.homingStrength:F3}, range {globalProj.homingRange} (tier: {specialTier})", Color.Cyan);
                     break;
 
                 case 3: // Life Steal - handled in OnHitNPC with scaling
+                    Main.NewText($"Applied life steal (tier: {specialTier})", Color.Red);
                     break;
 
                 case 4: // Crit Boost - much better at higher tiers
                         // Handled in ModifyWeaponCrit
+                    Main.NewText($"Applied crit boost (tier: {specialTier})", Color.Yellow);
+                    break;
+
+                default:
+                    Main.NewText($"Unknown special effect: {baseEffectType} (modifier ID: {specialEffectModifier})", Color.Gray);
                     break;
             }
         }
@@ -444,10 +577,10 @@ namespace TestMod.Content.Items
         {
             if (!IsComplete()) return;
 
-            if (damageTypeModifier == 4) // Wind - extra knockback
+            if (damageTypeModifier == 4)
             {
                 ModifierTier damageTier = GetDamageTypeTier();
-                float knockbackBonus = 1.5f + (0.5f * ((float)damageTier - 1)); // 1.5x, 2x, or 3x
+                float knockbackBonus = 1.5f + (0.5f * ((float)damageTier - 1));
                 knockback *= knockbackBonus;
             }
         }
@@ -505,12 +638,11 @@ namespace TestMod.Content.Items
             }
             else
             {
-                Item.DamageType = DamageClass.Magic; // Default to magic if no ammo type set
+                Item.DamageType = DamageClass.Magic;
                 Item.useAmmo = AmmoID.None;
-                Item.mana = 10; // Default mana cost
+                Item.mana = 10;
             }
 
-            // Shot type timing improves with tier
             float speedBonus = 1.0f + (0.1f * ((int)shotTier - 1));
 
             switch (shotTypeModifier % 3)
@@ -519,7 +651,7 @@ namespace TestMod.Content.Items
                     int autoFrames = shotTypeModifier switch
                     {
                         0 => 8,
-                        3 => 4, 
+                        3 => 4,
                         6 => 2,
                         _ => 8
                     };
@@ -528,13 +660,13 @@ namespace TestMod.Content.Items
                     Item.autoReuse = true;
                     break;
 
-                case 1: // Burst Fire
+                case 1:
                     Item.useTime = (int)(baseUseTime / speedBonus);
                     Item.useAnimation = (int)(baseUseTime / speedBonus);
                     Item.autoReuse = false;
                     break;
 
-                case 2: // Charge Fire
+                case 2:
                     Item.useTime = (int)(baseUseTime * 2 / speedBonus);
                     Item.useAnimation = (int)(baseUseTime * 2 / speedBonus);
                     Item.autoReuse = false;
@@ -561,7 +693,7 @@ namespace TestMod.Content.Items
         {
             try
             {
-                ModContent.GetInstance<TestMod>().Logger.Info("Loading weapon data...");
+                ModContent.GetInstance<ModularWeapons>().Logger.Info("Loading weapon data...");
                 ammoTypeModifier = tag.GetInt("ammoType");
                 damageTypeModifier = tag.GetInt("damageType");
                 shotTypeModifier = tag.GetInt("shotType");
@@ -569,7 +701,7 @@ namespace TestMod.Content.Items
                 weaponTier = tag.GetString("weaponTier");
                 maxPointBudget = tag.GetInt("maxPointBudget");
 
-                ModContent.GetInstance<TestMod>().Logger.Info($"Loaded: ammo={ammoTypeModifier}, damage={damageTypeModifier}, shot={shotTypeModifier}");
+                ModContent.GetInstance<ModularWeapons>().Logger.Info($"Loaded: ammo={ammoTypeModifier}, damage={damageTypeModifier}, shot={shotTypeModifier}");
 
                 // Fallback for old saves
                 if (string.IsNullOrEmpty(weaponTier))
@@ -580,7 +712,7 @@ namespace TestMod.Content.Items
             }
             catch (System.Exception ex)
             {
-                ModContent.GetInstance<TestMod>().Logger.Error($"Error loading weapon data: {ex}");
+                ModContent.GetInstance<ModularWeapons>().Logger.Error($"Error loading weapon data: {ex}");
             }
         }
 
@@ -857,7 +989,7 @@ namespace TestMod.Content.Items
                         this.shotTypeModifier = sourceGun.shotTypeModifier;
                         this.specialEffectModifier = sourceGun.specialEffectModifier;
 
-                        ModContent.GetInstance<TestMod>().Logger.Info(
+                        ModContent.GetInstance<ModularWeapons>().Logger.Info(
                             $"Transferred modifiers from {sourceGun.weaponTier} to {this.weaponTier}: " +
                             $"ammo={ammoTypeModifier}, damage={damageTypeModifier}, shot={shotTypeModifier}, special={specialEffectModifier}"
                         );
@@ -866,7 +998,7 @@ namespace TestMod.Content.Items
                     }
                 }
 
-                ModContent.GetInstance<TestMod>().Logger.Info(
+                ModContent.GetInstance<ModularWeapons>().Logger.Info(
                     $"Crafted {weaponTier} weapon using recipe with {consumedItems.Count} consumed items"
                 );
             }

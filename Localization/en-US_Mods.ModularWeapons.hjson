@@ -1,0 +1,390 @@
+# This file will automatically update with entries for new content after a build and reload.
+
+Items: {
+	BaseModularGun: {
+		DisplayName: Base Modular Gun
+		Tooltip:
+			'''
+			Template of an item
+			Replacing this tooltip is duty 
+			It's snowing on Mt.Fuji
+			'''
+	}
+
+	AdamantiteModularGun: {
+		DisplayName: Adamantite Modular Gun
+		Tooltip: ""
+	}
+
+	ArrowAmmoModifier: {
+		DisplayName: Arrow Ammo Modifier
+		Tooltip: ""
+	}
+
+	AutoFireModifier: {
+		DisplayName: Auto Fire Modifier
+		Tooltip: ""
+	}
+
+	BasicModularComponent: {
+		DisplayName: Basic Modular Component
+		Tooltip: ""
+	}
+
+	BouncingModifier: {
+		DisplayName: Bouncing Modifier
+		Tooltip: ""
+	}
+
+	BulletAmmoModifier: {
+		DisplayName: Bullet Ammo Modifier
+		Tooltip: ""
+	}
+
+	BurstFireModifier: {
+		DisplayName: Burst Fire Modifier
+		Tooltip: ""
+	}
+
+	ChargeFireModifier: {
+		DisplayName: Charge Fire Modifier
+		Tooltip: ""
+	}
+
+	ChlorophyteModularGun: {
+		DisplayName: Chlorophyte Modular Gun
+		Tooltip: ""
+	}
+
+	CobaltModularGun: {
+		DisplayName: Cobalt Modular Gun
+		Tooltip: ""
+	}
+
+	CopperModularGun: {
+		DisplayName: Copper Modular Gun
+		Tooltip: ""
+	}
+
+	CritBoostModifier: {
+		DisplayName: Crit Boost Modifier
+		Tooltip: ""
+	}
+
+	EarthDamageModifier: {
+		DisplayName: Earth Damage Modifier
+		Tooltip: ""
+	}
+
+	EliteArrowAmmoModifier: {
+		DisplayName: Elite Arrow Ammo Modifier
+		Tooltip: ""
+	}
+
+	EliteAutoFireModifier: {
+		DisplayName: Elite Auto Fire Modifier
+		Tooltip: ""
+	}
+
+	EliteBouncingModifier: {
+		DisplayName: Elite Bouncing Modifier
+		Tooltip: ""
+	}
+
+	EliteBulletAmmoModifier: {
+		DisplayName: Elite Bullet Ammo Modifier
+		Tooltip: ""
+	}
+
+	EliteBurstFireModifier: {
+		DisplayName: Elite Burst Fire Modifier
+		Tooltip: ""
+	}
+
+	EliteChargeFireModifier: {
+		DisplayName: Elite Charge Fire Modifier
+		Tooltip: ""
+	}
+
+	EliteCritBoostModifier: {
+		DisplayName: Elite Crit Boost Modifier
+		Tooltip: ""
+	}
+
+	EliteEarthDamageModifier: {
+		DisplayName: Elite Earth Damage Modifier
+		Tooltip: ""
+	}
+
+	EliteFireDamageModifier: {
+		DisplayName: Elite Fire Damage Modifier
+		Tooltip: ""
+	}
+
+	EliteHomingModifier: {
+		DisplayName: Elite Homing Modifier
+		Tooltip: ""
+	}
+
+	EliteLifeStealModifier: {
+		DisplayName: Elite Life Steal Modifier
+		Tooltip: ""
+	}
+
+	EliteLightningDamageModifier: {
+		DisplayName: Elite Lightning Damage Modifier
+		Tooltip: ""
+	}
+
+	EliteMagicAmmoModifier: {
+		DisplayName: Elite Magic Ammo Modifier
+		Tooltip: ""
+	}
+
+	EliteModularComponent: {
+		DisplayName: Elite Modular Component
+		Tooltip: ""
+	}
+
+	ElitePiercingModifier: {
+		DisplayName: Elite Piercing Modifier
+		Tooltip: ""
+	}
+
+	EliteRocketAmmoModifier: {
+		DisplayName: Elite Rocket Ammo Modifier
+		Tooltip: ""
+	}
+
+	EliteSlimeDamageModifier: {
+		DisplayName: Elite Slime Damage Modifier
+		Tooltip: ""
+	}
+
+	EliteWaterDamageModifier: {
+		DisplayName: Elite Water Damage Modifier
+		Tooltip: ""
+	}
+
+	EliteWindDamageModifier: {
+		DisplayName: Elite Wind Damage Modifier
+		Tooltip: ""
+	}
+
+	FireDamageModifier: {
+		DisplayName: Fire Damage Modifier
+		Tooltip: ""
+	}
+
+	GoldModularGun: {
+		DisplayName: Gold Modular Gun
+		Tooltip: ""
+	}
+
+	HallowedModularGun: {
+		DisplayName: Hallowed Modular Gun
+		Tooltip: ""
+	}
+
+	HomingModifier: {
+		DisplayName: Homing Modifier
+		Tooltip: ""
+	}
+
+	IronModularGun: {
+		DisplayName: Iron Modular Gun
+		Tooltip: ""
+	}
+
+	LeadModularGun: {
+		DisplayName: Lead Modular Gun
+		Tooltip: ""
+	}
+
+	LifeStealModifier: {
+		DisplayName: Life Steal Modifier
+		Tooltip: ""
+	}
+
+	LightningDamageModifier: {
+		DisplayName: Lightning Damage Modifier
+		Tooltip: ""
+	}
+
+	LuminiteModularGun: {
+		DisplayName: Luminite Modular Gun
+		Tooltip: ""
+	}
+
+	MagicAmmoModifier: {
+		DisplayName: Magic Ammo Modifier
+		Tooltip: ""
+	}
+
+	ModifierStationItem: {
+		DisplayName: Modifier Station Item
+		Tooltip: ""
+	}
+
+	MythrilModularGun: {
+		DisplayName: Mythril Modular Gun
+		Tooltip: ""
+	}
+
+	OrichalcumModularGun: {
+		DisplayName: Orichalcum Modular Gun
+		Tooltip: ""
+	}
+
+	PalladiumModularGun: {
+		DisplayName: Palladium Modular Gun
+		Tooltip: ""
+	}
+
+	PerfectArrowAmmoModifier: {
+		DisplayName: Perfect Arrow Ammo Modifier
+		Tooltip: ""
+	}
+
+	PerfectAutoFireModifier: {
+		DisplayName: Perfect Auto Fire Modifier
+		Tooltip: ""
+	}
+
+	PerfectBouncingModifier: {
+		DisplayName: Perfect Bouncing Modifier
+		Tooltip: ""
+	}
+
+	PerfectBulletAmmoModifier: {
+		DisplayName: Perfect Bullet Ammo Modifier
+		Tooltip: ""
+	}
+
+	PerfectBurstFireModifier: {
+		DisplayName: Perfect Burst Fire Modifier
+		Tooltip: ""
+	}
+
+	PerfectChargeFireModifier: {
+		DisplayName: Perfect Charge Fire Modifier
+		Tooltip: ""
+	}
+
+	PerfectCritBoostModifier: {
+		DisplayName: Perfect Crit Boost Modifier
+		Tooltip: ""
+	}
+
+	PerfectEarthDamageModifier: {
+		DisplayName: Perfect Earth Damage Modifier
+		Tooltip: ""
+	}
+
+	PerfectFireDamageModifier: {
+		DisplayName: Perfect Fire Damage Modifier
+		Tooltip: ""
+	}
+
+	PerfectHomingModifier: {
+		DisplayName: Perfect Homing Modifier
+		Tooltip: ""
+	}
+
+	PerfectLifeStealModifier: {
+		DisplayName: Perfect Life Steal Modifier
+		Tooltip: ""
+	}
+
+	PerfectLightningDamageModifier: {
+		DisplayName: Perfect Lightning Damage Modifier
+		Tooltip: ""
+	}
+
+	PerfectMagicAmmoModifier: {
+		DisplayName: Perfect Magic Ammo Modifier
+		Tooltip: ""
+	}
+
+	PerfectModularComponent: {
+		DisplayName: Perfect Modular Component
+		Tooltip: ""
+	}
+
+	PerfectPiercingModifier: {
+		DisplayName: Perfect Piercing Modifier
+		Tooltip: ""
+	}
+
+	PerfectRocketAmmoModifier: {
+		DisplayName: Perfect Rocket Ammo Modifier
+		Tooltip: ""
+	}
+
+	PerfectSlimeDamageModifier: {
+		DisplayName: Perfect Slime Damage Modifier
+		Tooltip: ""
+	}
+
+	PerfectWaterDamageModifier: {
+		DisplayName: Perfect Water Damage Modifier
+		Tooltip: ""
+	}
+
+	PerfectWindDamageModifier: {
+		DisplayName: Perfect Wind Damage Modifier
+		Tooltip: ""
+	}
+
+	PiercingModifier: {
+		DisplayName: Piercing Modifier
+		Tooltip: ""
+	}
+
+	PlatinumModularGun: {
+		DisplayName: Platinum Modular Gun
+		Tooltip: ""
+	}
+
+	RocketAmmoModifier: {
+		DisplayName: Rocket Ammo Modifier
+		Tooltip: ""
+	}
+
+	SilverModularGun: {
+		DisplayName: Silver Modular Gun
+		Tooltip: ""
+	}
+
+	SlimeDamageModifier: {
+		DisplayName: Slime Damage Modifier
+		Tooltip: ""
+	}
+
+	TinModularGun: {
+		DisplayName: Tin Modular Gun
+		Tooltip: ""
+	}
+
+	TitaniumModularGun: {
+		DisplayName: Titanium Modular Gun
+		Tooltip: ""
+	}
+
+	TungstenModularGun: {
+		DisplayName: Tungsten Modular Gun
+		Tooltip: ""
+	}
+
+	WaterDamageModifier: {
+		DisplayName: Water Damage Modifier
+		Tooltip: ""
+	}
+
+	WindDamageModifier: {
+		DisplayName: Wind Damage Modifier
+		Tooltip: ""
+	}
+}
+
+Tiles.ModifierStation.MapEntry: Modifier Station
